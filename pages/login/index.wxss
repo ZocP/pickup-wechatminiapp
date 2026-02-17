@@ -1,0 +1,20 @@
+.login-page {
+  padding: 32rpx;
+}
+
+.login-card {
+  margin-top: 120rpx;
+}
+
+.title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #323233;
+  margin-bottom: 8rpx;
+}
+
+.subtitle {
+  font-size: 24rpx;
+  color: #646566;
+  margin-bottom: 18rpx;
+}

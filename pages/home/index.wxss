@@ -1,0 +1,41 @@
+.home-page {
+  padding: 24rpx;
+}
+
+.welcome-card {
+  margin-bottom: 20rpx;
+}
+
+.title {
+  font-size: 34rpx;
+  font-weight: 700;
+  margin-bottom: 10rpx;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  color: #646566;
+  font-size: 24rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 14rpx;
+}
+
+.apply-entry {
+  width: 100%;
+}
+
+.summary-line {
+  font-size: 26rpx;
+  color: #323233;
+  margin-top: 8rpx;
+}
+
+.summary-empty {
+  font-size: 24rpx;
+  color: #969799;
+}

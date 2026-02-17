@@ -1,0 +1,87 @@
+<view class="shift-card">
+  <view class="header">
+    <view class="header-left">
+      <text class="departure">{{headerTime}}</text>
+      <text class="flights">{{flightsText}}</text>
+    </view>
+    <view class="header-right">
+      <van-tag type="{{statusType}}" plain>{{statusText}}</van-tag>
+      <van-tag wx:if="{{hasDelayWarning}}" type="danger" custom-class="warn-tag">延误预警</van-tag>
+    </view>
+  </view>
+
+  <view class="body">
+    <view class="row driver-row">
+      <text class="label">司机</text>
+      <text class="value">{{driverText}}</text>
+    </view>
+
+    <van-notice-bar
+      wx:if="{{showRouteNotice}}"
+      left-icon="volume-o"
+      text="路线: {{routeText}}"
+      color="#ee0a24"
+      background="#fff1f0"
+    />
+
+    <view class="staffs" wx:if="{{staffs.length}}">
+      <text class="section-title">随行成员</text>
+      <view class="staff-tags">
+        <van-tag
+          wx:for="{{staffs}}"
+          wx:key="id"
+          type="primary"
+          plain
+          custom-class="staff-tag"
+        >
+          <van-icon name="star" size="12px" />
+          <text class="staff-text"> {{item.role || '志愿者'}}-{{item.name || ('成员#' + item.id)}}</text>
+        </van-tag>
+      </view>
+    </view>
+
+    <view class="resource">
+      <view class="resource-row">
+        <text class="resource-title">{{seatUsage.label}}</text>
+        <text class="resource-value overload-{{seatUsage.isOverload}}">{{seatUsage.used}} / {{seatUsage.max}} {{seatUsage.overloadText}}</text>
+      </view>
+      <van-progress
+        percentage="{{seatUsage.percent}}"
+        stroke-width="8"
+        color="{{seatUsage.color}}"
+        pivot-text=""
+      />
+
+      <view class="resource-row top-gap">
+        <text class="resource-title">{{checkedUsage.label}}</text>
+        <text class="resource-value overload-{{checkedUsage.isOverload}}">{{checkedUsage.used}} / {{checkedUsage.max}} {{checkedUsage.overloadText}}</text>
+      </view>
+      <van-progress
+        percentage="{{checkedUsage.percent}}"
+        stroke-width="8"
+        color="{{checkedUsage.color}}"
+        pivot-text=""
+      />
+
+      <view class="resource-row top-gap">
+        <text class="resource-title">{{carryOnUsage.label}}</text>
+        <text class="resource-value overload-{{carryOnUsage.isOverload}}">{{carryOnUsage.used}} / {{carryOnUsage.max}} {{carryOnUsage.overloadText}}</text>
+      </view>
+      <van-progress
+        percentage="{{carryOnUsage.percent}}"
+        stroke-width="8"
+        color="{{carryOnUsage.color}}"
+        pivot-text=""
+      />
+    </view>
+  </view>
+
+  <view class="footer">
+    <van-button
+      size="small"
+      type="primary"
+      plain
+      bind:tap="onTapManageShift"
+    >管理班次</van-button>
+  </view>
+</view>

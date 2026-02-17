@@ -1,0 +1,19 @@
+<view class="page login-page">
+  <view class="card login-card">
+    <view class="title">UIUC 接机调度系统</view>
+    <view class="subtitle">请先完成微信登录</view>
+
+    <van-notice-bar
+      left-icon="info-o"
+      text="点击按钮完成微信登录"
+    />
+
+    <van-button
+      type="primary"
+      block
+      loading="{{loading}}"
+      custom-style="margin-top: 24rpx;"
+      bind:tap="onLogin"
+    >微信登录</van-button>
+  </view>
+</view>

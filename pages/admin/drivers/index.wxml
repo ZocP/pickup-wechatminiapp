@@ -1,0 +1,59 @@
+<view class="page drivers-page">
+  <view class="card">
+    <view class="section-title">司机列表</view>
+
+    <view wx:if="{{!loading && driverList.length === 0}}">
+      <van-empty description="暂无司机数据" />
+    </view>
+
+    <van-cell-group inset wx:else>
+      <van-cell wx:for="{{driverList}}" wx:key="id" title="{{item.name}}" label="{{item.car_model}}">
+        <view slot="right-icon" class="caps-wrap">
+          <van-tag plain type="primary">座位:{{item.max_seats}}</van-tag>
+          <van-tag plain type="success">托运:{{item.max_checked}}</van-tag>
+          <van-tag plain type="warning">登机:{{item.max_carry_on}}</van-tag>
+        </view>
+      </van-cell>
+    </van-cell-group>
+  </view>
+
+  <view class="add-driver-bar">
+    <van-button type="primary" block bind:tap="onShowAddDriver">录入新司机/车辆</van-button>
+  </view>
+
+  <van-popup show="{{showAddPopup}}" position="bottom" round bind:close="onCloseAddDriver">
+    <view class="add-popup">
+      <view class="popup-title">录入新司机/车辆</view>
+
+      <van-field
+        label="姓名"
+        placeholder="请输入司机姓名"
+        value="{{form.name}}"
+        data-field="name"
+        bind:change="onFieldChange"
+      />
+      <van-field
+        label="车型"
+        placeholder="请输入车型"
+        value="{{form.car_model}}"
+        data-field="car_model"
+        bind:change="onFieldChange"
+      />
+
+      <view class="stepper-row">
+        <text class="stepper-label">最大座位数</text>
+        <van-stepper min="1" value="{{form.max_seats}}" bind:change="onSeatsChange" />
+      </view>
+      <view class="stepper-row">
+        <text class="stepper-label">最大托运箱</text>
+        <van-stepper min="0" value="{{form.max_checked}}" bind:change="onCheckedChange" />
+      </view>
+      <view class="stepper-row">
+        <text class="stepper-label">最大登机箱</text>
+        <van-stepper min="0" value="{{form.max_carry_on}}" bind:change="onCarryOnChange" />
+      </view>
+
+      <van-button type="info" block loading="{{submitting}}" custom-style="margin-top: 24rpx;" bind:tap="onSubmitDriver">确认提交</van-button>
+    </view>
+  </van-popup>
+</view>

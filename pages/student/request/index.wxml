@@ -1,0 +1,107 @@
+<view class="page request-page">
+  <view class="card" wx:if="{{!hasSubmitted}}">
+    <view class="section-title">提交接机申请</view>
+    <van-cell-group inset>
+      <van-field
+        label="真实姓名"
+        placeholder="请输入你的真实姓名"
+        value="{{form.real_name}}"
+        data-field="real_name"
+        bind:change="onFieldChange"
+      />
+      <van-field
+        label="航班号"
+        placeholder="如 UA851"
+        value="{{form.flight_no}}"
+        data-field="flight_no"
+        bind:change="onFieldChange"
+      />
+      <van-field
+        label="落地日期"
+        placeholder="请选择日期"
+        value="{{form.arrival_date}}"
+        readonly
+        is-link
+        bind:click-input="openDatePicker"
+      />
+      <van-field
+        label="航站楼"
+        placeholder="如 T5"
+        value="{{form.terminal}}"
+        data-field="terminal"
+        bind:change="onFieldChange"
+      />
+      <van-field
+        label="预计落地时间"
+        placeholder="请选择时间"
+        value="{{form.arrival_time}}"
+        readonly
+        is-link
+        bind:click-input="openTimePicker"
+      />
+      <view class="stepper-row">
+        <text class="stepper-label">托运箱数量</text>
+        <van-stepper value="{{form.checked_bags}}" min="0" bind:change="onStepperCheckedChange" />
+      </view>
+      <view class="stepper-row">
+        <text class="stepper-label">登机箱数量</text>
+        <van-stepper value="{{form.carry_on_bags}}" min="0" bind:change="onStepperCarryOnChange" />
+      </view>
+    </van-cell-group>
+
+    <van-button
+      type="primary"
+      block
+      loading="{{submitting}}"
+      custom-style="margin-top: 24rpx;"
+      bind:tap="onSubmit"
+    >提交申请</van-button>
+  </view>
+
+  <view class="card" wx:else>
+    <view class="section-title">提交接机申请</view>
+    <view class="submit-locked">你已提交过申请，当前仅可查看申请状态追踪。</view>
+  </view>
+
+  <view class="card tracker-card">
+    <view class="section-title">申请状态追踪</view>
+
+    <view wx:if="{{!latestRequest}}">
+      <van-empty description="暂无申请记录" />
+    </view>
+
+    <view wx:else>
+      <van-steps steps="{{trackSteps}}" active="{{activeStep}}" direction="horizontal" />
+
+      <view class="latest">
+        <text>当前航班：{{latestRequest.flight_no}}</text>
+        <van-tag type="primary" plain custom-style="margin-left: 12rpx;">{{latestRequest.status}}</van-tag>
+      </view>
+
+      <view wx:if="{{assignedShift}}" class="assigned card-inner">
+        <view class="inner-title">已分配车辆信息</view>
+        <view class="line">司机：{{assignedShift.driver.name || '--'}}</view>
+        <view class="line">车型：{{assignedShift.driver.car_model || '--'}}</view>
+        <view class="line">集合点：Terminal {{latestRequest.terminal || '--'}}</view>
+        <view class="line">出发时间：{{assignedShift.departure_time || '--'}}</view>
+      </view>
+    </view>
+  </view>
+
+  <van-calendar
+    show="{{showDatePicker}}"
+    type="single"
+    bind:close="onDatePickerClose"
+    bind:confirm="onDateConfirm"
+  />
+
+  <van-popup show="{{showTimePicker}}" position="bottom" bind:close="onTimePickerCancel">
+    <van-datetime-picker
+      type="time"
+      value="{{timePickerValue}}"
+      title="选择时间"
+      bind:cancel="onTimePickerCancel"
+      bind:confirm="onTimeConfirm"
+    />
+  </van-popup>
+</view>

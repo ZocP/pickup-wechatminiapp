@@ -1,0 +1,46 @@
+.drivers-page {
+  padding: 24rpx;
+  padding-bottom: 140rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+
+.caps-wrap {
+  display: flex;
+  gap: 8rpx;
+}
+
+.add-driver-bar {
+  position: fixed;
+  left: 24rpx;
+  right: 24rpx;
+  bottom: 24rpx;
+}
+
+.add-popup {
+  padding: 24rpx;
+  padding-bottom: 36rpx;
+}
+
+.popup-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 18rpx;
+}
+
+.stepper-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f1f3f5;
+}
+
+.stepper-label {
+  font-size: 28rpx;
+  color: #323233;
+}

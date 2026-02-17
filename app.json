@@ -1,0 +1,50 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/admin/dashboard/index",
+    "pages/admin/shift-detail/index",
+    "pages/admin/drivers/index",
+    "pages/admin/staff/index",
+    "pages/profile/index",
+    "pages/student/request/index",
+    "pages/login/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "UIUC 接机调度",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f7f8fa",
+    "backgroundTextStyle": "light",
+    "enablePullDownRefresh": true
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "tabBar": {
+    "custom": true,
+    "color": "#646566",
+    "selectedColor": "#1989fa",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页",
+        "iconPath": "assets/tabbar/home.png",
+        "selectedIconPath": "assets/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/admin/dashboard/index",
+        "text": "大盘",
+        "iconPath": "assets/tabbar/dashboard.png",
+        "selectedIconPath": "assets/tabbar/dashboard-active.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "assets/tabbar/profile.png",
+        "selectedIconPath": "assets/tabbar/profile-active.png"
+      }
+    ]
+  }
+}

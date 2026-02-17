@@ -1,0 +1,10 @@
+{
+  "component": true,
+  "usingComponents": {
+    "van-tag": "/miniprogram_npm/@vant/weapp/dist/tag/index",
+    "van-notice-bar": "/miniprogram_npm/@vant/weapp/dist/notice-bar/index",
+    "van-progress": "/miniprogram_npm/@vant/weapp/dist/progress/index",
+    "van-button": "/miniprogram_npm/@vant/weapp/dist/button/index",
+    "van-icon": "/miniprogram_npm/@vant/weapp/dist/icon/index"
+  }
+}

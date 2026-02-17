@@ -1,0 +1,21 @@
+.profile-page {
+  padding: 24rpx;
+}
+
+.section {
+  margin-top: 18rpx;
+}
+
+.name {
+  font-size: 34rpx;
+  font-weight: 700;
+  margin-bottom: 12rpx;
+}
+
+.meta {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #646566;
+  display: flex;
+  align-items: center;
+}

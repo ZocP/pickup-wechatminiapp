@@ -1,0 +1,123 @@
+.shift-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.06);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16rpx;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.departure {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #323233;
+}
+
+.flights {
+  font-size: 24rpx;
+  color: #646566;
+}
+
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8rpx;
+}
+
+.warn-tag {
+  margin-top: 2rpx;
+}
+
+.body {
+  margin-top: 20rpx;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.label {
+  width: 96rpx;
+  font-size: 24rpx;
+  color: #969799;
+}
+
+.value {
+  flex: 1;
+  font-size: 26rpx;
+  color: #323233;
+}
+
+.staffs,
+.resource {
+  margin-top: 16rpx;
+}
+
+.section-title {
+  display: block;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #323233;
+  margin-bottom: 10rpx;
+}
+
+.staff-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.staff-tag {
+  margin: 0;
+}
+
+.staff-text {
+  font-size: 22rpx;
+}
+
+.resource-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.top-gap {
+  margin-top: 14rpx;
+}
+
+.resource-title {
+  font-size: 24rpx;
+  color: #323233;
+}
+
+.resource-value {
+  font-size: 22rpx;
+  color: #646566;
+}
+
+.overload-true {
+  color: #ee0a24;
+  font-weight: 600;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20rpx;
+}

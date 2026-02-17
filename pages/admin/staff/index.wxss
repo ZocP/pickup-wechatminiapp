@@ -1,0 +1,15 @@
+.staff-page {
+	padding: 24rpx;
+}
+
+.section-title {
+	font-size: 30rpx;
+	font-weight: 600;
+	margin-bottom: 16rpx;
+}
+
+.right-wrap {
+	display: flex;
+	align-items: center;
+	gap: 10rpx;
+}

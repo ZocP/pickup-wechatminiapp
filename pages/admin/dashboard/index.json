@@ -1,0 +1,18 @@
+{
+  "navigationBarTitleText": "调度大盘",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "van-grid": "/miniprogram_npm/@vant/weapp/dist/grid/index",
+    "van-grid-item": "/miniprogram_npm/@vant/weapp/dist/grid-item/index",
+    "van-button": "/miniprogram_npm/@vant/weapp/dist/button/index",
+    "van-action-sheet": "/miniprogram_npm/@vant/weapp/dist/action-sheet/index",
+    "van-popup": "/miniprogram_npm/@vant/weapp/dist/popup/index",
+    "van-field": "/miniprogram_npm/@vant/weapp/dist/field/index",
+    "van-cell-group": "/miniprogram_npm/@vant/weapp/dist/cell-group/index",
+    "van-picker": "/miniprogram_npm/@vant/weapp/dist/picker/index",
+    "van-datetime-picker": "/miniprogram_npm/@vant/weapp/dist/datetime-picker/index",
+    "van-empty": "/miniprogram_npm/@vant/weapp/dist/empty/index",
+    "van-tag": "/miniprogram_npm/@vant/weapp/dist/tag/index",
+    "shift-card": "/components/shift-card/index"
+  }
+}

@@ -1,0 +1,35 @@
+<view class="page profile-page">
+  <view class="card">
+    <view class="name">{{userInfo.name || ('用户#' + (userInfo.id || '--'))}}</view>
+    <view class="meta">
+      <text>角色</text>
+      <van-tag type="primary" plain custom-style="margin-left: 12rpx;">{{userInfo.role || 'student'}}</van-tag>
+    </view>
+    <view class="meta">
+      <text>手机号：{{userInfo.phone || '--'}}</text>
+    </view>
+  </view>
+
+  <view class="card section">
+    <van-cell-group inset>
+      <van-cell title="我的接机申请" is-link bind:click="goStudentRequest" />
+    </van-cell-group>
+
+    <van-button
+      wx:if="{{isAdminReal}}"
+      type="primary"
+      plain
+      block
+      custom-style="margin-top: 18rpx;"
+      bind:tap="toggleUserView"
+    >{{viewAsUser ? '恢复管理员视角' : '切换为用户视角'}}</van-button>
+
+    <van-button
+      type="danger"
+      plain
+      block
+      custom-style="margin-top: 22rpx;"
+      bind:tap="logout"
+    >退出登录</van-button>
+  </view>
+</view>

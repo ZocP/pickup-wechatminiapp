@@ -1,0 +1,137 @@
+<view class="page shift-detail-page">
+  <van-sticky>
+    <view class="header-card">
+      <view class="header-row-base">
+        <view class="header-time">{{headerTime}}</view>
+        <van-tag type="{{statusTagType}}" plain>{{statusText}}</van-tag>
+      </view>
+      <view class="header-row-meta">
+        <view class="header-driver">司机：{{driverText}}</view>
+        <van-tag plain type="primary" size="medium">{{terminalRoute || '暂无路线'}}</van-tag>
+      </view>
+
+      <view class="resource-block">
+        <view class="resource-line">
+          <text class="resource-label">座位</text>
+          <view class="resource-progress">
+            <van-progress percentage="{{seatUsage.percent}}" color="{{seatUsage.color}}" pivot-text="" stroke-width="8" />
+          </view>
+          <text class="resource-value">{{seatUsage.used}} / {{seatUsage.max}}</text>
+        </view>
+
+        <view class="resource-line">
+          <text class="resource-label">托运</text>
+          <view class="resource-progress">
+            <van-progress percentage="{{checkedUsage.percent}}" color="{{checkedUsage.color}}" pivot-text="" stroke-width="8" />
+          </view>
+          <text class="resource-value">{{checkedUsage.used}} / {{checkedUsage.max}}</text>
+        </view>
+
+        <view class="resource-line">
+          <text class="resource-label">登机</text>
+          <view class="resource-progress">
+            <van-progress percentage="{{carryOnUsage.percent}}" color="{{carryOnUsage.color}}" pivot-text="" stroke-width="8" />
+          </view>
+          <text class="resource-value">{{carryOnUsage.used}} / {{carryOnUsage.max}}</text>
+        </view>
+      </view>
+    </view>
+  </van-sticky>
+
+  <van-tabs active="{{activeTab}}" bind:change="onTabChange" sticky="false">
+    <van-tab title="车上乘客 ({{onboardCount}})">
+      <view class="tab-panel">
+        <view wx:if="{{onboardCount === 0}}" class="card">
+          <van-empty description="车上暂无乘客" />
+        </view>
+
+        <view wx:else class="card">
+          <view wx:for="{{onboardGroups}}" wx:key="key" class="group-block">
+            <view class="group-header">{{item.label}}（{{item.count}}）</view>
+            <view class="list-wrap">
+              <view wx:for="{{item.items}}" wx:for-item="passenger" wx:key="id" class="passenger-item list-item-container">
+                <view class="passenger-left">
+                  <view class="passenger-top">
+                    <text class="passenger-name">{{passenger.name}}</text>
+                    <text class="passenger-meta">{{passenger.flight_no}} | {{passenger.terminal || '--'}}</text>
+                  </view>
+                  <view class="passenger-sub">预计上车: {{passenger.pickup_time_text || '--'}}</view>
+                  <view class="passenger-sub">行李: {{passenger.checked_luggage_count || 0}}托 {{passenger.carryon_luggage_count || 0}}登</view>
+                </view>
+                <view class="passenger-right">
+                  <van-button
+                    type="danger"
+                    size="small"
+                    round
+                    plain
+                    custom-class="action-btn"
+                    loading="{{actingRequestId === passenger.id}}"
+                    data-id="{{passenger.id}}"
+                    bind:tap="onRemovePassenger"
+                  >移出</van-button>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </van-tab>
+
+    <van-tab title="待分配池">
+      <view class="tab-panel">
+        <van-dropdown-menu>
+          <van-dropdown-item value="{{terminalFilter}}" options="{{terminalOptions}}" bind:change="onTerminalChange" />
+          <van-dropdown-item value="{{dayFilter}}" options="{{dayOptions}}" bind:change="onDayChange" />
+        </van-dropdown-menu>
+
+        <view class="card pending-card">
+          <view wx:if="{{pendingView.length === 0}}">
+            <van-empty description="暂无可分配乘客" />
+          </view>
+
+          <view wx:for="{{pendingGroups}}" wx:key="key" class="group-block">
+            <view class="group-header">{{item.label}}（{{item.count}}）</view>
+            <view class="list-wrap">
+              <view wx:for="{{item.items}}" wx:for-item="passenger" wx:key="id" class="passenger-item list-item-container">
+                <view class="passenger-left">
+                  <view class="passenger-top">
+                    <text class="passenger-name">{{passenger.name}}</text>
+                    <text class="passenger-meta">{{passenger.flight_no}} | {{passenger.terminal || '--'}}</text>
+                  </view>
+                  <view class="passenger-sub">预计上车: {{passenger.pickup_time_text || '--'}}</view>
+                  <view class="passenger-sub">行李: {{passenger.checked_luggage_count || 0}}托 {{passenger.carryon_luggage_count || 0}}登</view>
+                  <view class="pending-tip-row">
+                    <van-tag wx:if="{{passenger.recommended}}" type="success" plain>推荐</van-tag>
+                    <van-tag wx:if="{{passenger.late}}" type="danger" plain>已错过</van-tag>
+                  </view>
+                </view>
+                <view class="passenger-right">
+                  <van-button
+                    type="primary"
+                    size="small"
+                    round
+                    custom-class="action-btn"
+                    disabled="{{passenger.late}}"
+                    loading="{{actingRequestId === passenger.id}}"
+                    data-id="{{passenger.id}}"
+                    bind:tap="onAddPassenger"
+                  >添加</van-button>
+                </view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </van-tab>
+  </van-tabs>
+
+  <view class="bottom-bar">
+    <van-button
+      type="warning"
+      block
+      disabled="{{!canPublish}}"
+      loading="{{publishing}}"
+      bind:tap="onPublishShift"
+    >{{publishButtonText}}</van-button>
+  </view>
+</view>

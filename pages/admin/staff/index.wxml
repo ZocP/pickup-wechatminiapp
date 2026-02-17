@@ -1,0 +1,30 @@
+<view class="page staff-page">
+	<view class="card">
+		<view class="section-title">用户角色管理</view>
+
+		<view wx:if="{{!loading && userList.length === 0}}">
+			<van-empty description="暂无用户数据" />
+		</view>
+
+		<van-cell-group inset wx:else>
+			<van-cell wx:for="{{userList}}" wx:key="id" title="{{item.name || ('用户#' + item.id)}}" label="手机号：{{item.phone || '--'}}">
+				<view slot="right-icon" class="right-wrap">
+					<van-tag
+						type="{{item.role === 'admin' ? 'danger' : (item.role === 'staff' ? 'success' : 'primary')}}"
+						plain
+					>{{item.role || 'student'}}</van-tag>
+					<van-button
+						wx:if="{{item.role !== 'admin'}}"
+						size="mini"
+						type="{{item.role === 'staff' ? 'warning' : 'primary'}}"
+						plain
+						loading="{{actingUserId === item.id}}"
+						data-id="{{item.id}}"
+						data-role="{{item.role}}"
+						bind:tap="onToggleStaff"
+					>{{item.role === 'staff' ? '取消Staff' : '设为Staff'}}</van-button>
+				</view>
+			</van-cell>
+		</van-cell-group>
+	</view>
+</view>

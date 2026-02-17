@@ -1,0 +1,907 @@
+openapi: 3.0.3
+info:
+  title: UIUC Pickup Scheduler API
+  version: 2.0.0
+  description: |
+    Backend API for the UIUC international student pickup scheduling workflow.
+    This spec reflects the active routes under `/api/v1` in the current codebase.
+servers:
+  - url: http://localhost:9090/api/v1
+    description: Local
+  - url: https://api.example.com/api/v1
+    description: Production example
+
+tags:
+  - name: Health
+  - name: Auth
+  - name: Student
+  - name: Admin
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login with WeChat code
+      description: Creates/loads a student user and returns JWT.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/bind-phone:
+    post:
+      tags: [Auth]
+      summary: Bind phone number by WeChat phone code
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BindPhoneRequest'
+      responses:
+        '200':
+          description: Bind success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current user profile from JWT
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /student/requests:
+    post:
+      tags: [Student]
+      summary: Create pickup request
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRequestInput'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /student/requests/my:
+    get:
+      tags: [Student]
+      summary: List my pickup requests
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Request'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /student/requests/{id}:
+    put:
+      tags: [Student]
+      summary: Update pending pickup request
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRequestInput'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/drivers:
+    get:
+      tags: [Admin]
+      summary: List drivers
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Driver'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+    post:
+      tags: [Admin]
+      summary: Create driver capacity profile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDriverRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/drivers/{id}:
+    put:
+      tags: [Admin]
+      summary: Update driver capacity profile
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDriverRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/shifts/dashboard:
+    get:
+      tags: [Admin]
+      summary: Get shift dashboard
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Shift'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/requests/pending:
+    get:
+      tags: [Admin]
+      summary: List pending student requests
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Request'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/users:
+    get:
+      tags: [Admin]
+      summary: List users for role management
+      description: Admin-only user list used by staff management UI.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/users/{id}/set-staff:
+    post:
+      tags: [Admin]
+      summary: Set a user role to staff
+      description: Admin-only operation. Promotes target user role to `staff`.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/users/{id}/unset-staff:
+    post:
+      tags: [Admin]
+      summary: Cancel staff role for a user
+      description: Admin-only operation. Demotes target user from `staff` to `student`.
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/shifts:
+    post:
+      tags: [Admin]
+      summary: Create shift
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateShiftRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shift'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/shifts/{id}:
+    put:
+      tags: [Admin]
+      summary: Update shift driver/departure time
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateShiftRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shift'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/shifts/{id}/assign-student:
+    post:
+      tags: [Admin]
+      summary: Assign student request to shift (transactional)
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignStudentRequest'
+      responses:
+        '200':
+          description: Assigned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignStudentResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/shifts/{id}/remove-student:
+    post:
+      tags: [Admin]
+      summary: Remove student request from shift
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignStudentRequest'
+      responses:
+        '200':
+          description: Removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/shifts/{id}/assign-staff:
+    post:
+      tags: [Admin]
+      summary: Assign staff/admin user to shift (admin only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignStaffRequest'
+      responses:
+        '200':
+          description: Assigned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/shifts/{id}/remove-staff:
+    post:
+      tags: [Admin]
+      summary: Remove staff/admin user from shift
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignStaffRequest'
+      responses:
+        '200':
+          description: Removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/shifts/{id}/publish:
+    post:
+      tags: [Admin]
+      summary: Publish shift and linked requests
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Published
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: unauthorized
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: ok
+
+    LoginRequest:
+      type: object
+      required: [code]
+      properties:
+        code:
+          type: string
+          example: 021Xxxyyyzzz
+
+    BindPhoneRequest:
+      type: object
+      required: [phone_code]
+      properties:
+        phone_code:
+          type: string
+          example: 1234567890
+
+    LoginResult:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        user:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        open_id:
+          type: string
+          example: oAbCdEf123456
+        name:
+          type: string
+          example: wx_user
+        phone:
+          type: string
+          example: '2175550000'
+        role:
+          type: string
+          enum: [student, staff, admin]
+          example: student
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Driver:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Driver A
+        car_model:
+          type: string
+          example: Toyota Sienna
+        max_seats:
+          type: integer
+          example: 6
+        max_checked:
+          type: integer
+          example: 8
+        max_carry_on:
+          type: integer
+          example: 8
+
+    Request:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        flight_no:
+          type: string
+          example: UA881
+        arrival_date:
+          type: string
+          format: date-time
+        terminal:
+          type: string
+          example: T5
+        checked_bags:
+          type: integer
+          example: 1
+        carry_on_bags:
+          type: integer
+          example: 1
+        status:
+          type: string
+          enum: [pending, assigned, published]
+        arrival_time_api:
+          type: string
+          format: date-time
+          nullable: true
+        pickup_buffer:
+          type: integer
+          example: 90
+        calc_pickup_time:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        shift:
+          $ref: '#/components/schemas/Shift'
+
+    Shift:
+      type: object
+      properties:
+        id:
+          type: integer
+        driver_id:
+          type: integer
+        departure_time:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [draft, published]
+        created_at:
+          type: string
+          format: date-time
+        driver:
+          $ref: '#/components/schemas/Driver'
+        requests:
+          type: array
+          items:
+            $ref: '#/components/schemas/Request'
+        staffs:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+
+    CreateRequestInput:
+      type: object
+      required: [flight_no, arrival_date, terminal, expected_arrival_time]
+      properties:
+        flight_no:
+          type: string
+          example: UA881
+        arrival_date:
+          type: string
+          description: Format `YYYY-MM-DD`
+          example: '2026-03-01'
+        terminal:
+          type: string
+          example: T5
+        checked_bags:
+          type: integer
+          default: 0
+        carry_on_bags:
+          type: integer
+          default: 0
+        expected_arrival_time:
+          type: string
+          description: Format `YYYY-MM-DD HH:mm:ss`
+          example: '2026-03-01 14:30:00'
+
+    UpdateRequestInput:
+      type: object
+      properties:
+        flight_no:
+          type: string
+        arrival_date:
+          type: string
+          description: Format `YYYY-MM-DD`
+        terminal:
+          type: string
+        checked_bags:
+          type: integer
+        carry_on_bags:
+          type: integer
+        expected_arrival_time:
+          type: string
+          description: Format `YYYY-MM-DD HH:mm:ss`
+
+    CreateDriverRequest:
+      type: object
+      required: [name, car_model, max_seats, max_checked, max_carry_on]
+      properties:
+        name:
+          type: string
+          example: Driver A
+        car_model:
+          type: string
+          example: Toyota Sienna
+        max_seats:
+          type: integer
+          example: 6
+        max_checked:
+          type: integer
+          example: 8
+        max_carry_on:
+          type: integer
+          example: 8
+
+    UpdateDriverRequest:
+      type: object
+      required: [name, car_model, max_seats, max_checked, max_carry_on]
+      properties:
+        name:
+          type: string
+          example: Driver A
+        car_model:
+          type: string
+          example: Toyota Sienna
+        max_seats:
+          type: integer
+          example: 6
+        max_checked:
+          type: integer
+          example: 8
+        max_carry_on:
+          type: integer
+          example: 8
+
+    CreateShiftRequest:
+      type: object
+      required: [driver_id, departure_time]
+      properties:
+        driver_id:
+          type: integer
+          example: 1
+        departure_time:
+          type: string
+          description: Format `YYYY-MM-DD HH:mm:ss`
+          example: '2026-03-01 16:00:00'
+
+    UpdateShiftRequest:
+      type: object
+      properties:
+        driver_id:
+          type: integer
+          example: 1
+        departure_time:
+          type: string
+          description: Format `YYYY-MM-DD HH:mm:ss`
+          example: '2026-03-01 17:00:00'
+
+    AssignStudentRequest:
+      type: object
+      required: [request_id]
+      properties:
+        request_id:
+          type: integer
+          example: 101
+
+    AssignStaffRequest:
+      type: object
+      required: [staff_id]
+      properties:
+        staff_id:
+          type: integer
+          example: 11
+
+    AssignStudentResult:
+      type: object
+      properties:
+        warning:
+          type: string
+          description: Present when soft capacity overload is detected.
+          example: capacity_overload
