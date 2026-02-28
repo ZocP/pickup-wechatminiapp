@@ -1,12 +1,5 @@
 const api = require('../../../utils/api');
-
-function statusToText(status) {
-  const value = String(status || '').toLowerCase();
-  if (value === 'pending') return '待分配';
-  if (value === 'assigned') return '已分配待发布';
-  if (value === 'published') return '已发布';
-  return status || '--';
-}
+const { requestStatusText } = require('../../../utils/status');
 
 function pad2(value) {
   return String(value).padStart(2, '0');
@@ -230,7 +223,7 @@ Page({
       const step = status === 'pending' ? 0 : status === 'assigned' ? 1 : 2;
 
       this.setData({
-        latestRequest: { ...latest, status_text: statusToText(latest.status) },
+        latestRequest: { ...latest, status_text: requestStatusText(latest.status) },
         activeStep: step,
         assignedShift: status === 'published' ? latest.shift || null : null,
         hasSubmitted: true,

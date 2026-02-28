@@ -246,6 +246,7 @@ Page({
     publishButtonText: '一键发布班次',
     publishing: false,
     actingRequestId: null,
+    actionBusy: false,
     onboardCount: 0
   },
 
@@ -440,50 +441,70 @@ Page({
     const requestId = event.currentTarget.dataset.id
     if (!requestId) return
 
-    this.setData({ actingRequestId: requestId })
-    try {
-      await assignStudent(this.data.shiftId, requestId)
-      await this.loadData()
-    } catch (error) {
-      wx.showToast({ title: error?.message || '添加失败', icon: 'none' })
-    } finally {
-      this.setData({ actingRequestId: null })
-    }
+    await this.runWithActionLock(async () => {
+      this.setData({ actingRequestId: requestId })
+      try {
+        await assignStudent(this.data.shiftId, requestId)
+        await this.loadData()
+      } catch (error) {
+        wx.showToast({ title: error?.message || '添加失败', icon: 'none' })
+      } finally {
+        this.setData({ actingRequestId: null })
+      }
+    })
   },
 
   async onRemovePassenger(event) {
     const requestId = event.currentTarget.dataset.id
     if (!requestId) return
 
-    this.setData({ actingRequestId: requestId })
-    try {
-      await removeStudent(this.data.shiftId, requestId)
-      await this.loadData()
-    } catch (error) {
-      wx.showToast({ title: error?.message || '移出失败', icon: 'none' })
-    } finally {
-      this.setData({ actingRequestId: null })
-    }
+    await this.runWithActionLock(async () => {
+      this.setData({ actingRequestId: requestId })
+      try {
+        await removeStudent(this.data.shiftId, requestId)
+        await this.loadData()
+      } catch (error) {
+        wx.showToast({ title: error?.message || '移出失败', icon: 'none' })
+      } finally {
+        this.setData({ actingRequestId: null })
+      }
+    })
   },
 
   async onPublishShift() {
     if (!this.data.canPublish || this.data.publishing) return
 
-    this.setData({ publishing: true })
-    try {
-      const isPublished = String(this.data.shift?.status || '').toLowerCase() === 'published'
-      if (isPublished) {
-        await updateShift(this.data.shiftId, { status: 'unpublished' })
-        wx.showToast({ title: '已撤回发布', icon: 'success' })
-      } else {
-        await publishShift(this.data.shiftId)
-        wx.showToast({ title: '发布成功', icon: 'success' })
+    await this.runWithActionLock(async () => {
+      this.setData({ publishing: true })
+      try {
+        const isPublished = String(this.data.shift?.status || '').toLowerCase() === 'published'
+        if (isPublished) {
+          await updateShift(this.data.shiftId, { status: 'unpublished' })
+          wx.showToast({ title: '已撤回发布', icon: 'success' })
+        } else {
+          await publishShift(this.data.shiftId)
+          wx.showToast({ title: '发布成功', icon: 'success' })
+        }
+        await this.loadData()
+      } catch (error) {
+        wx.showToast({ title: error?.message || '操作失败', icon: 'none' })
+      } finally {
+        this.setData({ publishing: false })
       }
-      await this.loadData()
-    } catch (error) {
-      wx.showToast({ title: error?.message || '操作失败', icon: 'none' })
+    })
+  },
+
+  async runWithActionLock(task) {
+    if (this.data.actionBusy) {
+      wx.showToast({ title: '操作进行中，请稍候', icon: 'none' })
+      return
+    }
+
+    this.setData({ actionBusy: true })
+    try {
+      await task()
     } finally {
-      this.setData({ publishing: false })
+      this.setData({ actionBusy: false })
     }
   }
 })

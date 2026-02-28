@@ -192,7 +192,10 @@ Page({
     }
 
     if (dashboardResult.status === 'rejected' || pendingResult.status === 'rejected') {
-      wx.showToast({ title: '部分数据加载失败', icon: 'none' });
+      const failed = [];
+      if (dashboardResult.status === 'rejected') failed.push('班次数据');
+      if (pendingResult.status === 'rejected') failed.push('待分配数据');
+      wx.showToast({ title: `${failed.join('、')}加载失败`, icon: 'none' });
     }
 
     const dashboardRows = extractArray(shiftsRes, ['shifts', 'items', 'list', 'rows']);

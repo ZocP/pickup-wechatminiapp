@@ -1,12 +1,5 @@
 const api = require('../../utils/api');
-
-function statusToText(status) {
-  const value = String(status || '').toLowerCase();
-  if (value === 'pending') return '待分配';
-  if (value === 'assigned') return '已分配待发布';
-  if (value === 'published') return '已发布';
-  return status || '--';
-}
+const { requestStatusText } = require('../../utils/status');
 
 Page({
   data: {
@@ -67,7 +60,7 @@ Page({
       const shiftTime = latest && latest.shift && latest.shift.departure_time ? latest.shift.departure_time : '--';
 
       this.setData({
-        latestRequest: latest ? { ...latest, status_text: statusToText(latest.status) } : null,
+        latestRequest: latest ? { ...latest, status_text: requestStatusText(latest.status) } : null,
         myShiftTime: shiftTime,
       });
     } catch (error) {
