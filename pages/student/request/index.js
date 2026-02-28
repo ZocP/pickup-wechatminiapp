@@ -1,16 +1,6 @@
 const api = require('../../../utils/api');
 const { requestStatusText } = require('../../../utils/status');
-
-function pad2(value) {
-  return String(value).padStart(2, '0');
-}
-
-function formatDate(date) {
-  const y = date.getFullYear();
-  const m = pad2(date.getMonth() + 1);
-  const d = pad2(date.getDate());
-  return `${y}-${m}-${d}`;
-}
+const { formatDateOnly } = require('../../../utils/formatters');
 
 Page({
   data: {
@@ -107,7 +97,7 @@ Page({
   onDateConfirm(e) {
     const value = e && e.detail;
     const selectedDate = value instanceof Date ? value : new Date(value);
-    const arrivalDate = formatDate(selectedDate);
+    const arrivalDate = formatDateOnly(selectedDate);
 
     this.setData({
       showDatePicker: false,

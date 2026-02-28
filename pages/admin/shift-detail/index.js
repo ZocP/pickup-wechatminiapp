@@ -1,24 +1,6 @@
 const app = getApp()
 const { getDashboard, getPendingRequests, assignStudent, removeStudent, publishShift, updateShift } = require('../../../utils/api')
-
-function pad2(num) {
-  return String(num).padStart(2, '0')
-}
-
-function normalizeDateTime(source) {
-  if (!source) return null
-  const raw = String(source).trim()
-  if (!raw) return null
-  const normalized = raw.includes('T') ? raw : raw.replace(' ', 'T')
-  const date = new Date(normalized)
-  return Number.isNaN(date.getTime()) ? null : date
-}
-
-function formatDateTime(source) {
-  const date = normalizeDateTime(source)
-  if (!date) return '--'
-  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())} ${pad2(date.getHours())}:${pad2(date.getMinutes())}`
-}
+const { pad2, normalizeDateTime, formatDateTime, formatMonthDay, formatHourMinute } = require('../../../utils/formatters')
 
 function terminalOf(req) {
   return req.terminal || req.arrival_terminal || req.flight_terminal || req.arrival_gate || ''
@@ -87,14 +69,6 @@ function terminalRouteOf(shift, onboardList) {
     if (t && unique.indexOf(t) === -1) unique.push(t)
   })
   return unique.join(' -> ')
-}
-
-function formatMonthDay(date) {
-  return `${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`
-}
-
-function formatHourMinute(date) {
-  return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`
 }
 
 function groupByTwentyMinutes(items, getTs) {
