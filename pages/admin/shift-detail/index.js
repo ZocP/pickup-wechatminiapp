@@ -145,6 +145,8 @@ function toPassengerFromRequest(request) {
     terminal: terminalOf(request),
     checked_luggage_count: toNumber(request.checked_luggage_count || request.checked_bags),
     carryon_luggage_count: toNumber(request.carryon_luggage_count || request.carry_on_bags),
+    ride_with_note: String(request.ride_with_note || '').trim(),
+    ride_with_wechat: String(request.ride_with_wechat || '').trim(),
     _pickupTs: pickupDate ? pickupDate.getTime() : Number.MAX_SAFE_INTEGER
   }
 }

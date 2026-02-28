@@ -57,6 +57,8 @@
                   </view>
                   <view class="passenger-sub">预计上车: {{passenger.pickup_time_text || '--'}}</view>
                   <view class="passenger-sub">行李: {{passenger.checked_luggage_count || 0}}托 {{passenger.carryon_luggage_count || 0}}登</view>
+                  <view wx:if="{{passenger.ride_with_note}}" class="passenger-sub">同乘备注: {{passenger.ride_with_note}}</view>
+                  <view wx:if="{{passenger.ride_with_wechat}}" class="passenger-sub">微信: {{passenger.ride_with_wechat}}</view>
                 </view>
                 <view class="passenger-right">
                   <van-button
@@ -100,6 +102,8 @@
                   </view>
                   <view class="passenger-sub">预计上车: {{passenger.pickup_time_text || '--'}}</view>
                   <view class="passenger-sub">行李: {{passenger.checked_luggage_count || 0}}托 {{passenger.carryon_luggage_count || 0}}登</view>
+                  <view wx:if="{{passenger.ride_with_note}}" class="passenger-sub">同乘备注: {{passenger.ride_with_note}}</view>
+                  <view wx:if="{{passenger.ride_with_wechat}}" class="passenger-sub">微信: {{passenger.ride_with_wechat}}</view>
                   <view class="pending-tip-row">
                     <van-tag wx:if="{{passenger.recommended}}" type="success" plain>推荐</van-tag>
                     <van-tag wx:if="{{passenger.late}}" type="danger" plain>已错过</van-tag>

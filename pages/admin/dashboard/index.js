@@ -19,6 +19,15 @@ function resolveRequestName(request) {
   return `学生#${request.user_id || request.id || '--'}`;
 }
 
+function buildRideWithText(request) {
+  const note = String(request?.ride_with_note || '').trim();
+  const wxid = String(request?.ride_with_wechat || '').trim();
+  if (!note && !wxid) return '';
+  if (note && wxid) return `同乘: ${note} | 微信: ${wxid}`;
+  if (note) return `同乘: ${note}`;
+  return `微信: ${wxid}`;
+}
+
 function unwrapPayload(payload) {
   if (!payload || typeof payload !== 'object') return payload;
   if (Array.isArray(payload)) return payload;
@@ -206,11 +215,16 @@ Page({
     const publishedCount = pickNumber(shiftsRes, ['published_count', 'publishedCount'])
       ?? publishedCountFromRows;
 
-    const limitedPendingActions = pendingRequests.slice(0, MAX_PENDING_ACTIONS).map((r) => ({
-      name: `${resolveRequestName(r)} | ${(r.flight_no || '--')}`,
-      subname: `落地: ${r.arrival_time_api || r.arrival_date || '--'}`,
-      request: r,
-    }));
+    const limitedPendingActions = pendingRequests.slice(0, MAX_PENDING_ACTIONS).map((r) => {
+      const rideWith = buildRideWithText(r);
+      return {
+        name: `${resolveRequestName(r)} | ${(r.flight_no || '--')}`,
+        subname: rideWith
+          ? `${rideWith} | 落地: ${r.arrival_time_api || r.arrival_date || '--'}`
+          : `落地: ${r.arrival_time_api || r.arrival_date || '--'}`,
+        request: r,
+      };
+    });
 
     this.setData({
       shifts,
@@ -348,6 +362,8 @@ Page({
         user: { name: item.name || '' },
         user_id: item.user_id || item.id || 0,
         flight_no: item.flightNo || item.flight_no || '--',
+        ride_with_note: item.ride_with_note || '',
+        ride_with_wechat: item.ride_with_wechat || '',
       }));
     }
 
@@ -360,6 +376,7 @@ Page({
       removeShiftId: shiftId,
       removeActions: requests.map((r) => ({
         name: `${resolveRequestName(r)} | ${r.flight_no || '--'}`,
+        subname: buildRideWithText(r),
         requestId: r.id || r.ID || r.request_id || 0,
       })),
       showRemoveSheet: true,

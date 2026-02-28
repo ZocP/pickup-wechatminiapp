@@ -2,6 +2,8 @@ const api = require('../../../utils/api');
 const { requestStatusText } = require('../../../utils/status');
 const { formatDateOnly } = require('../../../utils/formatters');
 
+const WECHAT_ID_REGEXP = /^[a-zA-Z0-9_]{6,20}$/;
+
 Page({
   data: {
     submitting: false,
@@ -27,6 +29,8 @@ Page({
       expected_arrival_time: '',
       checked_bags: 0,
       carry_on_bags: 0,
+      ride_with_note: '',
+      ride_with_wechat: '',
     },
 
     trackSteps: ['已提交', '正在排班', '已安排'],
@@ -140,9 +144,26 @@ Page({
       return;
     }
 
-    const { real_name, flight_no, arrival_date, terminal, checked_bags, carry_on_bags, expected_arrival_time } = this.data.form;
+    const {
+      real_name,
+      flight_no,
+      arrival_date,
+      terminal,
+      checked_bags,
+      carry_on_bags,
+      expected_arrival_time,
+      ride_with_note,
+      ride_with_wechat,
+    } = this.data.form;
+
     if (!real_name || !flight_no || !arrival_date || !terminal || !expected_arrival_time) {
       wx.showToast({ title: '请填写完整表单', icon: 'none' });
+      return;
+    }
+
+    const normalizedWechat = String(ride_with_wechat || '').trim();
+    if (normalizedWechat && !WECHAT_ID_REGEXP.test(normalizedWechat)) {
+      wx.showToast({ title: '微信号仅支持字母数字下划线，6-20位', icon: 'none' });
       return;
     }
 
@@ -154,6 +175,8 @@ Page({
       checked_bags,
       carry_on_bags,
       expected_arrival_time,
+      ride_with_note: String(ride_with_note || '').trim(),
+      ride_with_wechat: normalizedWechat,
     };
 
     this.setData({ submitting: true });

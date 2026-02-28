@@ -48,6 +48,24 @@
         <text class="stepper-label">登机箱数量</text>
         <van-stepper value="{{form.carry_on_bags}}" min="0" bind:change="onStepperCarryOnChange" />
       </view>
+      <van-field
+        label="同乘备注"
+        type="textarea"
+        autosize
+        maxlength="200"
+        placeholder="可选：想和谁同一班车（如：想和张三同车）"
+        value="{{form.ride_with_note}}"
+        data-field="ride_with_note"
+        bind:change="onFieldChange"
+      />
+      <van-field
+        label="对方微信号"
+        maxlength="20"
+        placeholder="可选：仅字母数字下划线，6-20位"
+        value="{{form.ride_with_wechat}}"
+        data-field="ride_with_wechat"
+        bind:change="onFieldChange"
+      />
     </van-cell-group>
 
     <van-button
@@ -82,6 +100,8 @@
         <text>当前航班：{{latestRequest.flight_no}}</text>
         <van-tag type="primary" plain custom-style="margin-left: 12rpx;">{{latestRequest.status_text || latestRequest.status}}</van-tag>
       </view>
+      <view wx:if="{{latestRequest.ride_with_note}}" class="line">同乘备注：{{latestRequest.ride_with_note}}</view>
+      <view wx:if="{{latestRequest.ride_with_wechat}}" class="line">对方微信号：{{latestRequest.ride_with_wechat}}</view>
 
       <view wx:if="{{assignedShift}}" class="assigned card-inner">
         <view class="inner-title">已分配车辆信息</view>
