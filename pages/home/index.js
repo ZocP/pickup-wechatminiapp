@@ -1,5 +1,13 @@
 const api = require('../../utils/api');
 
+function statusToText(status) {
+  const value = String(status || '').toLowerCase();
+  if (value === 'pending') return '待分配';
+  if (value === 'assigned') return '已分配待发布';
+  if (value === 'published') return '已发布';
+  return status || '--';
+}
+
 Page({
   data: {
     userInfo: {},
@@ -59,7 +67,7 @@ Page({
       const shiftTime = latest && latest.shift && latest.shift.departure_time ? latest.shift.departure_time : '--';
 
       this.setData({
-        latestRequest: latest,
+        latestRequest: latest ? { ...latest, status_text: statusToText(latest.status) } : null,
         myShiftTime: shiftTime,
       });
     } catch (error) {

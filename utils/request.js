@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL = 'http://192.168.50.94:9090/api/v1';
+const DEFAULT_BASE_URL = 'http://localhost:9090/api/v1';
 const REQUEST_TIMEOUT = 15000;
 
 function getBaseURL() {

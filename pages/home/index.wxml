@@ -28,7 +28,7 @@
   <view wx:if="{{isStudent}}" class="card section">
     <view class="section-title">我的接机信息</view>
     <view wx:if="{{latestRequest}}" class="summary-line">
-      <text>申请状态：{{latestRequest.status || '--'}}</text>
+      <text>申请状态：{{latestRequest.status_text || latestRequest.status || '--'}}</text>
     </view>
     <view wx:if="{{latestRequest}}" class="summary-line">
       <text>我的班车时间：{{myShiftTime}}</text>

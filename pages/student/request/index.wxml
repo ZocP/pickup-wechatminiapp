@@ -75,7 +75,7 @@
 
       <view class="latest">
         <text>当前航班：{{latestRequest.flight_no}}</text>
-        <van-tag type="primary" plain custom-style="margin-left: 12rpx;">{{latestRequest.status}}</van-tag>
+        <van-tag type="primary" plain custom-style="margin-left: 12rpx;">{{latestRequest.status_text || latestRequest.status}}</van-tag>
       </view>
 
       <view wx:if="{{assignedShift}}" class="assigned card-inner">

@@ -103,6 +103,8 @@ function shiftStatusText(status) {
   return normalizeShiftStatus(status) === 'published' ? '已发布' : '未发布';
 }
 
+const MAX_PENDING_ACTIONS = 40;
+
 Page({
   data: {
     loading: false,
@@ -112,6 +114,7 @@ Page({
     pendingCount: 0,
     todayShiftCount: 0,
     publishedCount: 0,
+    pendingActionOverflow: 0,
 
     showPendingSheet: false,
     pendingActions: [],
@@ -172,59 +175,71 @@ Page({
 
   async loadAll() {
     this.setData({ loading: true });
-    try {
-      const [shiftsRes, pendingRes] = await Promise.all([
-        api.getDashboard(),
-        api.getPendingRequests(),
-      ]);
 
-      const dashboardRows = extractArray(shiftsRes, ['shifts', 'items', 'list', 'rows']);
+    const [dashboardResult, pendingResult] = await Promise.allSettled([
+      api.getDashboard(),
+      api.getPendingRequests(),
+    ]);
 
-      const shifts = dashboardRows.map((item) => ({
-        ...item,
-        id: item.id || item.ID || item.shift_id || 0,
-        status: normalizeShiftStatus(item.status || item.Status),
-        departure_time: item.departure_time || item.DepartureTime || '',
-        requests: Array.isArray(item.requests)
-          ? item.requests
-          : (Array.isArray(item.Requests)
-            ? item.Requests
-            : (Array.isArray(item.passengers) ? item.passengers : [])),
-      }));
+    const shiftsRes = dashboardResult.status === 'fulfilled' ? dashboardResult.value : [];
+    const pendingRes = pendingResult.status === 'fulfilled' ? pendingResult.value : [];
 
-      const pendingRequests = extractArray(pendingRes, ['items', 'requests', 'list', 'rows']);
-
-      const today = new Date();
-      const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
-      const todayShiftCountFromRows = shifts.filter((s) => normalizeDateKey(s.departure_time) === todayKey).length;
-      const publishedCountFromRows = shifts.filter((s) => (s.status || '').toLowerCase() === 'published').length;
-
-      const pendingCount = pickNumber(shiftsRes, ['pending_count', 'pendingCount'])
-        ?? pickNumber(pendingRes, ['pending_count', 'pendingCount', 'total'])
-        ?? pendingRequests.length;
-      const todayShiftCount = pickNumber(shiftsRes, ['today_shift_count', 'todayShiftCount', 'today_count'])
-        ?? todayShiftCountFromRows;
-      const publishedCount = pickNumber(shiftsRes, ['published_count', 'publishedCount'])
-        ?? publishedCountFromRows;
-
-      this.setData({
-        shifts,
-        pendingRequests,
-        pendingCount,
-        todayShiftCount,
-        publishedCount,
-        pendingActions: pendingRequests.map((r) => ({
-          name: `${resolveRequestName(r)} | ${(r.flight_no || '--')}`,
-          subname: `落地: ${r.arrival_time_api || r.arrival_date || '--'}`,
-          request: r,
-        })),
-      });
-    } catch (error) {
-      wx.showToast({ title: '加载失败', icon: 'none' });
-    } finally {
+    if (dashboardResult.status === 'rejected' && pendingResult.status === 'rejected') {
+      wx.showToast({ title: '加载失败，请下拉重试', icon: 'none' });
       this.setData({ loading: false });
+      return;
     }
+
+    if (dashboardResult.status === 'rejected' || pendingResult.status === 'rejected') {
+      wx.showToast({ title: '部分数据加载失败', icon: 'none' });
+    }
+
+    const dashboardRows = extractArray(shiftsRes, ['shifts', 'items', 'list', 'rows']);
+
+    const shifts = dashboardRows.map((item) => ({
+      ...item,
+      id: item.id || item.ID || item.shift_id || 0,
+      status: normalizeShiftStatus(item.status || item.Status),
+      departure_time: item.departure_time || item.DepartureTime || '',
+      requests: Array.isArray(item.requests)
+        ? item.requests
+        : (Array.isArray(item.Requests)
+          ? item.Requests
+          : (Array.isArray(item.passengers) ? item.passengers : [])),
+    }));
+
+    const pendingRequests = extractArray(pendingRes, ['items', 'requests', 'list', 'rows']);
+
+    const today = new Date();
+    const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+    const todayShiftCountFromRows = shifts.filter((s) => normalizeDateKey(s.departure_time) === todayKey).length;
+    const publishedCountFromRows = shifts.filter((s) => (s.status || '').toLowerCase() === 'published').length;
+
+    const pendingCount = pickNumber(shiftsRes, ['pending_count', 'pendingCount'])
+      ?? pickNumber(pendingRes, ['pending_count', 'pendingCount', 'total'])
+      ?? pendingRequests.length;
+    const todayShiftCount = pickNumber(shiftsRes, ['today_shift_count', 'todayShiftCount', 'today_count'])
+      ?? todayShiftCountFromRows;
+    const publishedCount = pickNumber(shiftsRes, ['published_count', 'publishedCount'])
+      ?? publishedCountFromRows;
+
+    const limitedPendingActions = pendingRequests.slice(0, MAX_PENDING_ACTIONS).map((r) => ({
+      name: `${resolveRequestName(r)} | ${(r.flight_no || '--')}`,
+      subname: `落地: ${r.arrival_time_api || r.arrival_date || '--'}`,
+      request: r,
+    }));
+
+    this.setData({
+      shifts,
+      pendingRequests,
+      pendingCount,
+      todayShiftCount,
+      publishedCount,
+      pendingActions: limitedPendingActions,
+      pendingActionOverflow: Math.max(0, pendingRequests.length - limitedPendingActions.length),
+      loading: false,
+    });
   },
 
   openPendingPool() {
@@ -233,6 +248,10 @@ Page({
       showPendingSheet: true,
       currentShiftIdForAdd: 0,
     });
+
+    if (this.data.pendingActionOverflow > 0) {
+      wx.showToast({ title: `仅展示前${MAX_PENDING_ACTIONS}条，请缩小范围`, icon: 'none' });
+    }
   },
 
   onAddPassenger(e) {

@@ -42,6 +42,9 @@
   <view class="pending-fab" bind:tap="openPendingPool">
     <text>待分配池 {{pendingCount}}</text>
   </view>
+  <view wx:if="{{pendingActionOverflow > 0}}" class="card" style="margin-top: 16rpx;">
+    <text style="font-size: 24rpx; color: #999;">待分配人数较多，弹层仅展示前 {{pendingActions.length}} 条。</text>
+  </view>
 
   <van-action-sheet
     show="{{showPendingSheet}}"
