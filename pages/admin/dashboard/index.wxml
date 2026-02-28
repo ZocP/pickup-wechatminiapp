@@ -27,12 +27,17 @@
   </view>
 
   <view class="shift-list">
+    <view wx:if="{{loading}}" class="card">
+      <van-skeleton title row="3" />
+      <van-skeleton title row="3" custom-style="margin-top: 16rpx;" />
+    </view>
+
     <view wx:if="{{!loading && shifts.length === 0}}" class="card">
       <van-empty description="暂无班次数据" />
     </view>
 
     <shift-card
-      wx:for="{{shifts}}"
+      wx:for="{{!loading ? shifts : []}}"
       wx:key="id"
       shift="{{item}}"
       bind:manageshift="onManageShift"

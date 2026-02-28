@@ -26,10 +26,11 @@
       />
       <van-field
         label="航站楼"
-        placeholder="如 T5"
+        placeholder="请选择航站楼"
         value="{{form.terminal}}"
-        data-field="terminal"
-        bind:change="onFieldChange"
+        readonly
+        is-link
+        bind:click-input="openTerminalPicker"
       />
       <van-field
         label="预计落地时间"
@@ -66,7 +67,11 @@
   <view class="card tracker-card">
     <view class="section-title">申请状态追踪</view>
 
-    <view wx:if="{{!latestRequest}}">
+    <view wx:if="{{loadingTrack}}">
+      <van-skeleton title row="3" />
+    </view>
+
+    <view wx:elif="{{!latestRequest}}">
       <van-empty description="暂无申请记录" />
     </view>
 
@@ -87,6 +92,15 @@
       </view>
     </view>
   </view>
+
+  <van-action-sheet
+    show="{{showTerminalPicker}}"
+    title="选择航站楼"
+    actions="{{terminalActions}}"
+    close-on-click-action="true"
+    bind:select="onSelectTerminal"
+    bind:close="onCloseTerminalPicker"
+  />
 
   <van-calendar
     show="{{showDatePicker}}"

@@ -115,6 +115,7 @@ Page({
     todayShiftCount: 0,
     publishedCount: 0,
     pendingActionOverflow: 0,
+    actionBusy: false,
 
     showPendingSheet: false,
     pendingActions: [],
@@ -324,17 +325,19 @@ Page({
   },
 
   async assignStudentToShift(shiftId, requestId) {
-    try {
-      const result = await api.assignStudent(shiftId, requestId);
-      if (result && result.warning) {
-        wx.showToast({ title: `已分配 (${result.warning})`, icon: 'none' });
-      } else {
-        wx.showToast({ title: '分配成功', icon: 'success' });
+    await this.runWithActionLock(async () => {
+      try {
+        const result = await api.assignStudent(shiftId, requestId);
+        if (result && result.warning) {
+          wx.showToast({ title: `已分配 (${result.warning})`, icon: 'none' });
+        } else {
+          wx.showToast({ title: '分配成功', icon: 'success' });
+        }
+        await this.loadAll();
+      } catch (error) {
+        wx.showToast({ title: '分配失败', icon: 'none' });
       }
-      await this.loadAll();
-    } catch (error) {
-      wx.showToast({ title: '分配失败', icon: 'none' });
-    }
+    });
   },
 
   onRemovePassenger(e) {
@@ -387,14 +390,16 @@ Page({
     const action = this.getSelectedAction(e, this.data.removeActions);
     if (!action.requestId || !this.data.removeShiftId) return;
 
-    try {
-      await api.removeStudent(this.data.removeShiftId, action.requestId);
-      wx.showToast({ title: '移出成功', icon: 'success' });
-      this.setData({ showRemoveSheet: false, removeShiftId: 0, removeActions: [] });
-      await this.loadAll();
-    } catch (error) {
-      wx.showToast({ title: '移出失败', icon: 'none' });
-    }
+    await this.runWithActionLock(async () => {
+      try {
+        await api.removeStudent(this.data.removeShiftId, action.requestId);
+        wx.showToast({ title: '移出成功', icon: 'success' });
+        this.setData({ showRemoveSheet: false, removeShiftId: 0, removeActions: [] });
+        await this.loadAll();
+      } catch (error) {
+        wx.showToast({ title: '移出失败', icon: 'none' });
+      }
+    });
   },
 
   async onPublishShift(e) {
@@ -402,12 +407,27 @@ Page({
     const shiftId = Number(detail.shiftId || detail.shiftid || detail.id || 0);
     if (!shiftId) return;
 
+    await this.runWithActionLock(async () => {
+      try {
+        await api.publishShift(shiftId);
+        wx.showToast({ title: '发布成功', icon: 'success' });
+        await this.loadAll();
+      } catch (error) {
+        wx.showToast({ title: '发布失败', icon: 'none' });
+      }
+    });
+  },
+
+  async runWithActionLock(task) {
+    if (this.data.actionBusy) {
+      wx.showToast({ title: '操作进行中，请稍候', icon: 'none' });
+      return;
+    }
+    this.setData({ actionBusy: true });
     try {
-      await api.publishShift(shiftId);
-      wx.showToast({ title: '发布成功', icon: 'success' });
-      await this.loadAll();
-    } catch (error) {
-      wx.showToast({ title: '发布失败', icon: 'none' });
+      await task();
+    } finally {
+      this.setData({ actionBusy: false });
     }
   },
 
@@ -596,17 +616,19 @@ Page({
       return;
     }
 
-    try {
-      await api.createShift({
-        driver_id: this.data.selectedDriverId,
-        departure_time: this.data.formattedTime,
-      });
-      wx.showToast({ title: '创建成功', icon: 'success' });
-      this.setData({ showCreatePopup: false });
-      this.resetCreateForm();
-      await this.loadAll();
-    } catch (error) {
-      wx.showToast({ title: '创建失败', icon: 'none' });
-    }
+    await this.runWithActionLock(async () => {
+      try {
+        await api.createShift({
+          driver_id: this.data.selectedDriverId,
+          departure_time: this.data.formattedTime,
+        });
+        wx.showToast({ title: '创建成功', icon: 'success' });
+        this.setData({ showCreatePopup: false });
+        this.resetCreateForm();
+        await this.loadAll();
+      } catch (error) {
+        wx.showToast({ title: '创建失败', icon: 'none' });
+      }
+    });
   },
 });

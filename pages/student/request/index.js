@@ -26,7 +26,14 @@ Page({
     hasSubmitted: false,
     showDatePicker: false,
     showTimePicker: false,
+    showTerminalPicker: false,
     timePickerValue: '12:00',
+    terminalActions: [
+      { name: 'T1' },
+      { name: 'T2' },
+      { name: 'T3' },
+      { name: 'T5' },
+    ],
 
     form: {
       real_name: '',
@@ -73,6 +80,27 @@ Page({
 
   onStepperCarryOnChange(e) {
     this.setData({ 'form.carry_on_bags': e.detail });
+  },
+
+  openTerminalPicker() {
+    this.setData({ showTerminalPicker: true });
+  },
+
+  onCloseTerminalPicker() {
+    this.setData({ showTerminalPicker: false });
+  },
+
+  onSelectTerminal(e) {
+    const detail = (e && e.detail) || {};
+    const value = detail.name || detail.value || '';
+    if (!value) {
+      this.setData({ showTerminalPicker: false });
+      return;
+    }
+    this.setData({
+      showTerminalPicker: false,
+      'form.terminal': value,
+    });
   },
 
   openDatePicker() {

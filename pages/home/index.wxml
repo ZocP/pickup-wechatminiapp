@@ -27,17 +27,19 @@
 
   <view wx:if="{{isStudent}}" class="card section">
     <view class="section-title">我的接机信息</view>
-    <view wx:if="{{latestRequest}}" class="summary-line">
-      <text>申请状态：{{latestRequest.status_text || latestRequest.status || '--'}}</text>
+    <view wx:if="{{loadingMyInfo}}">
+      <van-skeleton title row="2" />
     </view>
-    <view wx:if="{{latestRequest}}" class="summary-line">
-      <text>我的班车时间：{{myShiftTime}}</text>
-    </view>
-    <view wx:if="{{!latestRequest && !loadingMyInfo}}" class="summary-empty">
+    <block wx:elif="{{latestRequest}}">
+      <view class="summary-line">
+        <text>申请状态：{{latestRequest.status_text || latestRequest.status || '--'}}</text>
+      </view>
+      <view class="summary-line">
+        <text>我的班车时间：{{myShiftTime}}</text>
+      </view>
+    </block>
+    <view wx:else class="summary-empty">
       暂无申请记录
-    </view>
-    <view wx:if="{{loadingMyInfo}}" class="summary-empty">
-      正在加载...
     </view>
   </view>
 </view>

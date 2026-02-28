@@ -1,5 +1,6 @@
 .request-page {
   padding: 24rpx;
+  padding-bottom: 40rpx;
 }
 
 .section-title {
@@ -42,6 +43,7 @@
   border: 1rpx solid #ebedf0;
   border-radius: 12rpx;
   padding: 18rpx;
+  background: #fafcff;
 }
 
 .inner-title {

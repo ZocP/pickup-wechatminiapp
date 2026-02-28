@@ -66,3 +66,7 @@
   font-weight: 600;
   margin-bottom: 18rpx;
 }
+
+.shift-list .card {
+  border: 1rpx solid #edf3ff;
+}
