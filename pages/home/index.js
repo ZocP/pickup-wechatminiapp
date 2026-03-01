@@ -14,6 +14,11 @@ Page({
 
   onShow() {
     const app = getApp();
+    if (app.isWechatBound && !app.isWechatBound()) {
+      wx.reLaunch({ url: '/pages/bind/index' });
+      return;
+    }
+
     const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo') || {};
     const role = app.getEffectiveRole ? app.getEffectiveRole() : (userInfo.role || 'student');
 

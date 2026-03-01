@@ -229,6 +229,10 @@ Page({
   },
 
   async onLoad(query) {
+    if (app.isWechatBound && !app.isWechatBound()) {
+      wx.reLaunch({ url: '/pages/bind/index' });
+      return;
+    }
     const shiftId = query && query.id ? String(query.id) : ''
     if (!shiftId) {
       wx.showToast({ title: '缺少班次ID', icon: 'none' })

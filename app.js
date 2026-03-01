@@ -38,6 +38,11 @@ App({
     return userInfo.role || 'student';
   },
 
+  isWechatBound() {
+    const userInfo = this.globalData.userInfo || {};
+    return !!String(userInfo.phone || '').trim();
+  },
+
   getEffectiveRole() {
     const realRole = this.getRealRole();
     if (realRole === 'admin' && this.globalData.viewAsRole) {

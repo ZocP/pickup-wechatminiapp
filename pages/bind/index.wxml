@@ -1,0 +1,25 @@
+<view class="page bind-page">
+  <view class="card bind-card">
+    <view class="title">先完成微信号绑定</view>
+    <view class="subtitle">未绑定前不可提交申请或使用任何业务功能</view>
+
+    <van-notice-bar left-icon="warning-o" text="点击下方按钮授权微信手机号" />
+
+    <van-button
+      type="primary"
+      block
+      open-type="getPhoneNumber"
+      loading="{{loading}}"
+      custom-style="margin-top: 24rpx;"
+      bind:getphonenumber="onGetPhoneNumber"
+    >授权并绑定</van-button>
+
+    <van-button
+      type="default"
+      plain
+      block
+      custom-style="margin-top: 16rpx;"
+      bind:tap="logout"
+    >退出登录</van-button>
+  </view>
+</view>

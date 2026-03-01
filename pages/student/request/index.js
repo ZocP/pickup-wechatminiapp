@@ -45,6 +45,11 @@ Page({
 
   onShow() {
     const app = getApp();
+    if (app.isWechatBound && !app.isWechatBound()) {
+      wx.reLaunch({ url: '/pages/bind/index' });
+      return;
+    }
+
     const userInfo = (app && app.globalData && app.globalData.userInfo) || wx.getStorageSync('userInfo') || {};
     if (!this.data.form.real_name) {
       this.setData({ 'form.real_name': userInfo.name || '' });

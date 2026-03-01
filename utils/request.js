@@ -49,6 +49,13 @@ function getNetworkFailMessage(err, finalURL) {
 function handleStatusCode(statusCode, data) {
   const serverMsg = (data && (data.message || data.error)) || '';
 
+  if (statusCode === 403 && data && data.code === 'WECHAT_NOT_BOUND') {
+    showErrorToast('请先绑定微信号后再继续使用');
+    wx.removeStorageSync('viewAsUser');
+    wx.reLaunch({ url: '/pages/bind/index' });
+    return;
+  }
+
   if (statusCode === 401) {
     wx.removeStorageSync('token');
     wx.removeStorageSync('userInfo');

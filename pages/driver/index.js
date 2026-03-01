@@ -13,6 +13,11 @@ Page({
   },
 
   onShow() {
+    const app = getApp();
+    if (app.isWechatBound && !app.isWechatBound()) {
+      wx.reLaunch({ url: '/pages/bind/index' });
+      return;
+    }
     this.loadDriverShifts();
   },
 

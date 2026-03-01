@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/bind/index",
     "pages/home/index",
     "pages/admin/dashboard/index",
     "pages/admin/shift-detail/index",

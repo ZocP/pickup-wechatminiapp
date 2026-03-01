@@ -9,6 +9,11 @@ Page({
 
   onShow() {
     const app = getApp();
+    if (app.isWechatBound && !app.isWechatBound()) {
+      wx.reLaunch({ url: '/pages/bind/index' });
+      return;
+    }
+
     const role = app.getEffectiveRole ? app.getEffectiveRole() : ((app.globalData.userInfo && app.globalData.userInfo.role) || 'student');
     if (role !== 'admin') {
       wx.showToast({ title: '仅管理员可访问', icon: 'none' });

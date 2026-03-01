@@ -41,9 +41,20 @@ Page({
       wx.setStorageSync('userInfo', result.user || {});
       getApp().setUserInfo(result.user || {});
 
+      const me = await api.getAuthMe();
+      const mergedUser = { ...(result.user || {}), ...(me || {}) };
+      wx.setStorageSync('userInfo', mergedUser);
+      getApp().setUserInfo(mergedUser);
+
       wx.showToast({ title: '登录成功', icon: 'success' });
 
-      const role = (result.user && result.user.role) || 'student';
+      const phone = String((mergedUser && mergedUser.phone) || '').trim();
+      if (!phone) {
+        wx.reLaunch({ url: '/pages/bind/index' });
+        return;
+      }
+
+      const role = (mergedUser && mergedUser.role) || 'student';
       if (role === 'admin' || role === 'staff') {
         wx.switchTab({ url: '/pages/admin/dashboard/index' });
       } else {
