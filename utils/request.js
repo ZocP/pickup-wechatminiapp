@@ -103,6 +103,14 @@ function request(options = {}) {
     finalHeader.Authorization = `Bearer ${token}`;
   }
 
+  const app = (typeof getApp === 'function') ? getApp() : null;
+  if (app && typeof app.getViewAsRole === 'function') {
+    const viewAsRole = app.getViewAsRole();
+    if (viewAsRole) {
+      finalHeader['X-View-As'] = viewAsRole;
+    }
+  }
+
   return new Promise((resolve, reject) => {
     wx.request({
       url: finalURL,

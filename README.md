@@ -37,7 +37,8 @@ Other pages:
 2. Run `npm install` in this directory.
 3. Copy `project.config.example.json` to local `project.config.json`, then fill your own WeChat `appid`.
 4. In DevTools, run `Tools -> Build NPM`.
-5. Ensure backend is reachable at `http://localhost:8080/api/v1` (or set custom baseURL in storage key `baseURL`).
+5. Backend base URL defaults to `https://api.zocpstudio.com/api/v1` in `utils/request.js`.
+   - For local development, adjust `DEFAULT_BASE_URL` to your local API (e.g. `http://127.0.0.1:9090/api/v1`).
 
 ## API Mapping
 
@@ -66,8 +67,9 @@ Other pages:
 
 ### Driver Endpoints
 - `GET /driver/shifts` - Get driver's assigned shifts
-- `GET /driver/shifts/:id` - Get shift details
+- `GET /driver/shifts/current` - Get current shift
 - `GET /driver/shifts/:id/passengers` - Get passengers for a shift
+- `GET /driver/shifts/:id/stats` - Get shift boarding stats
 - `POST /driver/boarding/verify` - Verify boarding via QR code
 
 ### Staff Visibility
@@ -75,3 +77,9 @@ Admin and staff users can view boarding status in:
 - Shift cards on dashboard (shows boarded/unboarded counts)
 - Shift detail page (displays boarding statistics)
 - Driver page provides real-time boarding verification via QR code scanning
+
+### Role Simulation (Admin only)
+- In Profile page, admin can click `切换视角` and select: `admin / staff / driver / student`.
+- Simulation is session-scoped (not persisted across relaunch).
+- Non-admin users cannot switch roles.
+- Requests from admin simulation carry `X-View-As` header, which backend validates.

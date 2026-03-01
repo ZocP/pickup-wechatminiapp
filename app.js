@@ -3,22 +3,22 @@ App({
     userInfo: {
       id: 0,
       name: '',
-      role: 'student', // 'student' | 'staff' | 'admin'
+      role: 'student', // 'student' | 'staff' | 'admin' | 'driver'
       phone: '',
     },
-    viewAsUser: false,
+    viewAsRole: '', // '' means no simulation
   },
 
   onLaunch() {
     const token = wx.getStorageSync('token');
     const userInfo = wx.getStorageSync('userInfo');
-    const viewAsUser = wx.getStorageSync('viewAsUser');
 
     if (userInfo && userInfo.role) {
       this.globalData.userInfo = userInfo;
     }
 
-    this.globalData.viewAsUser = !!viewAsUser;
+    // 会话级模拟态：不持久化
+    this.globalData.viewAsRole = '';
 
     if (!token) {
       this.toLogin();
@@ -28,8 +28,7 @@ App({
   setUserInfo(userInfo) {
     this.globalData.userInfo = userInfo || this.globalData.userInfo;
     if (this.getRealRole() !== 'admin') {
-      this.globalData.viewAsUser = false;
-      wx.setStorageSync('viewAsUser', false);
+      this.globalData.viewAsRole = '';
     }
     wx.setStorageSync('userInfo', this.globalData.userInfo);
   },
@@ -41,36 +40,49 @@ App({
 
   getEffectiveRole() {
     const realRole = this.getRealRole();
-    if (realRole === 'admin' && this.globalData.viewAsUser) {
-      return 'student';
+    if (realRole === 'admin' && this.globalData.viewAsRole) {
+      return this.globalData.viewAsRole;
     }
     return realRole;
   },
 
-  isViewingAsUser() {
-    return !!this.globalData.viewAsUser;
+  getViewAsRole() {
+    return this.globalData.viewAsRole || '';
   },
 
-  setViewAsUser(nextValue) {
+  setViewAsRole(nextRole) {
     const realRole = this.getRealRole();
     if (realRole !== 'admin') {
-      this.globalData.viewAsUser = false;
-      wx.setStorageSync('viewAsUser', false);
-      return false;
+      this.globalData.viewAsRole = '';
+      return '';
     }
 
-    const value = !!nextValue;
-    this.globalData.viewAsUser = value;
-    wx.setStorageSync('viewAsUser', value);
-    return value;
+    const allow = new Set(['admin', 'staff', 'driver', 'student']);
+    const target = String(nextRole || '').trim().toLowerCase();
+
+    if (!target || target === 'admin') {
+      this.globalData.viewAsRole = '';
+      return '';
+    }
+
+    if (!allow.has(target)) {
+      return this.globalData.viewAsRole || '';
+    }
+
+    this.globalData.viewAsRole = target;
+    return target;
+  },
+
+  resetViewAsRole() {
+    this.globalData.viewAsRole = '';
+    return '';
   },
 
   onTokenExpired() {
     wx.removeStorageSync('token');
     wx.removeStorageSync('userInfo');
-    wx.removeStorageSync('viewAsUser');
     this.globalData.userInfo = { id: 0, name: '', role: 'student', phone: '' };
-    this.globalData.viewAsUser = false;
+    this.globalData.viewAsRole = '';
     this.toLogin();
   },
 

@@ -5,6 +5,12 @@
       <text>角色</text>
       <van-tag type="primary" plain custom-style="margin-left: 12rpx;">{{userInfo.role || 'student'}}</van-tag>
     </view>
+    <view class="meta" wx:if="{{isAdminReal}}">
+      <text>当前视角</text>
+      <van-tag type="warning" plain custom-style="margin-left: 12rpx;">
+        {{currentEffectiveRole === 'admin' ? '管理员' : (currentEffectiveRole === 'staff' ? '工作人员' : (currentEffectiveRole === 'driver' ? '司机' : '乘客'))}}
+      </van-tag>
+    </view>
     <view class="meta">
       <text>手机号：{{userInfo.phone || '--'}}</text>
     </view>
@@ -21,8 +27,8 @@
       plain
       block
       custom-style="margin-top: 18rpx;"
-      bind:tap="toggleUserView"
-    >{{viewAsUser ? '恢复管理员视角' : '切换为用户视角'}}</van-button>
+      bind:tap="openRolePicker"
+    >切换视角</van-button>
 
     <van-button
       type="danger"
@@ -32,4 +38,13 @@
       bind:tap="logout"
     >退出登录</van-button>
   </view>
+
+  <van-action-sheet
+    show="{{showRolePicker}}"
+    title="选择切换成什么视角"
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="closeRolePicker"
+  />
 </view>

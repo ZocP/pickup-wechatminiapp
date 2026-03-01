@@ -2,7 +2,15 @@ Page({
   data: {
     userInfo: {},
     isAdminReal: false,
-    viewAsUser: false,
+    currentEffectiveRole: 'student',
+    viewAsRole: '',
+    showRolePicker: false,
+    roleOptions: [
+      { name: '管理员', value: 'admin' },
+      { name: '工作人员', value: 'staff' },
+      { name: '司机', value: 'driver' },
+      { name: '乘客', value: 'student' },
+    ],
   },
 
   onShow() {
@@ -18,10 +26,14 @@ Page({
       }
     }
 
+    const viewAsRole = app.getViewAsRole ? app.getViewAsRole() : '';
+    const currentEffectiveRole = app.getEffectiveRole ? app.getEffectiveRole() : realRole;
+
     this.setData({
       userInfo,
       isAdminReal: realRole === 'admin',
-      viewAsUser: app.isViewingAsUser ? app.isViewingAsUser() : false,
+      viewAsRole,
+      currentEffectiveRole,
     });
   },
 
@@ -34,14 +46,45 @@ Page({
     wx.navigateTo({ url: '/pages/student/request/index' });
   },
 
-  toggleUserView() {
-    const app = getApp();
-    const next = !(this.data.viewAsUser || false);
-    const result = app.setViewAsUser ? app.setViewAsUser(next) : next;
+  openRolePicker() {
+    if (!this.data.isAdminReal) return;
+    this.setData({ showRolePicker: true });
+  },
 
-    this.setData({ viewAsUser: result });
+  closeRolePicker() {
+    this.setData({ showRolePicker: false });
+  },
+
+  onSelectRole(e) {
+    if (!this.data.isAdminReal) return;
+
+    const detail = e && e.detail ? e.detail : {};
+    let action = null;
+
+    if (detail.index !== undefined && this.data.roleOptions[detail.index]) {
+      action = this.data.roleOptions[detail.index];
+    } else if (detail.name) {
+      action = this.data.roleOptions.find((item) => item.name === detail.name) || null;
+    }
+
+    if (!action) return;
+
+    const app = getApp();
+    if (app && typeof app.setViewAsRole === 'function') {
+      app.setViewAsRole(action.value);
+    }
+
+    const currentEffectiveRole = app.getEffectiveRole ? app.getEffectiveRole() : action.value;
+    const viewAsRole = app.getViewAsRole ? app.getViewAsRole() : '';
+
+    this.setData({
+      showRolePicker: false,
+      currentEffectiveRole,
+      viewAsRole,
+    });
+
     wx.showToast({
-      title: result ? '已切换为用户视角' : '已恢复管理员视角',
+      title: action.value === 'admin' ? '已恢复管理员视角' : `已切换为${action.name}视角`,
       icon: 'none',
     });
 
