@@ -3,6 +3,53 @@
   padding-bottom: 140rpx;
 }
 
+/* 角色模拟状态条样式 */
+.role-simulation-bar {
+  margin-bottom: 18rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.role-bar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 24rpx;
+}
+
+.role-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.role-label {
+  font-size: 24rpx;
+  opacity: 0.9;
+  margin-bottom: 8rpx;
+}
+
+.role-value {
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.role-value.admin {
+  color: #4cd964;
+}
+
+.role-value.simulating {
+  color: #ffcc00;
+}
+
+.role-actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.role-actions van-button {
+  min-width: 140rpx;
+}
+
 .summary {
   margin-bottom: 18rpx;
 }

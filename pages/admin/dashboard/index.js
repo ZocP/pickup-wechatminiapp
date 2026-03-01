@@ -132,6 +132,18 @@ Page({
     selectedDateTs: new Date().getTime(),
     minDateTs: new Date().getTime(),
     formattedTime: '',
+
+    // 角色模拟相关
+    showRoleSimulator: false,
+    isViewingAsUser: false,
+    currentEffectiveRole: 'admin',
+    realRole: 'admin',
+    roleOptions: [
+      { label: '学生视角', value: 'student', icon: 'user-o' },
+      { label: '工作人员', value: 'staff', icon: 'manager-o' },
+      { label: '司机视角', value: 'driver', icon: 'car-o' },
+      { label: '管理员', value: 'admin', icon: 'setting-o' },
+    ],
   },
 
   onShow() {
@@ -634,5 +646,86 @@ Page({
         wx.showToast({ title: '创建失败', icon: 'none' });
       }
     });
+  },
+
+  // 角色模拟相关方法
+  onOpenRoleSimulator() {
+    this.setData({ showRoleSimulator: true });
+  },
+
+  onCloseRoleSimulator() {
+    this.setData({ showRoleSimulator: false });
+  },
+
+  async onSelectRole(e) {
+    const detail = e.detail || {};
+    const index = detail.index;
+    if (index === undefined || index === null) return;
+
+    const roleOption = this.data.roleOptions[index];
+    if (!roleOption) return;
+
+    const app = getApp();
+    const targetRole = roleOption.value;
+    
+    if (targetRole === 'admin') {
+      // 切换回管理员视角
+      const success = app.setViewAsUser ? app.setViewAsUser(false) : false;
+      if (success) {
+        wx.showToast({ title: '已切换为管理员视角', icon: 'success' });
+        this.setData({
+          isViewingAsUser: false,
+          currentEffectiveRole: 'admin',
+          showRoleSimulator: false,
+        });
+        this.refreshView();
+      }
+    } else {
+      // 模拟其他角色
+      const success = app.setViewAsUser ? app.setViewAsUser(true) : false;
+      if (success) {
+        wx.showToast({ title: '已切换为' + roleOption.label, icon: 'success' });
+        this.setData({
+          isViewingAsUser: true,
+          currentEffectiveRole: targetRole,
+          showRoleSimulator: false,
+        });
+        this.refreshView();
+      }
+    }
+  },
+
+  onExitRoleSimulation() {
+    const app = getApp();
+    const success = app.setViewAsUser ? app.setViewAsUser(false) : false;
+    if (success) {
+      wx.showToast({ title: '已退出角色模拟', icon: 'success' });
+      this.setData({
+        isViewingAsUser: false,
+        currentEffectiveRole: 'admin',
+      });
+      this.refreshView();
+    }
+  },
+
+  refreshView() {
+    // 刷新tabbar
+    const tabBar = this.getTabBar && this.getTabBar();
+    if (tabBar && typeof tabBar.refreshTabs === 'function') {
+      tabBar.refreshTabs();
+    }
+    
+    // 重新加载数据
+    this.loadAll();
+  },
+
+  getRoleDisplayText() {
+    const roleMap = {
+      'student': '学生',
+      'staff': '工作人员', 
+      'driver': '司机',
+      'admin': '管理员'
+    };
+    return roleMap[this.data.currentEffectiveRole] || this.data.currentEffectiveRole;
   },
 });

@@ -1,40 +1,270 @@
 <view class="page dashboard-page">
+  <!-- 角色模拟状态条 -->
+  <view wx:if="{{realRole === 'admin'}}" class="role-simulation-bar card">
+    <view class="role-bar-content">
+      <view class="role-info">
+        <text class="role-label">当前视角：</text>
+        <text class="role-value {{isViewingAsUser ? 'simulating' : 'admin'}}">
+          {{isViewingAsUser ? '模拟中 (' + getRoleDisplayText() + ')' : '管理员'}}
+        </text>
+      
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
+      <view class="role-actions">
+        <van-button 
+          wx:if="{{isViewingAsUser}}" 
+          type="warning" 
+          size="small" 
+          bind:tap="onExitRoleSimulation"
+        >
+          退出模拟
+        </van-button>
+        <van-button 
+          type="primary" 
+          size="small" 
+          bind:tap="onOpenRoleSimulator"
+        >
+          {{isViewingAsUser ? '切换角色' : '角色模拟'}}
+        </van-button>
+      
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
+    
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
+  
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
+
   <view class="summary card">
     <van-grid column-num="3" border="false">
       <van-grid-item use-slot>
         <view class="summary-item">
           <text class="summary-label">待分配人数</text>
           <text class="grid-number danger">{{pendingCount}}</text>
-        </view>
+        
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
       </van-grid-item>
       <van-grid-item use-slot>
         <view class="summary-item">
           <text class="summary-label">今日班次</text>
           <text class="grid-number">{{todayShiftCount}}</text>
-        </view>
+        
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
       </van-grid-item>
       <van-grid-item use-slot>
         <view class="summary-item">
           <text class="summary-label">已发布班次</text>
           <text class="grid-number success">{{publishedCount}}</text>
-        </view>
+        
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
       </van-grid-item>
     </van-grid>
-  </view>
+  
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
+    <van-grid column-num="3" border="false">
+      <van-grid-item use-slot>
+        <view class="summary-item">
+          <text class="summary-label">待分配人数</text>
+          <text class="grid-number danger">{{pendingCount}}</text>
+        
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
+      </van-grid-item>
+      <van-grid-item use-slot>
+        <view class="summary-item">
+          <text class="summary-label">今日班次</text>
+          <text class="grid-number">{{todayShiftCount}}</text>
+        
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
+      </van-grid-item>
+      <van-grid-item use-slot>
+        <view class="summary-item">
+          <text class="summary-label">已发布班次</text>
+          <text class="grid-number success">{{publishedCount}}</text>
+        
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
+      </van-grid-item>
+    </van-grid>
+  
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
 
   <view class="create-entry card">
     <van-button type="info" block bind:tap="onShowCreatePopup">添加班次</van-button>
-  </view>
+  
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
 
   <view class="shift-list">
     <view wx:if="{{loading}}" class="card">
       <van-skeleton title row="3" />
       <van-skeleton title row="3" custom-style="margin-top: 16rpx;" />
-    </view>
+    
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
 
     <view wx:if="{{!loading && shifts.length === 0}}" class="card">
       <van-empty description="暂无班次数据" />
-    </view>
+    
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
 
     <shift-card
       wx:for="{{!loading ? shifts : []}}"
@@ -42,14 +272,50 @@
       shift="{{item}}"
       bind:manageshift="onManageShift"
     />
-  </view>
+  
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
 
   <view class="pending-fab" bind:tap="openPendingPool">
     <text>待分配池 {{pendingCount}}</text>
-  </view>
+  
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
   <view wx:if="{{pendingActionOverflow > 0}}" class="card" style="margin-top: 16rpx;">
     <text style="font-size: 24rpx; color: #999;">待分配人数较多，弹层仅展示前 {{pendingActions.length}} 条。</text>
-  </view>
+  
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
 
   <van-action-sheet
     show="{{showPendingSheet}}"
@@ -86,7 +352,19 @@
 
   <van-popup show="{{showCreatePopup}}" position="bottom" round bind:close="onCloseCreatePopup">
     <view class="create-popup">
-      <view class="create-title">创建班次</view>
+      <view class="create-title">创建班次
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
       <van-cell-group inset>
         <van-field
           label="选择司机"
@@ -114,7 +392,19 @@
         />
       </van-cell-group>
       <van-button type="info" block custom-style="margin-top: 24rpx;" bind:tap="onSubmitShift">确认创建</van-button>
-    </view>
+    
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
+</view>
   </van-popup>
 
   <van-popup show="{{showDriverPicker}}" position="bottom" bind:close="onCancelDriverPicker">
@@ -149,4 +439,16 @@
       bind:cancel="onCancelTimePicker"
     />
   </van-popup>
+
+  <!-- 角色模拟选择弹窗 -->
+  <van-action-sheet
+    show="{{showRoleSimulator}}"
+    title="选择模拟角色"
+    z-index="2000"
+    root-portal
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="onCloseRoleSimulator"
+  />
 </view>
