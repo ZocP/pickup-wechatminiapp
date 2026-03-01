@@ -13,6 +13,10 @@ module.exports = {
     return request.post('/auth/bind-phone', { phone_code: phoneCode });
   },
 
+  bindWechatID(wechatID) {
+    return request.post('/auth/bind-wechat-id', { wechat_id: wechatID });
+  },
+
   getAuthMe() {
     return request.get('/auth/me');
   },

@@ -5,6 +5,7 @@ App({
       name: '',
       role: 'student', // 'student' | 'staff' | 'admin' | 'driver'
       phone: '',
+      wechat_id: '',
     },
     viewAsRole: '', // '' means no simulation
   },
@@ -40,7 +41,7 @@ App({
 
   isWechatBound() {
     const userInfo = this.globalData.userInfo || {};
-    return !!String(userInfo.phone || '').trim();
+    return !!String(userInfo.wechat_id || '').trim();
   },
 
   getEffectiveRole() {
@@ -86,7 +87,7 @@ App({
   onTokenExpired() {
     wx.removeStorageSync('token');
     wx.removeStorageSync('userInfo');
-    this.globalData.userInfo = { id: 0, name: '', role: 'student', phone: '' };
+    this.globalData.userInfo = { id: 0, name: '', role: 'student', phone: '', wechat_id: '' };
     this.globalData.viewAsRole = '';
     this.toLogin();
   },

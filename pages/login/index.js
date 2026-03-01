@@ -48,8 +48,8 @@ Page({
 
       wx.showToast({ title: '登录成功', icon: 'success' });
 
-      const phone = String((mergedUser && mergedUser.phone) || '').trim();
-      if (!phone) {
+      const wechatID = String((mergedUser && mergedUser.wechat_id) || '').trim();
+      if (!wechatID) {
         wx.reLaunch({ url: '/pages/bind/index' });
         return;
       }

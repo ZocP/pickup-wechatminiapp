@@ -3,6 +3,7 @@ const api = require('../../utils/api');
 Page({
   data: {
     loading: false,
+    wechatID: '',
   },
 
   onShow() {
@@ -19,19 +20,22 @@ Page({
     }
   },
 
-  async onGetPhoneNumber(e) {
+  onWechatIDChange(e) {
+    this.setData({ wechatID: (e && e.detail) || '' });
+  },
+
+  async onBindWechatID() {
     if (this.data.loading) return;
 
-    const detail = (e && e.detail) || {};
-    const code = detail.code;
-    if (!code) {
-      wx.showToast({ title: '请授权获取微信手机号', icon: 'none' });
+    const wechatID = String(this.data.wechatID || '').trim();
+    if (!/^[a-zA-Z0-9_]{6,20}$/.test(wechatID)) {
+      wx.showToast({ title: '微信号格式不正确（6-20位字母数字下划线）', icon: 'none' });
       return;
     }
 
     this.setData({ loading: true });
     try {
-      await api.bindPhone(code);
+      await api.bindWechatID(wechatID);
       const me = await api.getAuthMe();
       wx.setStorageSync('userInfo', me || {});
       getApp().setUserInfo(me || {});
