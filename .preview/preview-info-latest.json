@@ -1,0 +1,15 @@
+{
+  "size": {
+    "total": 443897,
+    "packages": [
+      {
+        "name": "TOTAL",
+        "size": 443897
+      }
+    ]
+  },
+  "generated_at": "2026-03-01T00:08:00Z",
+  "commit_hash": "887d2f6",
+  "node_check": "passed",
+  "status": "ready_for_preview"
+}
