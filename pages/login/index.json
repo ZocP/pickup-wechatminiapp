@@ -1,7 +1,7 @@
 {
   "navigationBarTitleText": "登录",
   "usingComponents": {
-    "van-button": "/miniprogram_npm/@vant/weapp/dist/button/index",
-    "van-notice-bar": "/miniprogram_npm/@vant/weapp/dist/notice-bar/index"
+    "van-button": "/miniprogram_npm/@vant/weapp/button/index",
+    "van-notice-bar": "/miniprogram_npm/@vant/weapp/notice-bar/index"
   }
 }

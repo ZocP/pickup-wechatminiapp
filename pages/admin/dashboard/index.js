@@ -20,8 +20,8 @@ function resolveRequestName(request) {
 }
 
 function buildRideWithText(request) {
-  const note = String(request?.ride_with_note || '').trim();
-  const wxid = String(request?.ride_with_wechat || '').trim();
+  const note = String((request && request.ride_with_note) || '').trim();
+  const wxid = String((request && request.ride_with_wechat) || '').trim();
   if (!note && !wxid) return '';
   if (note && wxid) return `同乘: ${note} | 微信: ${wxid}`;
   if (note) return `同乘: ${note}`;
@@ -57,7 +57,9 @@ function extractArray(payload, candidates) {
 }
 
 function pickNumber(payload, keys) {
-  const roots = [payload, unwrapPayload(payload), unwrapPayload(unwrapPayload(payload)?.data)].filter(Boolean);
+  const level1 = unwrapPayload(payload);
+  const level2 = level1 && level1.data ? unwrapPayload(level1.data) : null;
+  const roots = [payload, level1, level2].filter(Boolean);
   for (let i = 0; i < roots.length; i += 1) {
     const root = roots[i];
     if (!root || typeof root !== 'object' || Array.isArray(root)) continue;
@@ -207,13 +209,17 @@ Page({
     const todayShiftCountFromRows = shifts.filter((s) => normalizeDateKey(s.departure_time) === todayKey).length;
     const publishedCountFromRows = shifts.filter((s) => (s.status || '').toLowerCase() === 'published').length;
 
-    const pendingCount = pickNumber(shiftsRes, ['pending_count', 'pendingCount'])
-      ?? pickNumber(pendingRes, ['pending_count', 'pendingCount', 'total'])
-      ?? pendingRequests.length;
-    const todayShiftCount = pickNumber(shiftsRes, ['today_shift_count', 'todayShiftCount', 'today_count'])
-      ?? todayShiftCountFromRows;
-    const publishedCount = pickNumber(shiftsRes, ['published_count', 'publishedCount'])
-      ?? publishedCountFromRows;
+    const pendingCountFromShift = pickNumber(shiftsRes, ['pending_count', 'pendingCount']);
+    const pendingCountFromPending = pickNumber(pendingRes, ['pending_count', 'pendingCount', 'total']);
+    const pendingCount = Number.isFinite(pendingCountFromShift)
+      ? pendingCountFromShift
+      : (Number.isFinite(pendingCountFromPending) ? pendingCountFromPending : pendingRequests.length);
+
+    const todayShiftCountFromApi = pickNumber(shiftsRes, ['today_shift_count', 'todayShiftCount', 'today_count']);
+    const todayShiftCount = Number.isFinite(todayShiftCountFromApi) ? todayShiftCountFromApi : todayShiftCountFromRows;
+
+    const publishedCountFromApi = pickNumber(shiftsRes, ['published_count', 'publishedCount']);
+    const publishedCount = Number.isFinite(publishedCountFromApi) ? publishedCountFromApi : publishedCountFromRows;
 
     const limitedPendingActions = pendingRequests.slice(0, MAX_PENDING_ACTIONS).map((r) => {
       const rideWith = buildRideWithText(r);

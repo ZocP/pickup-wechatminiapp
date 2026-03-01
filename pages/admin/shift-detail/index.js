@@ -20,33 +20,33 @@ function driverOf(shift) {
   if (nested && (nested.name || nested.car_model || nested.max_seats || nested.max_checked || nested.max_carry_on)) {
     return nested
   }
-  const name = shift?.driver_name || shift?.driverName || ''
-  const car = shift?.car_model || shift?.vehicle_model || shift?.vehicle_plate || ''
+  const name = (shift && (shift.driver_name || shift.driverName)) || ''
+  const car = (shift && (shift.car_model || shift.vehicle_model || shift.vehicle_plate)) || ''
   if (!name && !car) return null
   return {
     name,
     car_model: car,
-    max_seats: shift?.max_passengers || shift?.max_seats,
-    max_checked: shift?.max_checked_luggage || shift?.max_checked,
-    max_carry_on: shift?.max_carry_on_luggage || shift?.max_carry_on
+    max_seats: shift && (shift.max_passengers || shift.max_seats),
+    max_checked: shift && (shift.max_checked_luggage || shift.max_checked),
+    max_carry_on: shift && (shift.max_carry_on_luggage || shift.max_carry_on)
   }
 }
 
 function capacityOf(shift, type) {
   const driver = driverOf(shift) || {}
   if (type === 'seats') {
-    return toNumber(driver.max_seats || shift?.max_passengers || shift?.max_seats)
+    return toNumber(driver.max_seats || (shift && (shift.max_passengers || shift.max_seats)))
   }
   if (type === 'checked') {
-    return toNumber(driver.max_checked || shift?.max_checked_luggage || shift?.max_checked)
+    return toNumber(driver.max_checked || (shift && (shift.max_checked_luggage || shift.max_checked)))
   }
-  return toNumber(driver.max_carry_on || shift?.max_carry_on_luggage || shift?.max_carry_on)
+  return toNumber(driver.max_carry_on || (shift && (shift.max_carry_on_luggage || shift.max_carry_on)))
 }
 
 function shiftTerminalOf(shift, onboardList) {
-  if (shift?.arrival_terminal) return String(shift.arrival_terminal).trim().toUpperCase()
-  if (shift?.terminal) return String(shift.terminal).trim().toUpperCase()
-  if (Array.isArray(shift?.terminals) && shift.terminals.length) {
+  if (shift && shift.arrival_terminal) return String(shift.arrival_terminal).trim().toUpperCase()
+  if (shift && shift.terminal) return String(shift.terminal).trim().toUpperCase()
+  if (shift && Array.isArray(shift.terminals) && shift.terminals.length) {
     return String(shift.terminals[0] || '').trim().toUpperCase() || '--'
   }
   const firstTerminal = (onboardList || []).find((x) => x && x.terminal)
@@ -54,18 +54,18 @@ function shiftTerminalOf(shift, onboardList) {
 }
 
 function terminalRouteOf(shift, onboardList) {
-  if (Array.isArray(shift?.terminals) && shift.terminals.length) {
+  if (shift && Array.isArray(shift.terminals) && shift.terminals.length) {
     const route = shift.terminals
       .map((item) => String(item || '').trim().toUpperCase())
       .filter(Boolean)
     return route.join(' -> ')
   }
-  if (shift?.terminal_route) {
+  if (shift && shift.terminal_route) {
     return String(shift.terminal_route).trim()
   }
   const unique = []
   ;(onboardList || []).forEach((item) => {
-    const t = String(item?.terminal || '').trim().toUpperCase()
+    const t = String((item && item.terminal) || '').trim().toUpperCase()
     if (t && unique.indexOf(t) === -1) unique.push(t)
   })
   return unique.join(' -> ')
@@ -254,7 +254,7 @@ Page({
 
       const dashboardRows = Array.isArray(dashboard)
         ? dashboard
-        : (Array.isArray(dashboard?.shifts) ? dashboard.shifts : [])
+        : (dashboard && Array.isArray(dashboard.shifts) ? dashboard.shifts : [])
 
       const shifts = dashboardRows.map((item) => ({
         ...item,
@@ -276,7 +276,7 @@ Page({
 
       const pendingRows = Array.isArray(pending)
         ? pending
-        : (Array.isArray(pending?.items) ? pending.items : [])
+        : (pending && Array.isArray(pending.items) ? pending.items : [])
       const normalizedOnboard = (shift.requests || shift.passengers || []).map(toPassengerFromRequest)
 
       this.setData({
@@ -289,7 +289,7 @@ Page({
       this.syncHeaderAndUsage()
       this.recomputeFiltersAndList()
     } catch (error) {
-      wx.showToast({ title: error?.message || '加载失败', icon: 'none' })
+      wx.showToast({ title: (error && error.message) || '加载失败', icon: 'none' })
     } finally {
       wx.hideLoading()
     }
@@ -345,7 +345,8 @@ Page({
         const late = isLate(base.calc_pickup_time, shift.departure_time)
         const pickupDate = normalizeDateTime(base.calc_pickup_time)
         const pickupTs = pickupDate ? pickupDate.getTime() : Number.MAX_SAFE_INTEGER
-        const departureTs = normalizeDateTime(shift.departure_time)?.getTime() || 0
+        const departureDate = normalizeDateTime(shift.departure_time)
+        const departureTs = departureDate ? departureDate.getTime() : 0
         const delta = Math.abs(pickupTs - departureTs)
         return {
           ...base,
@@ -402,7 +403,8 @@ Page({
   },
 
   onTabChange(event) {
-    this.setData({ activeTab: event?.detail?.index || 0 })
+    const index = event && event.detail ? event.detail.index : 0
+    this.setData({ activeTab: index || 0 })
   },
 
   onTerminalChange(event) {
@@ -423,7 +425,7 @@ Page({
         await assignStudent(this.data.shiftId, requestId)
         await this.loadData()
       } catch (error) {
-        wx.showToast({ title: error?.message || '添加失败', icon: 'none' })
+        wx.showToast({ title: (error && error.message) || '添加失败', icon: 'none' })
       } finally {
         this.setData({ actingRequestId: null })
       }
@@ -440,7 +442,7 @@ Page({
         await removeStudent(this.data.shiftId, requestId)
         await this.loadData()
       } catch (error) {
-        wx.showToast({ title: error?.message || '移出失败', icon: 'none' })
+        wx.showToast({ title: (error && error.message) || '移出失败', icon: 'none' })
       } finally {
         this.setData({ actingRequestId: null })
       }
@@ -453,7 +455,8 @@ Page({
     await this.runWithActionLock(async () => {
       this.setData({ publishing: true })
       try {
-        const isPublished = String(this.data.shift?.status || '').toLowerCase() === 'published'
+        const shiftStatus = this.data.shift && this.data.shift.status ? this.data.shift.status : ''
+        const isPublished = String(shiftStatus).toLowerCase() === 'published'
         if (isPublished) {
           await updateShift(this.data.shiftId, { status: 'unpublished' })
           wx.showToast({ title: '已撤回发布', icon: 'success' })
@@ -463,7 +466,7 @@ Page({
         }
         await this.loadData()
       } catch (error) {
-        wx.showToast({ title: error?.message || '操作失败', icon: 'none' })
+        wx.showToast({ title: (error && error.message) || '操作失败', icon: 'none' })
       } finally {
         this.setData({ publishing: false })
       }

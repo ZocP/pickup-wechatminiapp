@@ -1,16 +1,16 @@
 {
   "navigationBarTitleText": "班次详情",
   "usingComponents": {
-    "van-sticky": "/miniprogram_npm/@vant/weapp/dist/sticky/index",
-    "van-tabs": "/miniprogram_npm/@vant/weapp/dist/tabs/index",
-    "van-tab": "/miniprogram_npm/@vant/weapp/dist/tab/index",
-    "van-dropdown-menu": "/miniprogram_npm/@vant/weapp/dist/dropdown-menu/index",
-    "van-dropdown-item": "/miniprogram_npm/@vant/weapp/dist/dropdown-item/index",
-    "van-cell-group": "/miniprogram_npm/@vant/weapp/dist/cell-group/index",
-    "van-cell": "/miniprogram_npm/@vant/weapp/dist/cell/index",
-    "van-tag": "/miniprogram_npm/@vant/weapp/dist/tag/index",
-    "van-button": "/miniprogram_npm/@vant/weapp/dist/button/index",
-    "van-progress": "/miniprogram_npm/@vant/weapp/dist/progress/index",
-    "van-empty": "/miniprogram_npm/@vant/weapp/dist/empty/index"
+    "van-sticky": "/miniprogram_npm/@vant/weapp/sticky/index",
+    "van-tabs": "/miniprogram_npm/@vant/weapp/tabs/index",
+    "van-tab": "/miniprogram_npm/@vant/weapp/tab/index",
+    "van-dropdown-menu": "/miniprogram_npm/@vant/weapp/dropdown-menu/index",
+    "van-dropdown-item": "/miniprogram_npm/@vant/weapp/dropdown-item/index",
+    "van-cell-group": "/miniprogram_npm/@vant/weapp/cell-group/index",
+    "van-cell": "/miniprogram_npm/@vant/weapp/cell/index",
+    "van-tag": "/miniprogram_npm/@vant/weapp/tag/index",
+    "van-button": "/miniprogram_npm/@vant/weapp/button/index",
+    "van-progress": "/miniprogram_npm/@vant/weapp/progress/index",
+    "van-empty": "/miniprogram_npm/@vant/weapp/empty/index"
   }
 }

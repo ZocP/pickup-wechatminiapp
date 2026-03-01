@@ -1,9 +1,9 @@
 {
   "navigationBarTitleText": "我的",
   "usingComponents": {
-    "van-cell": "/miniprogram_npm/@vant/weapp/dist/cell/index",
-    "van-cell-group": "/miniprogram_npm/@vant/weapp/dist/cell-group/index",
-    "van-tag": "/miniprogram_npm/@vant/weapp/dist/tag/index",
-    "van-button": "/miniprogram_npm/@vant/weapp/dist/button/index"
+    "van-cell": "/miniprogram_npm/@vant/weapp/cell/index",
+    "van-cell-group": "/miniprogram_npm/@vant/weapp/cell-group/index",
+    "van-tag": "/miniprogram_npm/@vant/weapp/tag/index",
+    "van-button": "/miniprogram_npm/@vant/weapp/button/index"
   }
 }

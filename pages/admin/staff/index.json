@@ -2,10 +2,10 @@
   "navigationBarTitleText": "Staff 管理",
   "enablePullDownRefresh": true,
   "usingComponents": {
-    "van-cell": "/miniprogram_npm/@vant/weapp/dist/cell/index",
-    "van-cell-group": "/miniprogram_npm/@vant/weapp/dist/cell-group/index",
-    "van-tag": "/miniprogram_npm/@vant/weapp/dist/tag/index",
-    "van-button": "/miniprogram_npm/@vant/weapp/dist/button/index",
-    "van-empty": "/miniprogram_npm/@vant/weapp/dist/empty/index"
+    "van-cell": "/miniprogram_npm/@vant/weapp/cell/index",
+    "van-cell-group": "/miniprogram_npm/@vant/weapp/cell-group/index",
+    "van-tag": "/miniprogram_npm/@vant/weapp/tag/index",
+    "van-button": "/miniprogram_npm/@vant/weapp/button/index",
+    "van-empty": "/miniprogram_npm/@vant/weapp/empty/index"
   }
 }

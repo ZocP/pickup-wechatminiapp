@@ -1,13 +1,13 @@
 {
   "navigationBarTitleText": "司机与车辆管理",
   "usingComponents": {
-    "van-cell": "/miniprogram_npm/@vant/weapp/dist/cell/index",
-    "van-cell-group": "/miniprogram_npm/@vant/weapp/dist/cell-group/index",
-    "van-tag": "/miniprogram_npm/@vant/weapp/dist/tag/index",
-    "van-button": "/miniprogram_npm/@vant/weapp/dist/button/index",
-    "van-popup": "/miniprogram_npm/@vant/weapp/dist/popup/index",
-    "van-field": "/miniprogram_npm/@vant/weapp/dist/field/index",
-    "van-stepper": "/miniprogram_npm/@vant/weapp/dist/stepper/index",
-    "van-empty": "/miniprogram_npm/@vant/weapp/dist/empty/index"
+    "van-cell": "/miniprogram_npm/@vant/weapp/cell/index",
+    "van-cell-group": "/miniprogram_npm/@vant/weapp/cell-group/index",
+    "van-tag": "/miniprogram_npm/@vant/weapp/tag/index",
+    "van-button": "/miniprogram_npm/@vant/weapp/button/index",
+    "van-popup": "/miniprogram_npm/@vant/weapp/popup/index",
+    "van-field": "/miniprogram_npm/@vant/weapp/field/index",
+    "van-stepper": "/miniprogram_npm/@vant/weapp/stepper/index",
+    "van-empty": "/miniprogram_npm/@vant/weapp/empty/index"
   }
 }

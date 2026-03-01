@@ -1,4 +1,4 @@
-@import '/miniprogram_npm/@vant/weapp/dist/common/index.wxss';
+@import '/miniprogram_npm/@vant/weapp/common/index.wxss';
 
 page {
   background: #f7f8fa;

@@ -2,7 +2,7 @@ const DEFAULT_BASE_URL = 'https://api.zocpstudio.com/api/v1';
 const REQUEST_TIMEOUT = 15000;
 
 function getBaseURL() {
-  return wx.getStorageSync('baseURL') || DEFAULT_BASE_URL;
+  return DEFAULT_BASE_URL;
 }
 
 function getToken() {
