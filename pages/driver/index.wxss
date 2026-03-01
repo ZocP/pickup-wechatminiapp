@@ -1,0 +1,124 @@
+.page {
+  min-height: 100vh;
+  background-color: #f7f8fa;
+}
+
+/* 加载状态 */
+.loading-container {
+  padding: 100rpx 0;
+  text-align: center;
+}
+
+/* 空状态 */
+.empty-container {
+  padding: 100rpx 32rpx;
+  text-align: center;
+}
+
+.empty-tips {
+  margin-top: 32rpx;
+  font-size: 28rpx;
+  color: #969799;
+}
+
+/* 班次容器 */
+.shift-container {
+  padding: 32rpx;
+}
+
+/* 扫码按钮容器 */
+.scan-button-container {
+  margin: 48rpx 32rpx;
+}
+
+/* 乘客列表区域 */
+.passengers-section {
+  margin-top: 48rpx;
+  background: white;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+
+.section-title {
+  padding: 32rpx 32rpx 24rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #323233;
+  border-bottom: 1rpx solid #ebedf0;
+}
+
+.empty-passengers {
+  padding: 64rpx 0;
+}
+
+/* 扫码模态框 */
+.scan-modal {
+  padding: 48rpx 32rpx;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 48rpx;
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #323233;
+}
+
+/* 扫码内容 */
+.scan-content {
+  text-align: center;
+}
+
+/* 扫码结果 */
+.scan-result {
+  padding: 64rpx 0;
+}
+
+.result-message {
+  margin-top: 32rpx;
+  font-size: 32rpx;
+  color: #323233;
+}
+
+.student-name {
+  margin-top: 16rpx;
+  font-size: 28rpx;
+  color: #969799;
+}
+
+/* 扫码指引 */
+.scan-instruction {
+  padding: 64rpx 0;
+}
+
+.instruction-text {
+  font-size: 32rpx;
+  color: #323233;
+  margin-bottom: 64rpx;
+}
+
+.scan-button {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx;
+  background: #f7f8fa;
+  border-radius: 32rpx;
+  margin-bottom: 32rpx;
+}
+
+.scan-text {
+  margin-top: 24rpx;
+  font-size: 28rpx;
+  color: #1989fa;
+}
+
+.scan-tips {
+  font-size: 24rpx;
+  color: #969799;
+}

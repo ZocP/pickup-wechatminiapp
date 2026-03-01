@@ -109,50 +109,9 @@
         <view class="line">车型：{{assignedShift.driver.car_model || '--'}}</view>
         <view class="line">集合点：Terminal {{latestRequest.terminal || '--'}}</view>
         <view class="line">出发时间：{{assignedShift.departure_time || '--'}}</view>
-        
-        <!-- 登车二维码 -->
-        <view class="qr-code-section">
-          <view class="inner-title">登车二维码</view>
-          <view class="qr-code-tips">请向司机出示此二维码进行登车核销</view>
-          
-          <view wx:if="{{generatingQrCode}}" class="qr-code-loading">
-            <van-loading size="24px">生成二维码中...</van-loading>
-          </view>
-          
-          <view wx:elif="{{qrCodePath}}" class="qr-code-container">
-            <image src="{{qrCodePath}}" class="qr-code-image" mode="widthFix" />
-            <view class="qr-code-actions">
-              <van-button 
-                type="primary" 
-                size="small" 
-                bindtap="openQrCodeModal"
-              >
-                查看大图
-              </van-button>
-              <van-button 
-                type="default" 
-                size="small" 
-                bindtap="saveQrCodeToAlbum"
-              >
-                保存到相册
-              </van-button>
-            </view>
-          </view>
-          
-          <view wx:else class="qr-code-empty">
-            <van-empty description="二维码生成失败" mode="list" />
-          </view>
-        </view>
       </view>
     </view>
   </view>
-
-  <!-- 隐藏的canvas用于生成二维码 -->
-  <canvas 
-    id="qrCodeCanvas" 
-    style="position: absolute; left: -9999rpx; width: 200px; height: 200px;" 
-    type="2d"
-  />
 
   <van-action-sheet
     show="{{showTerminalPicker}}"
@@ -178,39 +137,5 @@
       bind:cancel="onTimePickerCancel"
       bind:confirm="onTimeConfirm"
     />
-  </van-popup>
-
-  <!-- 二维码大图模态框 -->
-  <van-popup 
-    show="{{showQrCodeModal}}" 
-    position="center" 
-    round
-    bind:close="closeQrCodeModal"
-  >
-    <view class="qr-code-modal">
-      <view class="modal-header">
-        <text class="modal-title">登车二维码</text>
-        <van-icon name="cross" size="18px" bindtap="closeQrCodeModal" />
-      </view>
-      
-      <view class="modal-content">
-        <view wx:if="{{qrCodePath}}" class="large-qr-code">
-          <image src="{{qrCodePath}}" class="qr-code-large-image" mode="widthFix" />
-          <view class="qr-code-instruction">
-            请向司机出示此二维码进行登车核销
-          </view>
-        </view>
-        
-        <view class="modal-actions">
-          <van-button 
-            type="primary" 
-            block
-            bindtap="saveQrCodeToAlbum"
-          >
-            保存到相册
-          </van-button>
-        </view>
-      </view>
-    </view>
   </van-popup>
 </view>

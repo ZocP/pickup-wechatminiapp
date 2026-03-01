@@ -7,7 +7,8 @@
     "pages/admin/staff/index",
     "pages/profile/index",
     "pages/student/request/index",
-    "pages/login/index"
+    "pages/login/index",
+    "pages/driver/index"
   ],
   "window": {
     "navigationBarTitleText": "UIUC 接机调度",

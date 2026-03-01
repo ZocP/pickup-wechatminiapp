@@ -1,0 +1,106 @@
+<view class="page">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <van-loading size="24px" vertical>加载中...</van-loading>
+  </view>
+
+  <!-- 无班次提示 -->
+  <view wx:if="{{!loading && !currentShift}}" class="empty-container">
+    <van-empty description="暂无班次安排" />
+    <view class="empty-tips">请联系管理员分配班次</view>
+  </view>
+
+  <!-- 班次信息 -->
+  <view wx:if="{{currentShift}}" class="shift-container">
+    <van-cell-group>
+      <van-cell title="当前班次" value="{{formatTime(currentShift.departure_time)}}" />
+      <van-cell title="司机" value="{{currentShift.driver_name || '未分配'}}" />
+      <van-cell title="车辆容量" value="{{currentShift.capacity}}人" />
+      <van-cell title="已安排" value="{{currentShift.assigned_count}}人" />
+      <van-cell title="状态" value="{{currentShift.status === 'published' ? '已发布' : '未发布'}}" />
+    </van-cell-group>
+
+    <!-- 扫码登车按钮 -->
+    <view class="scan-button-container">
+      <van-button 
+        type="primary" 
+        size="large" 
+        bindtap="openScanModal"
+        loading="{{scanning}}"
+      >
+        扫码登车
+      </van-button>
+    </view>
+
+    <!-- 乘客列表 -->
+    <view class="passengers-section">
+      <view class="section-title">乘客列表 ({{passengers.length}}/{{currentShift.capacity}})</view>
+      <van-cell-group wx:if="{{passengers.length > 0}}">
+        <van-cell 
+          wx:for="{{passengers}}" 
+          wx:key="id"
+          title="{{item.name}}"
+          value="{{item.status === 'boarded' ? '已登车' : '待登车'}}"
+        >
+          <view slot="label">
+            <text>学号: {{item.student_id}}</text>
+          </view>
+        </van-cell>
+      </van-cell-group>
+      <view wx:else class="empty-passengers">
+        <van-empty description="暂无乘客" mode="list" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 扫码模态框 -->
+  <van-popup 
+    show="{{showScanModal}}" 
+    position="bottom" 
+    round
+    bind:close="closeScanModal"
+  >
+    <view class="scan-modal">
+      <view class="modal-header">
+        <text class="modal-title">扫码登车</text>
+        <van-icon name="cross" size="18px" bindtap="closeScanModal" />
+      </view>
+      
+      <view class="scan-content">
+        <!-- 扫码结果展示 -->
+        <view wx:if="{{scanResult}}" class="scan-result">
+          <van-icon 
+            wx:if="{{scanResult.success}}" 
+            name="checked" 
+            color="#07c160" 
+            size="48px" 
+          />
+          <van-icon 
+            wx:else 
+            name="clear" 
+            color="#ee0a24" 
+            size="48px" 
+          />
+          <view class="result-message">{{scanResult.message}}</view>
+          <view wx:if="{{scanResult.studentName}}" class="student-name">
+            学生: {{scanResult.studentName}}
+          </view>
+        </view>
+
+        <!-- 扫码按钮 -->
+        <view wx:else class="scan-instruction">
+          <view class="instruction-text">
+            请扫描学生的登车二维码
+          </view>
+          <view class="scan-button" bindtap="startScan">
+            <van-icon name="scan" size="48px" color="#1989fa" />
+            <text class="scan-text">开始扫码</text>
+          </view>
+          <view class="scan-tips">
+            确保二维码在框内，光线充足
+          </view>
+        </view>
+      </view>
+    </view>
+  </van-popup>
+</view>

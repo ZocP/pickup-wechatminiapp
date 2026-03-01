@@ -12,7 +12,6 @@ Page({
     showDatePicker: false,
     showTimePicker: false,
     showTerminalPicker: false,
-    showQrCodeModal: false,
     timePickerValue: '12:00',
     terminalActions: [
       { name: 'T1' },
@@ -38,9 +37,6 @@ Page({
     activeStep: 0,
     latestRequest: null,
     assignedShift: null,
-    boardingToken: null,
-    qrCodePath: null,
-    generatingQrCode: false,
   },
 
   onShow() {
@@ -231,8 +227,6 @@ Page({
           activeStep: 0,
           assignedShift: null,
           hasSubmitted: false,
-          boardingToken: null,
-          qrCodePath: null,
         });
         return;
       }
@@ -241,145 +235,16 @@ Page({
       const status = (latest.status || '').toLowerCase();
       const step = status === 'pending' ? 0 : status === 'assigned' ? 1 : 2;
 
-      // 获取登车token（模拟）
-      let boardingToken = null;
-      if (status === 'published' && latest.shift) {
-        boardingToken = this.generateBoardingToken(latest.id, latest.shift.id);
-      }
-
       this.setData({
         latestRequest: { ...latest, status_text: requestStatusText(latest.status) },
         activeStep: step,
         assignedShift: status === 'published' ? latest.shift || null : null,
-        boardingToken: boardingToken,
         hasSubmitted: true,
       });
-
-      // 如果有token，生成二维码
-      if (boardingToken) {
-        this.generateQrCode(boardingToken);
-      }
     } catch (error) {
       wx.showToast({ title: (error && error.message) || '状态加载失败', icon: 'none' });
     } finally {
       this.setData({ loadingTrack: false });
     }
-  },
-
-  // 生成登车token（模拟，实际应从后端获取）
-  generateBoardingToken(requestId, shiftId) {
-    const timestamp = Date.now();
-    const randomStr = Math.random().toString(36).substring(2, 10);
-    return `boarding_${requestId}_${shiftId}_${timestamp}_${randomStr}`;
-  },
-
-  // 生成二维码
-  async generateQrCode(token) {
-    if (!token || this.data.generatingQrCode) return;
-    
-    this.setData({ generatingQrCode: true });
-    try {
-      // 使用微信canvas生成二维码
-      const qrCodePath = await this.drawQrCode(token);
-      this.setData({ qrCodePath: qrCodePath });
-    } catch (error) {
-      console.error('生成二维码失败:', error);
-    } finally {
-      this.setData({ generatingQrCode: false });
-    }
-  },
-
-  // 使用canvas绘制二维码
-  drawQrCode(text) {
-    return new Promise((resolve, reject) => {
-      const query = wx.createSelectorQuery();
-      query.select('#qrCodeCanvas')
-        .fields({ node: true, size: true })
-        .exec((res) => {
-          if (!res || !res[0]) {
-            reject(new Error('Canvas未找到'));
-            return;
-          }
-
-          const canvas = res[0].node;
-          const ctx = canvas.getContext('2d');
-          const dpr = wx.getSystemInfoSync().pixelRatio;
-          const size = 200;
-          
-          canvas.width = size * dpr;
-          canvas.height = size * dpr;
-          ctx.scale(dpr, dpr);
-          
-          // 清空画布
-          ctx.clearRect(0, 0, size, size);
-          
-          // 绘制白色背景
-          ctx.fillStyle = '#FFFFFF';
-          ctx.fillRect(0, 0, size, size);
-          
-          // 简单二维码模拟（实际应使用二维码库）
-          // 这里绘制一个简单的二维码样式
-          ctx.fillStyle = '#000000';
-          ctx.font = '12px sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('登车二维码', size/2, size/2 - 20);
-          ctx.font = '10px sans-serif';
-          ctx.fillText(token.substring(0, 20) + '...', size/2, size/2 + 10);
-          
-          // 绘制边框
-          ctx.strokeStyle = '#1989fa';
-          ctx.lineWidth = 2;
-          ctx.strokeRect(5, 5, size-10, size-10);
-          
-          // 转换为图片路径
-          wx.canvasToTempFilePath({
-            canvas: canvas,
-            success: (res) => {
-              resolve(res.tempFilePath);
-            },
-            fail: reject,
-          });
-        });
-    });
-  },
-
-  // 打开二维码模态框
-  openQrCodeModal() {
-    this.setData({ showQrCodeModal: true });
-  },
-
-  // 关闭二维码模态框
-  closeQrCodeModal() {
-    this.setData({ showQrCodeModal: false });
-  },
-
-  // 保存二维码到相册
-  saveQrCodeToAlbum() {
-    if (!this.data.qrCodePath) return;
-    
-    wx.saveImageToPhotosAlbum({
-      filePath: this.data.qrCodePath,
-      success: () => {
-        wx.showToast({
-          title: '保存成功',
-          icon: 'success',
-        });
-      },
-      fail: (err) => {
-        if (err.errMsg.includes('auth deny')) {
-          wx.showModal({
-            title: '提示',
-            content: '需要相册权限才能保存二维码',
-            showCancel: false,
-          });
-        } else {
-          wx.showToast({
-            title: '保存失败',
-            icon: 'none',
-          });
-        }
-      },
-    });
   },
 });

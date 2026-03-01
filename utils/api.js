@@ -88,4 +88,27 @@ module.exports = {
   updateStudentRequest(id, payload) {
     return request.put(`/student/requests/${id}`, payload);
   },
+
+  // 司机相关接口
+  getDriverShifts() {
+    return request.get('/driver/shifts');
+  },
+
+  getDriverShiftDetail(shiftId) {
+    return request.get(`/driver/shifts/${shiftId}`);
+  },
+
+  getShiftPassengers(shiftId) {
+    return request.get(`/driver/shifts/${shiftId}/passengers`);
+  },
+
+  // 登车核销接口
+  verifyBoarding(qrCode) {
+    return request.post('/driver/boarding/verify', { qr_code: qrCode });
+  },
+
+  // 获取登车token（学生端）
+  getBoardingToken(requestId) {
+    return request.get(`/student/requests/${requestId}/boarding-token`);
+  },
 };
