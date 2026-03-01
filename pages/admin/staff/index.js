@@ -9,6 +9,10 @@ Page({
     showDriverPicker: false,
     driverActions: [],
     targetUserIdForDriver: 0,
+    showRoleActions: false,
+    roleActions: [],
+    targetUserIdForAction: 0,
+    targetUserRoleForAction: '',
   },
 
   onShow() {
@@ -51,6 +55,10 @@ Page({
     const detail = (e && e.currentTarget && e.currentTarget.dataset) || {};
     const userId = Number(detail.id || 0);
     const role = detail.role || 'student';
+    await this.toggleStaff(userId, role);
+  },
+
+  async toggleStaff(userId, role) {
     if (!userId || this.data.actingUserId) return;
 
     this.setData({ actingUserId: userId });
@@ -123,6 +131,55 @@ Page({
     } finally {
       this.setData({ actingUserId: 0 });
     }
+  },
+
+  onOpenRoleActions(e) {
+    const detail = (e && e.currentTarget && e.currentTarget.dataset) || {};
+    const userId = Number(detail.id || 0);
+    const role = detail.role || 'student';
+    if (!userId || role === 'admin') return;
+
+    const actions = [];
+    actions.push({ name: role === 'staff' ? '取消Staff' : '设为Staff', action: 'toggleStaff' });
+    if (role === 'driver') {
+      actions.push({ name: '取消司机', action: 'unsetDriver' });
+    } else {
+      actions.push({ name: '设为司机', action: 'setDriver' });
+    }
+
+    this.setData({
+      showRoleActions: true,
+      roleActions: actions,
+      targetUserIdForAction: userId,
+      targetUserRoleForAction: role,
+    });
+  },
+
+  onSelectRoleAction(e) {
+    const index = e && e.detail ? e.detail.index : -1;
+    const action = this.data.roleActions[index];
+    const userId = this.data.targetUserIdForAction;
+    const role = this.data.targetUserRoleForAction;
+    if (!action || !userId) return;
+
+    if (action.action === 'toggleStaff') {
+      this.toggleStaff(userId, role);
+    } else if (action.action === 'setDriver') {
+      this.onSetDriver({ currentTarget: { dataset: { id: userId } } });
+    } else if (action.action === 'unsetDriver') {
+      this.onUnsetDriver({ currentTarget: { dataset: { id: userId } } });
+    }
+
+    this.onCloseRoleActions();
+  },
+
+  onCloseRoleActions() {
+    this.setData({
+      showRoleActions: false,
+      roleActions: [],
+      targetUserIdForAction: 0,
+      targetUserRoleForAction: '',
+    });
   },
 
   onCloseDriverPicker() {

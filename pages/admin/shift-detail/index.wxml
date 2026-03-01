@@ -14,7 +14,7 @@
         <view class="resource-line">
           <text class="resource-label">座位</text>
           <view class="resource-progress">
-            <van-progress percentage="{{seatUsage.percent}}" color="{{seatUsage.color}}" pivot-text="" stroke-width="8" />
+            <van-progress percentage="{{seatUsage.percent}}" color="{{seatUsage.color}}" pivot-text="" show-pivot="false" stroke-width="8" />
           </view>
           <text class="resource-value">{{seatUsage.used}} / {{seatUsage.max}}</text>
         </view>
@@ -22,7 +22,7 @@
         <view class="resource-line">
           <text class="resource-label">托运</text>
           <view class="resource-progress">
-            <van-progress percentage="{{checkedUsage.percent}}" color="{{checkedUsage.color}}" pivot-text="" stroke-width="8" />
+            <van-progress percentage="{{checkedUsage.percent}}" color="{{checkedUsage.color}}" pivot-text="" show-pivot="false" stroke-width="8" />
           </view>
           <text class="resource-value">{{checkedUsage.used}} / {{checkedUsage.max}}</text>
         </view>
@@ -30,7 +30,7 @@
         <view class="resource-line">
           <text class="resource-label">登机</text>
           <view class="resource-progress">
-            <van-progress percentage="{{carryOnUsage.percent}}" color="{{carryOnUsage.color}}" pivot-text="" stroke-width="8" />
+            <van-progress percentage="{{carryOnUsage.percent}}" color="{{carryOnUsage.color}}" pivot-text="" show-pivot="false" stroke-width="8" />
           </view>
           <text class="resource-value">{{carryOnUsage.used}} / {{carryOnUsage.max}}</text>
         </view>

@@ -16,35 +16,26 @@
 					<van-button
 						wx:if="{{item.role !== 'admin'}}"
 						size="mini"
-						type="{{item.role === 'staff' ? 'warning' : 'primary'}}"
+						type="primary"
 						plain
 						loading="{{actingUserId === item.id}}"
 						data-id="{{item.id}}"
 						data-role="{{item.role}}"
-						bind:tap="onToggleStaff"
-					>{{item.role === 'staff' ? '取消Staff' : '设为Staff'}}</van-button>
-					<van-button
-						wx:if="{{item.role !== 'admin' && item.role !== 'driver'}}"
-						size="mini"
-						type="warning"
-						plain
-						loading="{{actingUserId === item.id}}"
-						data-id="{{item.id}}"
-						bind:tap="onSetDriver"
-					>设为司机</van-button>
-					<van-button
-						wx:if="{{item.role === 'driver'}}"
-						size="mini"
-						type="danger"
-						plain
-						loading="{{actingUserId === item.id}}"
-						data-id="{{item.id}}"
-						bind:tap="onUnsetDriver"
-					>取消司机</van-button>
+						bind:tap="onOpenRoleActions"
+					>操作</van-button>
 				</view>
 			</van-cell>
 		</van-cell-group>
 	</view>
+
+  <van-action-sheet
+    show="{{showRoleActions}}"
+    title="用户操作"
+    actions="{{roleActions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRoleAction"
+    bind:close="onCloseRoleActions"
+  />
 
   <van-action-sheet
     show="{{showDriverPicker}}"

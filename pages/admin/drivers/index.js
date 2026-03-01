@@ -39,9 +39,35 @@ Page({
   async loadDrivers() {
     this.setData({ loading: true });
     try {
-      const res = await api.getDrivers();
+      const [driversRes, usersRes] = await Promise.all([
+        api.getDrivers(),
+        api.getUsers(),
+      ]);
+
+      const drivers = Array.isArray(driversRes) ? driversRes : [];
+      const users = Array.isArray(usersRes) ? usersRes : [];
+      const driverMap = new Map(drivers.map((d) => [String(d.id), d]));
+
+      const driverUsers = users.filter((u) => {
+        const role = String(u.role || '').toLowerCase();
+        return role === 'driver' || u.driver_id || u.driverId;
+      });
+
+      const merged = driverUsers.map((u) => {
+        const driverId = u.driver_id || u.driverId || '';
+        const driver = driverMap.get(String(driverId)) || {};
+        return {
+          id: u.id,
+          name: u.name || u.real_name || driver.name || `用户#${u.id}`,
+          car_model: driver.car_model || driver.vehicle_model || driver.vehicle_plate || '--',
+          max_seats: driver.max_seats || driver.max_passengers || 0,
+          max_checked: driver.max_checked || driver.max_checked_luggage || 0,
+          max_carry_on: driver.max_carry_on || driver.max_carry_on_luggage || 0,
+        };
+      });
+
       this.setData({
-        driverList: Array.isArray(res) ? res : [],
+        driverList: merged.length ? merged : drivers,
       });
     } catch (error) {
       wx.showToast({ title: '司机列表加载失败', icon: 'none' });

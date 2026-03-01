@@ -290,23 +290,40 @@ Page({
   // 生成二维码
   async generateQrCode(token) {
     if (!token || this.data.generatingQrCode) return;
-    
-    this.setData({ generatingQrCode: true });
+
+    this.setData({ generatingQrCode: true, qrCodePath: null });
     try {
+      await new Promise((resolve) => wx.nextTick(resolve));
       // 使用微信canvas生成二维码
-      const qrCodePath = await this.drawQrCode(token);
+      const qrCodePath = await this.drawQrCodeWithTimeout(token);
       this.setData({ qrCodePath: qrCodePath });
     } catch (error) {
       console.error('生成二维码失败:', error);
+      this.setData({ qrCodePath: null });
     } finally {
       this.setData({ generatingQrCode: false });
     }
   },
 
+  drawQrCodeWithTimeout(text, timeoutMs = 2000) {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('二维码生成超时')), timeoutMs);
+      this.drawQrCode(text)
+        .then((path) => {
+          clearTimeout(timer);
+          resolve(path);
+        })
+        .catch((err) => {
+          clearTimeout(timer);
+          reject(err);
+        });
+    });
+  },
+
   // 使用canvas绘制二维码
   drawQrCode(text) {
     return new Promise((resolve, reject) => {
-      const query = wx.createSelectorQuery();
+      const query = wx.createSelectorQuery().in(this);
       query.select('#qrCodeCanvas')
         .fields({ node: true, size: true })
         .exec((res) => {
