@@ -223,7 +223,9 @@ Page({
     publishing: false,
     actingRequestId: null,
     actionBusy: false,
-    onboardCount: 0
+    onboardCount: 0,
+    boardedCount: 0,
+    unboardedCount: 0
   },
 
   async onLoad(query) {
@@ -279,11 +281,19 @@ Page({
         : (pending && Array.isArray(pending.items) ? pending.items : [])
       const normalizedOnboard = (shift.requests || shift.passengers || []).map(toPassengerFromRequest)
 
+      // 计算已登车和待登车数量
+      const boardedCount = normalizedOnboard.filter(item => 
+        item.status === 'boarded' || item.boarded === true || item.boarding_status === 'boarded'
+      ).length;
+      const unboardedCount = normalizedOnboard.length - boardedCount;
+
       this.setData({
         shift,
         pendingRaw: pendingRows,
         onboardList: normalizedOnboard,
-        onboardCount: normalizedOnboard.length
+        onboardCount: normalizedOnboard.length,
+        boardedCount: boardedCount,
+        unboardedCount: unboardedCount
       })
 
       this.syncHeaderAndUsage()

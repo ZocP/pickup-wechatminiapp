@@ -16,6 +16,18 @@
       <text class="value">{{driverText}}</text>
     </view>
 
+    <!-- 登车状态 -->
+    <view class="boarding-status" wx:if="{{boardedCount !== undefined && unboardedCount !== undefined}}">
+      <view class="boarding-row">
+        <text class="boarding-label">已登车</text>
+        <text class="boarding-value boarded">{{boardedCount}}人</text>
+      </view>
+      <view class="boarding-row">
+        <text class="boarding-label">待登车</text>
+        <text class="boarding-value unboarded">{{unboardedCount}}人</text>
+      </view>
+    </view>
+
     <van-notice-bar
       wx:if="{{showRouteNotice}}"
       left-icon="volume-o"

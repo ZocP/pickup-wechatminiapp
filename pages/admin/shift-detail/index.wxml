@@ -34,6 +34,15 @@
           </view>
           <text class="resource-value">{{carryOnUsage.used}} / {{carryOnUsage.max}}</text>
         </view>
+        
+        <!-- 登车状态 -->
+        <view class="resource-line boarding-status-line" wx:if="{{boardedCount !== undefined && unboardedCount !== undefined}}">
+          <text class="resource-label">登车</text>
+          <view class="boarding-status-values">
+            <text class="boarding-count boarded">{{boardedCount}} 已登</text>
+            <text class="boarding-count unboarded">{{unboardedCount}} 待登</text>
+          </view>
+        </view>
       </view>
     </view>
   </van-sticky>

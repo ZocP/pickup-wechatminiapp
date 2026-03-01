@@ -55,6 +55,12 @@ Component({
       const maxCarryOn = this.getMaxCapacity(shift, 'carryOn');
 
       const hasDelayWarning = requests.some((item) => !!item.is_delayed);
+      
+      // Calculate boarded/unboarded counts
+      const boardedCount = requests.filter(item => 
+        item.status === 'boarded' || item.boarded === true || item.boarding_status === 'boarded'
+      ).length;
+      const unboardedCount = usedSeats - boardedCount;
 
       this.setData({
         headerTime: this.formatDateTime(shift.departure_time || shift.DepartureTime),
@@ -70,6 +76,8 @@ Component({
         seatUsage: this.makeUsage('座位', usedSeats, maxSeats),
         checkedUsage: this.makeUsage('托运箱', usedChecked, maxChecked),
         carryOnUsage: this.makeUsage('登机箱', usedCarryOn, maxCarryOn),
+        boardedCount: boardedCount,
+        unboardedCount: unboardedCount,
       });
     },
 

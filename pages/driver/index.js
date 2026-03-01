@@ -27,33 +27,60 @@ Page({
   async loadDriverShifts() {
     this.setData({ loading: true });
     try {
-      // TODO: 需要添加获取司机自己班次的API接口
-      // 暂时使用模拟数据
-      const mockShifts = [
-        {
-          id: 1,
-          departure_time: '2024-02-29 10:00:00',
-          driver_name: '司机A',
-          capacity: 4,
-          assigned_count: 2,
-          status: 'published',
-        }
-      ];
+      // 获取司机班次
+      const shiftsRes = await api.getDriverShifts();
+      const shifts = Array.isArray(shiftsRes) ? shiftsRes : (shiftsRes.data || shiftsRes.shifts || []);
       
-      const mockPassengers = [
-        { id: 1, name: '张三', student_id: 'S12345', status: 'assigned' },
-        { id: 2, name: '李四', student_id: 'S67890', status: 'assigned' },
-      ];
+      // 获取当前班次（假设第一个是当前班次，或根据状态筛选）
+      const currentShift = shifts.find(shift => 
+        shift.status === 'published' || shift.status === 'active'
+      ) || (shifts.length > 0 ? shifts[0] : null);
+      
+      let passengers = [];
+      if (currentShift && currentShift.id) {
+        try {
+          // 获取班次乘客
+          const passengersRes = await api.getShiftPassengers(currentShift.id);
+          passengers = Array.isArray(passengersRes) ? passengersRes : (passengersRes.data || passengersRes.passengers || []);
+          
+          // 确保乘客有正确的状态字段
+          passengers = passengers.map(passenger => ({
+            ...passenger,
+            status: passenger.status || passenger.boarding_status || 'assigned',
+            name: passenger.name || passenger.user_name || passenger.student_name || passenger.passenger_name || `乘客#${passenger.id}`,
+            student_id: passenger.student_id || passenger.student_id_number || passenger.user_id || '',
+          }));
+        } catch (passengerError) {
+          console.warn('获取乘客列表失败:', passengerError);
+          // 如果获取乘客失败，使用空数组
+        }
+      }
 
       this.setData({
-        shifts: mockShifts,
-        currentShift: mockShifts.length > 0 ? mockShifts[0] : null,
-        passengers: mockPassengers,
+        shifts: shifts,
+        currentShift: currentShift,
+        passengers: passengers,
       });
+      
+      // 如果没有班次，显示提示
+      if (!currentShift) {
+        wx.showToast({
+          title: '暂无班次安排',
+          icon: 'none',
+        });
+      }
     } catch (error) {
+      console.error('加载班次失败:', error);
       wx.showToast({
         title: error.message || '加载失败',
         icon: 'none',
+      });
+      
+      // 出错时清空数据
+      this.setData({
+        shifts: [],
+        currentShift: null,
+        passengers: [],
       });
     } finally {
       this.setData({ loading: false });
@@ -102,33 +129,70 @@ Page({
   // 核销登车
   async verifyBoarding(qrCode) {
     try {
-      // TODO: 调用后端核销接口
-      // await api.verifyBoarding(qrCode);
+      // 调用后端核销接口
+      const result = await api.verifyBoarding(qrCode);
       
-      // 模拟成功响应
-      wx.showToast({
-        title: '登车成功',
-        icon: 'success',
-      });
+      // 解析响应
+      const success = result.success || result.status === 'success' || result.boarded === true;
+      const message = result.message || result.msg || '登车成功';
+      const studentName = result.student_name || result.name || result.passenger_name || '';
       
-      this.setData({
-        scanResult: {
-          success: true,
-          message: '学生已成功登车',
-          studentName: '张三',
+      if (success) {
+        wx.showToast({
+          title: '登车成功',
+          icon: 'success',
+        });
+        
+        this.setData({
+          scanResult: {
+            success: true,
+            message: message,
+            studentName: studentName,
+          }
+        });
+        
+        // 立即刷新乘客列表
+        await this.loadDriverShifts();
+      } else {
+        // 处理失败情况（包括幂等错误）
+        const errMsg = message || '核销失败';
+        
+        // 检查是否为幂等错误（已登车）
+        if (errMsg.includes('已登车') || errMsg.includes('already boarded') || 
+            errMsg.includes('重复') || errMsg.includes('duplicate')) {
+          wx.showToast({
+            title: '该学生已登车',
+            icon: 'none',
+          });
+          
+          this.setData({
+            scanResult: {
+              success: false,
+              message: '该学生已登车，无需重复核销',
+              studentName: studentName,
+            }
+          });
+        } else {
+          wx.showToast({
+            title: errMsg,
+            icon: 'none',
+          });
+          
+          this.setData({
+            scanResult: {
+              success: false,
+              message: errMsg,
+            }
+          });
         }
-      });
-      
-      // 刷新乘客列表
-      setTimeout(() => {
-        this.loadDriverShifts();
-      }, 1500);
+      }
       
     } catch (error) {
       const errMsg = error.message || '核销失败';
       
       // 检查是否为幂等错误（已登车）
-      if (errMsg.includes('已登车') || errMsg.includes('already boarded')) {
+      if (errMsg.includes('已登车') || errMsg.includes('already boarded') || 
+          errMsg.includes('重复') || errMsg.includes('duplicate')) {
         wx.showToast({
           title: '该学生已登车',
           icon: 'none',

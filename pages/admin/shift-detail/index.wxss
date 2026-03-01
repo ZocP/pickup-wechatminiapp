@@ -195,3 +195,33 @@
   box-shadow: 0 -6rpx 20rpx rgba(0, 0, 0, 0.06);
   z-index: 30;
 }
+
+/* 登车状态样式 */
+.boarding-status-line {
+  margin-top: 12rpx;
+  padding-top: 12rpx;
+  border-top: 2rpx solid #f0f0f0;
+}
+
+.boarding-status-values {
+  display: flex;
+  gap: 20rpx;
+  align-items: center;
+}
+
+.boarding-count {
+  font-size: 24rpx;
+  font-weight: 500;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+}
+
+.boarding-count.boarded {
+  background: #e8f5e9;
+  color: #07c160;
+}
+
+.boarding-count.unboarded {
+  background: #ebf5ff;
+  color: #1989fa;
+}
