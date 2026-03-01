@@ -17,6 +17,10 @@ module.exports = {
     return request.post('/auth/bind-wechat-id', { wechat_id: wechatID });
   },
 
+  bindProfile(payload) {
+    return request.post('/auth/bind-profile', payload);
+  },
+
   getAuthMe() {
     return request.get('/auth/me');
   },
@@ -47,6 +51,14 @@ module.exports = {
 
   cancelUserAsStaff(userId) {
     return request.post(`/admin/users/${userId}/unset-staff`, {});
+  },
+
+  setUserAsDriver(userId, driverId) {
+    return request.post(`/admin/users/${userId}/set-driver`, { driver_id: driverId });
+  },
+
+  cancelUserAsDriver(userId) {
+    return request.post(`/admin/users/${userId}/unset-driver`, {});
   },
 
   createDriver(payload) {

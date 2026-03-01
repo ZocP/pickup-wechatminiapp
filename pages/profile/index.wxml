@@ -12,7 +12,7 @@
       </van-tag>
     </view>
     <view class="meta">
-      <text>手机号：{{userInfo.phone || '--'}}</text>
+      <text>微信号：{{userInfo.wechat_id || '--'}}</text>
     </view>
   </view>
 

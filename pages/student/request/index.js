@@ -79,10 +79,12 @@ Page({
   },
 
   openTerminalPicker() {
+    this.setTabBarHidden(true);
     this.setData({ showTerminalPicker: true });
   },
 
   onCloseTerminalPicker() {
+    this.setTabBarHidden(false);
     this.setData({ showTerminalPicker: false });
   },
 
@@ -93,6 +95,7 @@ Page({
       this.setData({ showTerminalPicker: false });
       return;
     }
+    this.setTabBarHidden(false);
     this.setData({
       showTerminalPicker: false,
       'form.terminal': value,
@@ -100,10 +103,12 @@ Page({
   },
 
   openDatePicker() {
+    this.setTabBarHidden(true);
     this.setData({ showDatePicker: true });
   },
 
   onDatePickerClose() {
+    this.setTabBarHidden(false);
     this.setData({ showDatePicker: false });
   },
 
@@ -112,6 +117,7 @@ Page({
     const selectedDate = value instanceof Date ? value : new Date(value);
     const arrivalDate = formatDateOnly(selectedDate);
 
+    this.setTabBarHidden(false);
     this.setData({
       showDatePicker: false,
       'form.arrival_date': arrivalDate,
@@ -120,6 +126,7 @@ Page({
   },
 
   openTimePicker() {
+    this.setTabBarHidden(true);
     this.setData({
       showTimePicker: true,
       timePickerValue: this.data.form.arrival_time || this.data.timePickerValue,
@@ -127,11 +134,13 @@ Page({
   },
 
   onTimePickerCancel() {
+    this.setTabBarHidden(false);
     this.setData({ showTimePicker: false });
   },
 
   onTimeConfirm(e) {
     const arrivalTime = (e && e.detail) || '';
+    this.setTabBarHidden(false);
     this.setData({
       showTimePicker: false,
       timePickerValue: arrivalTime || this.data.timePickerValue,
@@ -386,5 +395,12 @@ Page({
         }
       },
     });
+  },
+
+  setTabBarHidden(hidden) {
+    const tabBar = this.getTabBar && this.getTabBar();
+    if (tabBar && typeof tabBar.setHidden === 'function') {
+      tabBar.setHidden(!!hidden);
+    }
   },
 });

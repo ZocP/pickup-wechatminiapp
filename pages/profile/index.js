@@ -53,10 +53,12 @@ Page({
 
   openRolePicker() {
     if (!this.data.isAdminReal) return;
+    this.setTabBarHidden(true);
     this.setData({ showRolePicker: true });
   },
 
   closeRolePicker() {
+    this.setTabBarHidden(false);
     this.setData({ showRolePicker: false });
   },
 
@@ -82,6 +84,7 @@ Page({
     const currentEffectiveRole = app.getEffectiveRole ? app.getEffectiveRole() : action.value;
     const viewAsRole = app.getViewAsRole ? app.getViewAsRole() : '';
 
+    this.setTabBarHidden(false);
     this.setData({
       showRolePicker: false,
       currentEffectiveRole,
@@ -110,5 +113,12 @@ Page({
         getApp().onTokenExpired();
       },
     });
+  },
+
+  setTabBarHidden(hidden) {
+    const tabBar = this.getTabBar && this.getTabBar();
+    if (tabBar && typeof tabBar.setHidden === 'function') {
+      tabBar.setHidden(!!hidden);
+    }
   },
 });

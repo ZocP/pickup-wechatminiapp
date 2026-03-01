@@ -6,12 +6,21 @@
     <van-notice-bar left-icon="warning-o" text="请务必填写正确微信号，填写错误将影响接机联系服务" />
 
     <van-field
+      label="真实姓名"
+      placeholder="请输入真实姓名"
+      value="{{name}}"
+      maxlength="64"
+      bind:change="onNameChange"
+      custom-style="margin-top: 20rpx;"
+    />
+
+    <van-field
       label="微信号"
       placeholder="请输入你的微信号"
       value="{{wechatID}}"
       maxlength="20"
       bind:change="onWechatIDChange"
-      custom-style="margin-top: 20rpx;"
+      custom-style="margin-top: 12rpx;"
     />
 
     <van-button

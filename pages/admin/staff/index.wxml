@@ -7,10 +7,10 @@
 		</view>
 
 		<van-cell-group inset wx:else>
-			<van-cell wx:for="{{userList}}" wx:key="id" title="{{item.name || ('用户#' + item.id)}}" label="手机号：{{item.phone || '--'}}">
+			<van-cell wx:for="{{userList}}" wx:key="id" title="{{item.name || ('用户#' + item.id)}}" label="微信号：{{item.wechat_id || '--'}}">
 				<view slot="right-icon" class="right-wrap">
 					<van-tag
-						type="{{item.role === 'admin' ? 'danger' : (item.role === 'staff' ? 'success' : 'primary')}}"
+						type="{{item.role === 'admin' ? 'danger' : (item.role === 'staff' ? 'success' : (item.role === 'driver' ? 'warning' : 'primary'))}}"
 						plain
 					>{{item.role || 'student'}}</van-tag>
 					<van-button
@@ -23,8 +23,35 @@
 						data-role="{{item.role}}"
 						bind:tap="onToggleStaff"
 					>{{item.role === 'staff' ? '取消Staff' : '设为Staff'}}</van-button>
+					<van-button
+						wx:if="{{item.role !== 'admin' && item.role !== 'driver'}}"
+						size="mini"
+						type="warning"
+						plain
+						loading="{{actingUserId === item.id}}"
+						data-id="{{item.id}}"
+						bind:tap="onSetDriver"
+					>设为司机</van-button>
+					<van-button
+						wx:if="{{item.role === 'driver'}}"
+						size="mini"
+						type="danger"
+						plain
+						loading="{{actingUserId === item.id}}"
+						data-id="{{item.id}}"
+						bind:tap="onUnsetDriver"
+					>取消司机</van-button>
 				</view>
 			</van-cell>
 		</van-cell-group>
 	</view>
+
+  <van-action-sheet
+    show="{{showDriverPicker}}"
+    title="选择司机档案"
+    actions="{{driverActions}}"
+    close-on-click-action="true"
+    bind:select="onSelectDriver"
+    bind:close="onCloseDriverPicker"
+  />
 </view>
