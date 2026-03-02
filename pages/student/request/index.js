@@ -1,6 +1,7 @@
 const api = require('../../../utils/api');
 const { requestStatusText } = require('../../../utils/status');
 const { formatDateOnly } = require('../../../utils/formatters');
+const { QRCodeModel, QRErrorCorrectLevel } = require('../../../utils/qrcode');
 
 const WECHAT_ID_REGEXP = /^[a-zA-Z0-9_]{6,20}$/;
 
@@ -348,20 +349,25 @@ Page({
           ctx.fillStyle = '#FFFFFF';
           ctx.fillRect(0, 0, size, size);
           
-          // 简单二维码模拟（实际应使用二维码库）
-          // 这里绘制一个简单的二维码样式
+          // 使用二维码库生成矩阵并绘制
+          const qr = new QRCodeModel(0, QRErrorCorrectLevel.M);
+          qr.addData(text);
+          qr.make();
+
+          const moduleCount = qr.getModuleCount();
+          const cellSize = Math.floor(size / moduleCount);
+          const offset = Math.floor((size - cellSize * moduleCount) / 2);
+
           ctx.fillStyle = '#000000';
-          ctx.font = '12px sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('登车二维码', size/2, size/2 - 20);
-          ctx.font = '10px sans-serif';
-          ctx.fillText(text.substring(0, 20) + '...', size/2, size/2 + 10);
-          
-          // 绘制边框
-          ctx.strokeStyle = '#1989fa';
-          ctx.lineWidth = 2;
-          ctx.strokeRect(5, 5, size-10, size-10);
+          for (let row = 0; row < moduleCount; row += 1) {
+            for (let col = 0; col < moduleCount; col += 1) {
+              if (qr.isDark(row, col)) {
+                const x = offset + col * cellSize;
+                const y = offset + row * cellSize;
+                ctx.fillRect(x, y, cellSize, cellSize);
+              }
+            }
+          }
           
           // 转换为图片路径
           wx.canvasToTempFilePath({
