@@ -356,7 +356,7 @@ Page({
           ctx.textBaseline = 'middle';
           ctx.fillText('登车二维码', size/2, size/2 - 20);
           ctx.font = '10px sans-serif';
-          ctx.fillText(token.substring(0, 20) + '...', size/2, size/2 + 10);
+          ctx.fillText(text.substring(0, 20) + '...', size/2, size/2 + 10);
           
           // 绘制边框
           ctx.strokeStyle = '#1989fa';
