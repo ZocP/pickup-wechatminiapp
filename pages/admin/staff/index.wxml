@@ -12,16 +12,19 @@
 					<van-tag
 						type="{{item.role === 'admin' ? 'danger' : (item.role === 'staff' ? 'success' : (item.role === 'driver' ? 'warning' : 'primary'))}}"
 						plain
+						size="medium"
+						custom-style="padding: 2rpx 10rpx; font-size: 22rpx;"
 					>{{item.role || 'student'}}</van-tag>
 					<van-button
 						wx:if="{{item.role !== 'admin'}}"
-						size="mini"
+						size="small"
 						type="primary"
 						plain
+						custom-style="height: 48rpx; min-width: 120rpx; padding: 0 20rpx; font-size: 24rpx;"
 						loading="{{actingUserId === item.id}}"
 						data-id="{{item.id}}"
 						data-role="{{item.role}}"
-						bind:tap="onOpenRoleActions"
+						bindtap="onOpenRoleActions"
 					>操作</van-button>
 				</view>
 			</van-cell>
