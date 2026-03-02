@@ -191,6 +191,13 @@ function normalizeShiftStatus(status) {
   return value || 'unpublished'
 }
 
+function markDashboardDirty() {
+  const root = getApp()
+  if (root && root.globalData) {
+    root.globalData.dashboardNeedsRefresh = true
+  }
+}
+
 Page({
   data: {
     shiftId: '',
@@ -438,6 +445,7 @@ Page({
       try {
         await assignStudent(this.data.shiftId, requestId)
         await this.loadData()
+        markDashboardDirty()
       } catch (error) {
         wx.showToast({ title: (error && error.message) || '添加失败', icon: 'none' })
       } finally {
@@ -455,6 +463,7 @@ Page({
       try {
         await removeStudent(this.data.shiftId, requestId)
         await this.loadData()
+        markDashboardDirty()
       } catch (error) {
         wx.showToast({ title: (error && error.message) || '移出失败', icon: 'none' })
       } finally {
@@ -479,6 +488,7 @@ Page({
           wx.showToast({ title: '发布成功', icon: 'success' })
         }
         await this.loadData()
+        markDashboardDirty()
       } catch (error) {
         wx.showToast({ title: (error && error.message) || '操作失败', icon: 'none' })
       } finally {

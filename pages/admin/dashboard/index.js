@@ -171,6 +171,15 @@ Page({
       return;
     }
 
+    const cache = app.globalData.dashboardCache || {};
+    const ttlMs = Number(cache.ttlMs) || 0;
+    const lastLoadAt = Number(cache.lastLoadAt) || 0;
+    const fresh = lastLoadAt && ttlMs > 0 && (Date.now() - lastLoadAt) < ttlMs;
+
+    if (!app.globalData.dashboardNeedsRefresh && fresh) {
+      return;
+    }
+
     this.loadAll();
   },
 
@@ -180,6 +189,7 @@ Page({
   },
 
   async loadAll() {
+    const app = getApp();
     this.setData({ loading: true });
 
     const [dashboardResult, pendingResult] = await Promise.allSettled([
@@ -258,6 +268,14 @@ Page({
       pendingActionOverflow: Math.max(0, pendingRequests.length - limitedPendingActions.length),
       loading: false,
     });
+
+    const cache = app.globalData.dashboardCache || {};
+    app.globalData.dashboardCache = {
+      ...cache,
+      lastLoadAt: Date.now(),
+      ttlMs: Number(cache.ttlMs) || 45 * 1000,
+    };
+    app.globalData.dashboardNeedsRefresh = false;
   },
 
   openPendingPool() {
@@ -487,6 +505,7 @@ Page({
 
   async onShowCreatePopup() {
     const now = Date.now();
+    this.setTabBarHidden(true);
     this.setData({
       showCreatePopup: true,
       selectedDateTs: this.data.selectedDateTs || now,
@@ -496,6 +515,7 @@ Page({
   },
 
   onCloseCreatePopup() {
+    this.setTabBarHidden(false);
     this.setData({ showCreatePopup: false });
   },
 
@@ -521,6 +541,7 @@ Page({
       wx.showToast({ title: '暂无可选司机', icon: 'none' });
       return;
     }
+    this.setTabBarHidden(true);
     this.setData({ showDriverPicker: true });
   },
 
@@ -558,6 +579,7 @@ Page({
   },
 
   onOpenDatePicker() {
+    this.setTabBarHidden(true);
     this.setData({ showDatePicker: true });
   },
 
@@ -582,6 +604,7 @@ Page({
   },
 
   onOpenTimePicker() {
+    this.setTabBarHidden(true);
     this.setData({
       selectedClock: this.data.selectedClock || '12:00',
       showTimePicker: true,

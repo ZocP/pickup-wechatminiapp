@@ -8,6 +8,11 @@ App({
       wechat_id: '',
     },
     viewAsRole: '', // '' means no simulation
+    dashboardCache: {
+      lastLoadAt: 0,
+      ttlMs: 45 * 1000,
+    },
+    dashboardNeedsRefresh: false,
   },
 
   onLaunch() {
