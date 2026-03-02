@@ -296,6 +296,7 @@ Page({
     this.setData({ generatingQrCode: true, qrCodePath: null, qrCodeError: '' });
     try {
       await new Promise((resolve) => wx.nextTick(resolve));
+      await new Promise((resolve) => setTimeout(resolve, 50));
       // 使用微信canvas生成二维码
       const qrCodePath = await this.drawQrCodeWithTimeout(token);
       this.setData({ qrCodePath: qrCodePath, qrCodeError: '' });
@@ -309,7 +310,7 @@ Page({
     }
   },
 
-  drawQrCodeWithTimeout(text, timeoutMs = 2000) {
+  drawQrCodeWithTimeout(text, timeoutMs = 6000) {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('二维码生成超时')), timeoutMs);
       this.drawQrCode(text)
