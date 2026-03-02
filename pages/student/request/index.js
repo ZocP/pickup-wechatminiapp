@@ -1,7 +1,7 @@
 const api = require('../../../utils/api');
 const { requestStatusText } = require('../../../utils/status');
 const { formatDateOnly } = require('../../../utils/formatters');
-const { QRCodeModel, QRErrorCorrectLevel } = require('../../../utils/qrcode');
+const { QRCodeModel, QRErrorCorrectLevel, getTypeNumber } = require('../../../utils/qrcode');
 
 const WECHAT_ID_REGEXP = /^[a-zA-Z0-9_]{6,20}$/;
 
@@ -357,7 +357,8 @@ Page({
             ctx.fillRect(0, 0, size, size);
 
             // 使用二维码库生成矩阵并绘制
-            const qr = new QRCodeModel(0, QRErrorCorrectLevel.M);
+            const typeNumber = getTypeNumber ? getTypeNumber(text, QRErrorCorrectLevel.M) : 4;
+            const qr = new QRCodeModel(typeNumber, QRErrorCorrectLevel.M);
             qr.addData(text);
             qr.make();
 
@@ -403,7 +404,8 @@ Page({
       ctx.setFillStyle('#FFFFFF');
       ctx.fillRect(0, 0, size, size);
 
-      const qr = new QRCodeModel(0, QRErrorCorrectLevel.M);
+      const typeNumber = getTypeNumber ? getTypeNumber(text, QRErrorCorrectLevel.M) : 4;
+      const qr = new QRCodeModel(typeNumber, QRErrorCorrectLevel.M);
       qr.addData(text);
       qr.make();
 

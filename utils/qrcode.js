@@ -617,6 +617,7 @@ var QRCode;
 		module.exports = {
 			QRCodeModel: QRCodeModel,
 			QRErrorCorrectLevel: QRErrorCorrectLevel,
+			getTypeNumber: _getTypeNumber,
 		};
 	}
 })();
