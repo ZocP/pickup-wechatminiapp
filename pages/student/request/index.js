@@ -14,6 +14,7 @@ Page({
     showTimePicker: false,
     showTerminalPicker: false,
     showQrCodeModal: false,
+    qrCodeError: '',
     timePickerValue: '12:00',
     terminalActions: [
       { name: 'T1' },
@@ -292,15 +293,17 @@ Page({
   async generateQrCode(token) {
     if (!token || this.data.generatingQrCode) return;
 
-    this.setData({ generatingQrCode: true, qrCodePath: null });
+    this.setData({ generatingQrCode: true, qrCodePath: null, qrCodeError: '' });
     try {
       await new Promise((resolve) => wx.nextTick(resolve));
       // 使用微信canvas生成二维码
       const qrCodePath = await this.drawQrCodeWithTimeout(token);
-      this.setData({ qrCodePath: qrCodePath });
+      this.setData({ qrCodePath: qrCodePath, qrCodeError: '' });
     } catch (error) {
+      const msg = (error && (error.errMsg || error.message)) || '二维码生成失败';
       console.error('生成二维码失败:', error);
-      this.setData({ qrCodePath: null });
+      this.setData({ qrCodePath: null, qrCodeError: msg });
+      wx.showToast({ title: msg, icon: 'none' });
     } finally {
       this.setData({ generatingQrCode: false });
     }

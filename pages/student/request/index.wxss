@@ -100,6 +100,14 @@
   padding: 32rpx 0;
 }
 
+.qr-code-error {
+  margin-top: 12rpx;
+  color: #ee0a24;
+  font-size: 24rpx;
+  text-align: center;
+  word-break: break-all;
+}
+
 /* 二维码模态框 */
 .qr-code-modal {
   width: 600rpx;

@@ -140,7 +140,8 @@
           </view>
           
           <view wx:else class="qr-code-empty">
-            <van-empty description="二维码生成失败" mode="list" />
+            <van-empty description="{{qrCodeError || '二维码生成失败'}}" mode="list" />
+            <view wx:if="{{qrCodeError}}" class="qr-code-error">{{qrCodeError}}</view>
           </view>
         </view>
       </view>
