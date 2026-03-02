@@ -310,7 +310,7 @@ Page({
     }
   },
 
-  drawQrCodeWithTimeout(text, timeoutMs = 6000) {
+  drawQrCodeWithTimeout(text, timeoutMs = 8000) {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('二维码生成超时')), timeoutMs);
       this.drawQrCode(text)
@@ -325,63 +325,110 @@ Page({
     });
   },
 
-  // 使用canvas绘制二维码
+  // 使用canvas绘制二维码（2D canvas 优先，失败时回退到 legacy canvas）
   drawQrCode(text) {
     return new Promise((resolve, reject) => {
       const query = wx.createSelectorQuery().in(this);
       query.select('#qrCodeCanvas')
         .fields({ node: true, size: true })
         .exec((res) => {
-          if (!res || !res[0]) {
-            reject(new Error('Canvas未找到'));
+          const node = res && res[0] && res[0].node ? res[0].node : null;
+          if (!node) {
+            this.drawQrCodeLegacy(text).then(resolve).catch(reject);
             return;
           }
 
-          const canvas = res[0].node;
-          const ctx = canvas.getContext('2d');
-          const dpr = wx.getSystemInfoSync().pixelRatio;
-          const size = 200;
-          
-          canvas.width = size * dpr;
-          canvas.height = size * dpr;
-          ctx.scale(dpr, dpr);
-          
-          // 清空画布
-          ctx.clearRect(0, 0, size, size);
-          
-          // 绘制白色背景
-          ctx.fillStyle = '#FFFFFF';
-          ctx.fillRect(0, 0, size, size);
-          
-          // 使用二维码库生成矩阵并绘制
-          const qr = new QRCodeModel(0, QRErrorCorrectLevel.M);
-          qr.addData(text);
-          qr.make();
+          try {
+            const canvas = node;
+            const ctx = canvas.getContext('2d');
+            const dpr = wx.getSystemInfoSync().pixelRatio;
+            const size = 200;
 
-          const moduleCount = qr.getModuleCount();
-          const cellSize = Math.floor(size / moduleCount);
-          const offset = Math.floor((size - cellSize * moduleCount) / 2);
+            canvas.width = size * dpr;
+            canvas.height = size * dpr;
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(dpr, dpr);
 
-          ctx.fillStyle = '#000000';
-          for (let row = 0; row < moduleCount; row += 1) {
-            for (let col = 0; col < moduleCount; col += 1) {
-              if (qr.isDark(row, col)) {
-                const x = offset + col * cellSize;
-                const y = offset + row * cellSize;
-                ctx.fillRect(x, y, cellSize, cellSize);
+            // 清空画布
+            ctx.clearRect(0, 0, size, size);
+
+            // 绘制白色背景
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, size, size);
+
+            // 使用二维码库生成矩阵并绘制
+            const qr = new QRCodeModel(0, QRErrorCorrectLevel.M);
+            qr.addData(text);
+            qr.make();
+
+            const moduleCount = qr.getModuleCount();
+            const cellSize = Math.floor(size / moduleCount);
+            const offset = Math.floor((size - cellSize * moduleCount) / 2);
+
+            ctx.fillStyle = '#000000';
+            for (let row = 0; row < moduleCount; row += 1) {
+              for (let col = 0; col < moduleCount; col += 1) {
+                if (qr.isDark(row, col)) {
+                  const x = offset + col * cellSize;
+                  const y = offset + row * cellSize;
+                  ctx.fillRect(x, y, cellSize, cellSize);
+                }
               }
             }
+
+            // 转换为图片路径
+            wx.canvasToTempFilePath({
+              canvas: canvas,
+              success: (result) => {
+                resolve(result.tempFilePath);
+              },
+              fail: () => {
+                this.drawQrCodeLegacy(text).then(resolve).catch(reject);
+              },
+            });
+          } catch (err) {
+            this.drawQrCodeLegacy(text).then(resolve).catch(reject);
           }
-          
-          // 转换为图片路径
-          wx.canvasToTempFilePath({
-            canvas: canvas,
-            success: (res) => {
-              resolve(res.tempFilePath);
-            },
-            fail: reject,
-          });
         });
+    });
+  },
+
+  // legacy canvas 绘制（兼容不支持2D canvas的环境）
+  drawQrCodeLegacy(text) {
+    return new Promise((resolve, reject) => {
+      const ctx = wx.createCanvasContext('qrCodeCanvasLegacy', this);
+      const size = 200;
+
+      // 清空画布
+      ctx.setFillStyle('#FFFFFF');
+      ctx.fillRect(0, 0, size, size);
+
+      const qr = new QRCodeModel(0, QRErrorCorrectLevel.M);
+      qr.addData(text);
+      qr.make();
+
+      const moduleCount = qr.getModuleCount();
+      const cellSize = Math.floor(size / moduleCount);
+      const offset = Math.floor((size - cellSize * moduleCount) / 2);
+
+      ctx.setFillStyle('#000000');
+      for (let row = 0; row < moduleCount; row += 1) {
+        for (let col = 0; col < moduleCount; col += 1) {
+          if (qr.isDark(row, col)) {
+            const x = offset + col * cellSize;
+            const y = offset + row * cellSize;
+            ctx.fillRect(x, y, cellSize, cellSize);
+          }
+        }
+      }
+
+      ctx.draw(false, () => {
+        wx.canvasToTempFilePath({
+          canvasId: 'qrCodeCanvasLegacy',
+          success: (result) => resolve(result.tempFilePath),
+          fail: reject,
+        }, this);
+      });
     });
   },
 

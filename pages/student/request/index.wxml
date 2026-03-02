@@ -154,6 +154,11 @@
     style="position: absolute; left: -9999rpx; width: 200px; height: 200px;" 
     type="2d"
   />
+  <canvas
+    id="qrCodeCanvasLegacy"
+    canvas-id="qrCodeCanvasLegacy"
+    style="position: absolute; left: -9999rpx; width: 200px; height: 200px;"
+  />
 
   <van-action-sheet
     show="{{showTerminalPicker}}"
