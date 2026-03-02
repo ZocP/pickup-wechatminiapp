@@ -11,5 +11,11 @@
 .right-wrap {
 	display: flex;
 	align-items: center;
-	gap: 10rpx;
+	justify-content: flex-end;
+	gap: 12rpx;
+}
+
+.role-tag {
+	min-width: 110rpx;
+	text-align: center;
 }
