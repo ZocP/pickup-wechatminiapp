@@ -611,12 +611,12 @@ var QRCode;
 	 * @name QRCode.CorrectLevel
 	 */
 	QRCode.CorrectLevel = QRErrorCorrectLevel;
-})();
 
-// Mini Program CommonJS exports
-if (typeof module !== 'undefined') {
-  module.exports = {
-    QRCodeModel: QRCodeModel,
-    QRErrorCorrectLevel: QRErrorCorrectLevel,
-  };
-}
+	// Mini Program CommonJS exports
+	if (typeof module !== 'undefined') {
+		module.exports = {
+			QRCodeModel: QRCodeModel,
+			QRErrorCorrectLevel: QRErrorCorrectLevel,
+		};
+	}
+})();
