@@ -50,7 +50,7 @@ Page({
 
   onShow() {
     const app = getApp();
-    if (app.isWechatBound && !app.isWechatBound()) {
+    if (app.globalData.userInfo && app.isWechatBound && !app.isWechatBound()) {
       wx.reLaunch({ url: '/pages/bind/index' });
       return;
     }
