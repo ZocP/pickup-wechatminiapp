@@ -257,10 +257,15 @@ Page({
       const status = (latest.status || '').toLowerCase();
       const step = status === 'pending' ? 0 : status === 'assigned' ? 1 : 2;
 
-      // 获取登车token（模拟）
+      // 从后端获取签名登车 token（30 分钟有效，HMAC-SHA256 签名防伪造）
       let boardingToken = null;
       if (status === 'published' && latest.shift) {
-        boardingToken = this.generateBoardingToken(latest.id, latest.shift.id);
+        try {
+          const result = await api.getBoardingToken(latest.id);
+          boardingToken = result && result.token ? result.token : null;
+        } catch (tokenErr) {
+          console.warn('获取登车 token 失败:', tokenErr);
+        }
       }
 
       this.setData({
@@ -282,12 +287,8 @@ Page({
     }
   },
 
-  // 生成登车token（模拟，实际应从后端获取）
-  generateBoardingToken(requestId, shiftId) {
-    const timestamp = Date.now();
-    const randomStr = Math.random().toString(36).substring(2, 10);
-    return `boarding_${requestId}_${shiftId}_${timestamp}_${randomStr}`;
-  },
+  // generateBoardingToken removed: tokens are now issued by the backend
+  // via GET /student/requests/:id/boarding-token (HMAC-SHA256 signed, 30-min TTL)
 
   // 生成二维码
   async generateQrCode(token) {
