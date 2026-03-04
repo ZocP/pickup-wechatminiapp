@@ -3,11 +3,12 @@ const api = require('../../utils/api');
 Page({
   data: {
     loading: false,
+    verifying: false,
     name: '',
     wechatID: '',
   },
 
-  onShow() {
+  async onShow() {
     const app = getApp();
     const token = wx.getStorageSync('token');
     if (!token) {
@@ -17,7 +18,25 @@ Page({
 
     const bound = app.isWechatBound ? app.isWechatBound() : false;
     if (bound) {
-      this.goNext();
+      // Local state says bound — verify with backend before auto-redirecting.
+      // This prevents a loop if the local state is stale (e.g. after DB rebuild).
+      this.setData({ verifying: true });
+      try {
+        const me = await api.getAuthMe();
+        const freshWechatID = String((me && me.wechat_id) || '').trim();
+        if (freshWechatID) {
+          // Backend confirms it's bound — update local state and proceed
+          wx.setStorageSync('userInfo', me || {});
+          app.setUserInfo(me || {});
+          this.goNext();
+        }
+        // If freshWechatID is empty, fall through and show the bind form
+      } catch (_err) {
+        // If /auth/me fails (e.g. 401), the token is invalid — let the error handler deal with it
+      } finally {
+        this.setData({ verifying: false });
+      }
+      return;
     }
   },
 

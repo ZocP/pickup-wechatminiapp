@@ -1,5 +1,12 @@
 <view class="page bind-page">
-  <view class="card bind-card">
+  <!-- Verifying state: checking with backend before showing bind form -->
+  <view wx:if="{{verifying}}" class="card bind-card" style="text-align:center;padding:60rpx 40rpx;">
+    <van-loading size="40px" type="spinner" />
+    <view style="margin-top:24rpx;color:#666;font-size:28rpx;">正在验证登录状态…</view>
+  </view>
+
+  <!-- Bind form: shown when not verifying -->
+  <view wx:else class="card bind-card">
     <view class="title">先完成微信号绑定</view>
     <view class="subtitle">未绑定前不可提交申请或使用任何业务功能</view>
 

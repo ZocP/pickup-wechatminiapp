@@ -50,8 +50,24 @@ function handleStatusCode(statusCode, data) {
   const serverMsg = (data && (data.message || data.error)) || '';
 
   if (statusCode === 403 && data && data.code === 'WECHAT_NOT_BOUND') {
-    showErrorToast('请先绑定微信号后再继续使用');
-    wx.reLaunch({ url: '/pages/bind/index' });
+    const app = getApp && getApp();
+    // If local state says wechat IS bound but the backend says it's NOT,
+    // the JWT is stale (e.g. DB was rebuilt and user_id changed).
+    // Force a fresh login so the new JWT resolves to the correct user record.
+    if (app && typeof app.isWechatBound === 'function' && app.isWechatBound()) {
+      wx.removeStorageSync('token');
+      wx.removeStorageSync('userInfo');
+      if (app.globalData) {
+        app.globalData.userInfo = { id: 0, name: '', role: 'student', phone: '', wechat_id: '' };
+        app.globalData.viewAsRole = '';
+      }
+      showErrorToast('登录状态已过期，请重新登录');
+      wx.reLaunch({ url: '/pages/login/index' });
+    } else {
+      // Normal case: user genuinely hasn't bound a wechat_id yet
+      showErrorToast('请先绑定微信号后再继续使用');
+      wx.reLaunch({ url: '/pages/bind/index' });
+    }
     return;
   }
 
