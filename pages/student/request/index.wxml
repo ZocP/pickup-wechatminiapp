@@ -16,14 +16,15 @@
         data-field="flight_no"
         bind:change="onFieldChange"
       />
-      <van-field
-        label="落地日期"
-        placeholder="请选择日期"
-        value="{{form.arrival_date}}"
-        readonly
-        is-link
-        bind:click-input="openDatePicker"
-      />
+      <view bindtap="openDatePicker">
+        <van-field
+          label="落地日期"
+          placeholder="请选择日期"
+          value="{{form.arrival_date}}"
+          readonly
+          is-link
+        />
+      </view>
       <van-field
         label="航站楼"
         placeholder="请选择航站楼"
