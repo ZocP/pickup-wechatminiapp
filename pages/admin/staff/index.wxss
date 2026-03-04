@@ -15,7 +15,14 @@
 	gap: 12rpx;
 }
 
-.role-tag {
-	min-width: 110rpx;
-	text-align: center;
+.cell-label {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+
+.cell-wechat {
+	font-size: 24rpx;
+	color: #969799;
+	line-height: 1.4;
 }

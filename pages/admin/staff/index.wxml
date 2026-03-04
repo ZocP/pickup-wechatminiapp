@@ -7,15 +7,17 @@
 		</view>
 
 		<van-cell-group inset wx:else>
-			<van-cell wx:for="{{userList}}" wx:key="id" title="{{item.name || ('用户#' + item.id)}}" label="微信号：{{item.wechat_id || '--'}}" center use-slot>
-				<view class="right-wrap">
+			<van-cell wx:for="{{userList}}" wx:key="id" title="{{item.name || ('用户#' + item.id)}}" center use-slot>
+				<view slot="label" class="cell-label">
+					<text class="cell-wechat">微信号：{{item.wechat_id || '--'}}</text>
 					<van-tag
 						type="{{item.role === 'admin' ? 'danger' : (item.role === 'staff' ? 'success' : (item.role === 'driver' ? 'warning' : 'primary'))}}"
 						plain
 						size="medium"
-						custom-style="padding: 2rpx 10rpx; font-size: 22rpx;"
-						custom-class="role-tag"
+						custom-style="padding: 2rpx 10rpx; font-size: 22rpx; margin-top: 6rpx;"
 					>{{item.role || 'student'}}</van-tag>
+				</view>
+				<view class="right-wrap">
 					<van-button
 						wx:if="{{item.role !== 'admin'}}"
 						size="small"
