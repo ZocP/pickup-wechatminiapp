@@ -14,6 +14,8 @@ Page({
     showTimePicker: false,
     showTerminalPicker: false,
     showQrCodeModal: false,
+    calendarMinDate: new Date().setHours(0, 0, 0, 0),
+    calendarMaxDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).getTime(),
     qrCodeError: '',
     timePickerValue: '12:00',
     terminalActions: [

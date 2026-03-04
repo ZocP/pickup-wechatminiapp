@@ -170,7 +170,7 @@
   />
 
   <van-calendar
-    show="{{showDatePicker}}"
+    show="{{showDatePicker}}" min-date="{{calendarMinDate}}" max-date="{{calendarMaxDate}}"
     type="single"
     bind:close="onDatePickerClose"
     bind:confirm="onDateConfirm"
