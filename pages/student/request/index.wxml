@@ -150,16 +150,18 @@
   </view>
 
   <!-- 隐藏的canvas用于生成二维码 -->
-  <canvas 
-    id="qrCodeCanvas" 
-    style="position: absolute; left: -9999rpx; width: 200px; height: 200px;" 
-    type="2d"
-  />
-  <canvas
-    id="qrCodeCanvasLegacy"
-    canvas-id="qrCodeCanvasLegacy"
-    style="position: absolute; left: -9999rpx; width: 200px; height: 200px;"
-  />
+  <block wx:if="{{showQrCanvas}}">
+    <canvas 
+      id="qrCodeCanvas" 
+      style="position: absolute; left: -9999rpx; width: 200px; height: 200px;" 
+      type="2d"
+    />
+    <canvas
+      id="qrCodeCanvasLegacy"
+      canvas-id="qrCodeCanvasLegacy"
+      style="position: absolute; left: -9999rpx; width: 200px; height: 200px;"
+    />
+  </block>
 
   <van-action-sheet
     show="{{showTerminalPicker}}"

@@ -14,6 +14,7 @@ Page({
     showTimePicker: false,
     showTerminalPicker: false,
     showQrCodeModal: false,
+    showQrCanvas: false,
     calendarMinDate: new Date().setHours(0, 0, 0, 0),
     calendarMaxDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).getTime(),
     qrCodeError: '',
@@ -296,7 +297,7 @@ Page({
   async generateQrCode(token) {
     if (!token || this.data.generatingQrCode) return;
 
-    this.setData({ generatingQrCode: true, qrCodePath: null, qrCodeError: '' });
+    this.setData({ generatingQrCode: true, qrCodePath: null, qrCodeError: '', showQrCanvas: true });
     try {
       await new Promise((resolve) => wx.nextTick(resolve));
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -309,7 +310,7 @@ Page({
       this.setData({ qrCodePath: null, qrCodeError: msg });
       wx.showToast({ title: msg, icon: 'none' });
     } finally {
-      this.setData({ generatingQrCode: false });
+      this.setData({ generatingQrCode: false, showQrCanvas: false });
     }
   },
 
