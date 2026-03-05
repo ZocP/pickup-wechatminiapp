@@ -16,6 +16,10 @@ App({
   },
 
   onLaunch() {
+    const { setLocale } = require('./utils/i18n');
+    const savedLocale = wx.getStorageSync('locale') || 'zh-CN';
+    setLocale(savedLocale);
+
     const token = wx.getStorageSync('token');
     const userInfo = wx.getStorageSync('userInfo');
 

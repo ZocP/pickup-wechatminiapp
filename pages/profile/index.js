@@ -1,7 +1,8 @@
-const { t } = require('../../utils/i18n');
+const { t, getLocale, setLocale } = require('../../utils/i18n');
 
 Page({
   data: {
+    langLabel: '',
     i18n: {},
     userInfo: {},
     isAdminReal: false,
@@ -11,22 +12,44 @@ Page({
     roleOptions: [],
   },
 
+  buildI18n() {
+    return {
+      profile_user_prefix: t('profile_user_prefix'),
+      profile_role_label: t('profile_role_label'),
+      profile_current_view: t('profile_current_view'),
+      profile_role_admin: t('profile_role_admin'),
+      profile_role_staff: t('profile_role_staff'),
+      profile_role_driver: t('profile_role_driver'),
+      profile_role_student: t('profile_role_student'),
+      profile_wechat_label: t('profile_wechat_label'),
+      profile_my_request: t('profile_my_request'),
+      profile_switch_view: t('profile_switch_view'),
+      profile_logout: t('profile_logout'),
+      profile_role_picker_title: t('profile_role_picker_title'),
+    };
+  },
+
   onLoad() {
     this.setData({
-      i18n: {
-        profile_user_prefix: t('profile_user_prefix'),
-        profile_role_label: t('profile_role_label'),
-        profile_current_view: t('profile_current_view'),
-        profile_role_admin: t('profile_role_admin'),
-        profile_role_staff: t('profile_role_staff'),
-        profile_role_driver: t('profile_role_driver'),
-        profile_role_student: t('profile_role_student'),
-        profile_wechat_label: t('profile_wechat_label'),
-        profile_my_request: t('profile_my_request'),
-        profile_switch_view: t('profile_switch_view'),
-        profile_logout: t('profile_logout'),
-        profile_role_picker_title: t('profile_role_picker_title'),
-      },
+      langLabel: getLocale() === 'zh-CN' ? 'EN' : '中',
+      i18n: this.buildI18n(),
+      roleOptions: [
+        { name: t('profile_role_admin'), value: 'admin' },
+        { name: t('profile_role_staff'), value: 'staff' },
+        { name: t('profile_role_driver'), value: 'driver' },
+        { name: t('profile_role_student'), value: 'student' },
+      ],
+    });
+    wx.setNavigationBarTitle({ title: t('profile_nav_title') });
+  },
+
+  switchLang() {
+    const next = getLocale() === 'zh-CN' ? 'en' : 'zh-CN';
+    setLocale(next);
+    wx.setStorageSync('locale', next);
+    this.setData({
+      langLabel: next === 'zh-CN' ? 'EN' : '中',
+      i18n: this.buildI18n(),
       roleOptions: [
         { name: t('profile_role_admin'), value: 'admin' },
         { name: t('profile_role_staff'), value: 'staff' },

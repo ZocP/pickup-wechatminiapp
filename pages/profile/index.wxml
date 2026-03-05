@@ -1,4 +1,7 @@
 <view class="page profile-page">
+  <view class="lang-switch-header">
+    <view class="lang-switch-btn" bind:tap="switchLang">{{langLabel}}</view>
+  </view>
   <view class="card">
     <view class="name">{{userInfo.name || (i18n.profile_user_prefix + (userInfo.id || '--'))}}</view>
     <view class="meta">
