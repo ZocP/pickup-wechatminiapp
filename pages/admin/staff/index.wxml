@@ -7,7 +7,7 @@
 		</view>
 
 		<van-cell-group inset wx:else>
-			<van-cell wx:for="{{userList}}" wx:key="id" title="{{item.name || ('用户#' + item.id)}}" center use-slot>
+			<van-cell wx:for="{{userList}}" wx:key="id" title="{{item.name || ('用户#' + item.id)}}" center use-slot use-label-slot>
 				<view slot="label" class="cell-label">
 					<text class="cell-wechat">微信号：{{item.wechat_id || '--'}}</text>
 					<van-tag
