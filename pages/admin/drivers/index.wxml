@@ -7,11 +7,26 @@
     </view>
 
     <van-cell-group inset wx:else>
-      <van-cell wx:for="{{driverList}}" wx:key="id" title="{{item.name}}" label="{{item.car_model}}">
-        <view slot="right-icon" class="caps-wrap">
-          <van-tag plain type="primary">座位:{{item.max_seats}}</van-tag>
-          <van-tag plain type="success">托运:{{item.max_checked}}</van-tag>
-          <van-tag plain type="warning">登机:{{item.max_carry_on}}</van-tag>
+      <van-cell
+        wx:for="{{driverList}}"
+        wx:key="id"
+        title="{{item.name}}"
+        label="{{item.car_model}}"
+        is-link
+        data-id="{{item.id}}"
+        bindtap="goToDriverDetail"
+      >
+        <view slot="right-icon" class="cell-right">
+          <view class="caps-wrap">
+            <van-tag plain type="primary">座位:{{item.max_seats}}</van-tag>
+            <van-tag plain type="success">托运:{{item.max_checked}}</van-tag>
+            <van-tag plain type="warning">登机:{{item.max_carry_on}}</van-tag>
+          </view>
+          <view class="driver-meta">
+            <text wx:if="{{item.phone}}" class="meta-text">📞 {{item.phone}}</text>
+            <text class="meta-text">🚗 {{i18n.drivers_active_shifts}}: {{item.active_shift_count || 0}}</text>
+            <text class="meta-text">👥 {{i18n.drivers_loaded}}: {{item.passenger_count || 0}} / {{item.max_seats}}</text>
+          </view>
         </view>
       </van-cell>
     </van-cell-group>

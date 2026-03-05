@@ -69,6 +69,14 @@ module.exports = {
     return request.post('/admin/drivers', payload);
   },
 
+  getDriver(id) {
+    return request.get(`/admin/drivers/${id}`);
+  },
+
+  deleteDriver(id) {
+    return request.del(`/admin/drivers/${id}`);
+  },
+
   createShift(payload) {
     return request.post('/admin/shifts', payload);
   },

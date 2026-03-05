@@ -25,6 +25,8 @@ function buildI18n() {
     drivers_max_checked:    t('drivers_max_checked'),
     drivers_max_carry_on:   t('drivers_max_carry_on'),
     drivers_submit:         t('drivers_submit'),
+    drivers_active_shifts:  t('drivers_active_shifts'),
+    drivers_loaded:         t('drivers_loaded'),
   };
 }
 
@@ -65,62 +67,19 @@ Page({
   async loadDrivers() {
     this.setData({ loading: true });
     try {
-      const app = getApp();
-      // 用有效角色判断（考虑 X-View-As 视角切换）
-      const effectiveRole = typeof app.getEffectiveRole === 'function'
-        ? app.getEffectiveRole()
-        : app.getRealRole();
-      const isAdmin = effectiveRole === 'admin';
-      const [driversRes, usersRes] = await Promise.all([
-        api.getDrivers(),
-        isAdmin ? api.getUsers() : Promise.resolve([]),
-      ]);
-
+      const driversRes = await api.getDrivers();
       const drivers = Array.isArray(driversRes) ? driversRes : [];
-      const users = Array.isArray(usersRes) ? usersRes : [];
-      const driverMap = new Map(drivers.map((d) => [String(d.id), d]));
-
-      const driverUsers = users.filter((u) => {
-        const role = String(u.role || '').toLowerCase();
-        return role === 'driver' || u.driver_id || u.driverId;
-      });
-
-      const merged = driverUsers.map((u) => {
-        const driverId = u.driver_id || u.driverId || '';
-        const driver = driverMap.get(String(driverId)) || {};
-        return {
-          id: u.id,
-          name: u.name || u.real_name || driver.name || `${t('common_student_prefix')}${u.id}`,
-          car_model: driver.car_model || driver.vehicle_model || driver.vehicle_plate || '--',
-          max_seats: driver.max_seats || driver.max_passengers || 0,
-          max_checked: driver.max_checked || driver.max_checked_luggage || 0,
-          max_carry_on: driver.max_carry_on || driver.max_carry_on_luggage || 0,
-        };
-      });
-
-      // 找出未关联 User 的 Driver，也加入列表
-      const linkedDriverIds = new Set(
-        driverUsers.map(u => String(u.driver_id || u.driverId || '')).filter(Boolean)
-      );
-      const unlinkedDrivers = drivers
-        .filter(d => !linkedDriverIds.has(String(d.id)))
-        .map(d => ({
-          id: d.id,
-          name: d.name,
-          car_model: d.car_model || '--',
-          max_seats: d.max_seats || 0,
-          max_checked: d.max_checked || 0,
-          max_carry_on: d.max_carry_on || 0,
-        }));
-
-      this.setData({
-        driverList: [...merged, ...unlinkedDrivers],
-      });
+      this.setData({ driverList: drivers });
     } catch (error) {
       wx.showToast({ title: t('drivers_load_failed'), icon: 'none' });
     } finally {
       this.setData({ loading: false });
     }
+  },
+
+  goToDriverDetail(e) {
+    const driverId = e.currentTarget.dataset.id;
+    wx.navigateTo({ url: `/pages/admin/driver-detail/index?id=${driverId}` });
   },
 
   onShowAddDriver() {

@@ -364,4 +364,35 @@ module.exports = {
   mod_review_empty:                 'No modification requests',
   home_mod_review:                  'Pending Reviews',
 
+  // Driver list enhancement
+  drivers_active_shifts:            'Active Shifts',
+  drivers_loaded:                   'Loaded',
+
+  // Driver detail page
+  driver_detail_title:              'Driver Detail',
+  driver_detail_info:               'Basic Info',
+  driver_detail_name:               'Name',
+  driver_detail_phone:              'Phone',
+  driver_detail_car_model:          'Car Model',
+  driver_detail_car_plate:          'Plate',
+  driver_detail_car_color:          'Color',
+  driver_detail_max_seats:          'Max Seats',
+  driver_detail_max_checked:        'Max Checked Bags',
+  driver_detail_max_carry_on:       'Max Carry-on',
+  driver_detail_edit:               'Edit',
+  driver_detail_cancel:             'Cancel',
+  driver_detail_edit_title:         'Edit Vehicle Info',
+  driver_detail_save:               'Save',
+  driver_detail_save_success:       'Saved',
+  driver_detail_save_failed:        'Save failed',
+  driver_detail_shifts:             'Assigned Shifts',
+  driver_detail_no_shifts:          'No shifts',
+  driver_detail_delete:             'Delete Driver',
+  driver_detail_delete_title:       'Confirm Delete',
+  driver_detail_delete_confirm:     'Remove this driver? Published shifts will be unpublished.',
+  driver_detail_delete_success:     'Deleted',
+  driver_detail_delete_failed:      'Delete failed',
+  driver_detail_loading:            'Loading...',
+  driver_detail_load_failed:        'Load failed',
+
 }

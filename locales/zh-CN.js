@@ -363,4 +363,35 @@ module.exports = {
   mod_review_empty:                 '暂无修改申请',
   home_mod_review:                  '待审批申请',
 
+  // 司机列表增强
+  drivers_active_shifts:            '活跃班次',
+  drivers_loaded:                   '已载',
+
+  // 司机详情页
+  driver_detail_title:              '司机详情',
+  driver_detail_info:               '基本信息',
+  driver_detail_name:               '姓名',
+  driver_detail_phone:              '手机号',
+  driver_detail_car_model:          '车型',
+  driver_detail_car_plate:          '车牌',
+  driver_detail_car_color:          '车身颜色',
+  driver_detail_max_seats:          '座位上限',
+  driver_detail_max_checked:        '托运上限',
+  driver_detail_max_carry_on:       '登机箱上限',
+  driver_detail_edit:               '编辑',
+  driver_detail_cancel:             '取消',
+  driver_detail_edit_title:         '编辑车辆信息',
+  driver_detail_save:               '保存',
+  driver_detail_save_success:       '保存成功',
+  driver_detail_save_failed:        '保存失败',
+  driver_detail_shifts:             '分配班次',
+  driver_detail_no_shifts:          '暂无班次',
+  driver_detail_delete:             '删除司机',
+  driver_detail_delete_title:       '确认删除',
+  driver_detail_delete_confirm:     '确定移除该司机？已分配的班次将被取消发布。',
+  driver_detail_delete_success:     '删除成功',
+  driver_detail_delete_failed:      '删除失败',
+  driver_detail_loading:            '加载中…',
+  driver_detail_load_failed:        '加载失败',
+
 }

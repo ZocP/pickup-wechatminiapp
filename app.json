@@ -5,6 +5,7 @@
     "pages/admin/dashboard/index",
     "pages/admin/shift-detail/index",
     "pages/admin/drivers/index",
+    "pages/admin/driver-detail/index",
     "pages/admin/staff/index",
     "pages/admin/assign/index",
     "pages/admin/modification-requests/index",
