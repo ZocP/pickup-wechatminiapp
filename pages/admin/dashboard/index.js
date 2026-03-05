@@ -203,6 +203,9 @@ Page({
     const lastLoadAt = Number(cache.lastLoadAt) || 0;
     const fresh = lastLoadAt && ttlMs > 0 && (Date.now() - lastLoadAt) < ttlMs;
 
+    wx.setNavigationBarTitle({ title: t('dashboard_nav_title') });
+    this.setData({ i18n: buildI18n() });
+
     if (!app.globalData.dashboardNeedsRefresh && fresh) {
       return;
     }

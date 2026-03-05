@@ -48,6 +48,8 @@ Page({
       return;
     }
 
+    wx.setNavigationBarTitle({ title: t('staff_nav_title') });
+    this.setData({ i18n: buildI18n() });
     this.loadAll();
   },
 

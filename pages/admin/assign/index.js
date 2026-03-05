@@ -84,6 +84,8 @@ Page({
   },
 
   onShow() {
+    wx.setNavigationBarTitle({ title: t('assign_nav_title') });
+    this.setData({ i18n: buildI18n() });
     this.loadRequests();
   },
 

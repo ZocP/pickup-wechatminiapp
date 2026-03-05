@@ -51,6 +51,7 @@ Page({
       wx.reLaunch({ url: '/pages/bind/index' });
       return;
     }
+    wx.setNavigationBarTitle({ title: t('driver_nav_title') });
     this.loadDriverShifts();
   },
 

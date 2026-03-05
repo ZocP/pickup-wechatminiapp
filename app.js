@@ -101,6 +101,16 @@ App({
     this.toLogin();
   },
 
+  updateTabBar() {
+    const pages = getCurrentPages();
+    const currentPage = pages.length ? pages[pages.length - 1] : null;
+    if (!currentPage) return;
+    const tabBar = currentPage.getTabBar && currentPage.getTabBar();
+    if (tabBar && typeof tabBar.refreshTabs === 'function') {
+      tabBar.refreshTabs();
+    }
+  },
+
   toLogin() {
     const pages = getCurrentPages();
     const current = pages.length ? pages[pages.length - 1] : null;

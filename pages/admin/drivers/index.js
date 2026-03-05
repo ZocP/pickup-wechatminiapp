@@ -49,6 +49,8 @@ Page({
       wx.reLaunch({ url: '/pages/bind/index' });
       return;
     }
+    wx.setNavigationBarTitle({ title: t('drivers_nav_title') });
+    this.setData({ i18n: buildI18n() });
     this.loadDrivers();
   },
 

@@ -282,6 +282,11 @@ Page({
     await this.loadData()
   },
 
+  onShow() {
+    wx.setNavigationBarTitle({ title: t('shift_detail_nav_title') })
+    this.setData({ i18n: buildI18n() })
+  },
+
   async onPullDownRefresh() {
     try {
       await this.loadData()

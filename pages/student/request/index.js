@@ -109,6 +109,7 @@ Page({
     if (!this.data.form.real_name) {
       this.setData({ 'form.real_name': userInfo.name || '' });
     }
+    wx.setNavigationBarTitle({ title: t('student_request_nav_title') });
     this.loadTrack();
   },
 

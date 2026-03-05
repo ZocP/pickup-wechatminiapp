@@ -58,6 +58,8 @@ Page({
       ],
     });
     wx.setNavigationBarTitle({ title: t('profile_nav_title') });
+    const app = getApp();
+    app.updateTabBar();
   },
 
   onShow() {
@@ -86,7 +88,10 @@ Page({
       isAdminReal: realRole === 'admin',
       viewAsRole,
       currentEffectiveRole,
+      langLabel: getLocale() === 'zh-CN' ? 'EN' : '中',
+      i18n: this.buildI18n(),
     });
+    wx.setNavigationBarTitle({ title: t('profile_nav_title') });
   },
 
   onPullDownRefresh() {
