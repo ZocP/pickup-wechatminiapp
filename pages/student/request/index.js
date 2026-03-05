@@ -50,8 +50,6 @@ Page({
     generatingQrCode: false,
     // 修改申请相关
     modRequestStatus: null,
-    showModDialog: false,
-    modReason: '',
   },
 
   onLoad() {
@@ -98,8 +96,6 @@ Page({
         student_request_time_title: t('student_request_time_title'),
         mod_request_btn: t('mod_request_btn'),
         mod_request_pending: t('mod_request_pending'),
-        mod_request_reason_title: t('mod_request_reason_title'),
-        mod_request_reason_placeholder: t('mod_request_reason_placeholder'),
         mod_request_submit_success: t('mod_request_submit_success'),
         mod_request_submit_fail: t('mod_request_submit_fail'),
       },
@@ -564,31 +560,10 @@ Page({
     }
   },
 
-  onRequestModification() {
-    this.setData({ showModDialog: true, modReason: '' });
-  },
-
-  onModReasonChange(e) {
-    this.setData({ modReason: e.detail });
-  },
-
-  onModDialogClose() {
-    this.setData({ showModDialog: false });
-  },
-
-  async onModDialogConfirm() {
-    const reason = (this.data.modReason || '').trim();
-    if (!reason) {
-      wx.showToast({ title: '请填写修改原因', icon: 'none' });
-      return;
-    }
-    try {
-      await api.submitModification(this.data.latestRequest.id, reason);
-      wx.showToast({ title: this.data.i18n.mod_request_submit_success, icon: 'success' });
-      this.setData({ showModDialog: false, modRequestStatus: 'pending' });
-    } catch (e) {
-      wx.showToast({ title: (e && e.message) || this.data.i18n.mod_request_submit_fail, icon: 'none' });
-    }
+  goToModification() {
+    wx.navigateTo({
+      url: `/pages/student/modification/index?requestId=${this.data.latestRequest.id}`,
+    });
   },
 
   setTabBarHidden(hidden) {

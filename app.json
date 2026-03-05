@@ -11,6 +11,7 @@
     "pages/admin/modification-requests/index",
     "pages/profile/index",
     "pages/student/request/index",
+    "pages/student/modification/index",
     "pages/login/index",
     "pages/driver/index"
   ],

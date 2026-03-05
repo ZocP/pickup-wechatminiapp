@@ -158,7 +158,7 @@
           plain
           block
           custom-style="margin-top: 24rpx;"
-          bind:tap="onRequestModification"
+          bind:tap="goToModification"
         >{{i18n.mod_request_btn}}</van-button>
       </view>
     </view>
@@ -238,28 +238,5 @@
     </view>
   </van-popup>
 
-  <!-- 修改申请弹窗 -->
-  <van-dialog
-    use-slot
-    show="{{showModDialog}}"
-    title="{{i18n.mod_request_reason_title}}"
-    show-cancel-button
-    confirm-button-text="提交"
-    cancel-button-text="取消"
-    bind:confirm="onModDialogConfirm"
-    bind:close="onModDialogClose"
-    bind:cancel="onModDialogClose"
-  >
-    <van-field
-      type="textarea"
-      value="{{modReason}}"
-      placeholder="{{i18n.mod_request_reason_placeholder}}"
-      autosize="{{ {maxHeight: 200} }}"
-      maxlength="200"
-      show-word-limit
-      data-field="modReason"
-      bind:change="onModReasonChange"
-      custom-style="margin: 16rpx;"
-    />
-  </van-dialog>
+
 </view>

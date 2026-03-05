@@ -160,8 +160,12 @@ module.exports = {
   },
 
   // 修改申请相关接口
-  submitModification(requestId, reason) {
-    return request.post(`/student/requests/${requestId}/modification`, { reason });
+  submitModification(requestId, data) {
+    return request.post(`/student/requests/${requestId}/modification`, data);
+  },
+
+  withdrawModification(requestId) {
+    return request.del(`/student/requests/${requestId}/modification`);
   },
 
   getModificationStatus(requestId) {

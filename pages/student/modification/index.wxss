@@ -1,0 +1,36 @@
+.modification-page {
+  padding: 24rpx;
+  padding-bottom: 40rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 16rpx;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 120rpx 0;
+}
+
+.pending-card {
+  text-align: center;
+}
+
+.pending-notice {
+  padding: 40rpx 0 16rpx;
+}
+
+.stepper-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18rpx 32rpx;
+}
+
+.stepper-label {
+  font-size: 28rpx;
+  color: #323233;
+}
