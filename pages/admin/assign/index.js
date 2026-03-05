@@ -1,4 +1,5 @@
 const api = require('../../../utils/api');
+const { t } = require('../../../utils/i18n');
 const { pad2 } = require('../../../utils/formatters');
 
 function resolveUserName(request) {
@@ -13,16 +14,16 @@ function resolveUserName(request) {
     || '';
   const normalized = String(name || '').trim();
   if (normalized) return normalized;
-  return `学生#${request.user_id || request.id || '--'}`;
+  return `${t('common_student_prefix')}${request.user_id || request.id || '--'}`;
 }
 
 function buildRideWithText(request) {
   const note = String((request && request.ride_with_note) || '').trim();
   const wxid = String((request && request.ride_with_wechat) || '').trim();
   if (!note && !wxid) return '';
-  if (note && wxid) return `同乘: ${note} | 微信: ${wxid}`;
-  if (note) return `同乘: ${note}`;
-  return `微信: ${wxid}`;
+  if (note && wxid) return `${t('common_ride_with_prefix')}${note} | ${t('common_wechat_prefix')}${wxid}`;
+  if (note) return `${t('common_ride_with_prefix')}${note}`;
+  return `${t('common_wechat_prefix')}${wxid}`;
 }
 
 function formatDateTime(raw) {
@@ -48,6 +49,23 @@ function formatTimeOnly(raw) {
   return str.slice(0, 5);
 }
 
+function buildI18n() {
+  return {
+    assign_no_requests:        t('assign_no_requests'),
+    assign_arrival_date:       t('assign_arrival_date'),
+    assign_arrival_time:       t('assign_arrival_time'),
+    assign_checked_bags_label: t('assign_checked_bags_label'),
+    assign_carry_on_bags_label:t('assign_carry_on_bags_label'),
+    assign_shift_btn:          t('assign_shift_btn'),
+    assign_popup_for_prefix:   '为 ',
+    assign_popup_for_suffix:   ' 选择班次',
+    assign_loading_shifts:     t('assign_loading_shifts'),
+    assign_no_shifts:          t('assign_no_shifts'),
+    assign_depart_time:        t('assign_depart_time'),
+    assign_capacity_warning:   t('assign_capacity_warning'),
+  };
+}
+
 Page({
   data: {
     loading: false,
@@ -57,6 +75,12 @@ Page({
     selectedRequest: null,
     availableShifts: [],
     actionBusy: false,
+    i18n: buildI18n(),
+  },
+
+  onLoad() {
+    wx.setNavigationBarTitle({ title: t('assign_nav_title') });
+    this.setData({ i18n: buildI18n() });
   },
 
   onShow() {
@@ -82,7 +106,7 @@ Page({
       }));
       this.setData({ requests, loading: false });
     } catch (err) {
-      wx.showToast({ title: '加载失败', icon: 'none' });
+      wx.showToast({ title: t('assign_load_failed'), icon: 'none' });
       this.setData({ loading: false });
     }
   },
@@ -102,13 +126,14 @@ Page({
   async loadAvailableShifts(request) {
     const arrivalTime = request.arrival_time_api || request.calc_pickup_time || '';
     if (!arrivalTime) {
-      wx.showToast({ title: '该学生无落地时间', icon: 'none' });
+      wx.showToast({ title: t('assign_no_arrival_time'), icon: 'none' });
       this.setData({ loadingShifts: false });
       return;
     }
     try {
       const res = await api.getAvailableShifts(arrivalTime);
       const list = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+      const unassigned = t('common_unassigned_driver');
       const availableShifts = list.map((item) => {
         const driver = item.driver || {};
         const maxSeats = driver.max_seats || 0;
@@ -119,7 +144,7 @@ Page({
         const remainCarryOn = Math.max(0, maxCarryOn - (item.current_carry_on || 0));
         return {
           ...item,
-          driverName: driver.name || '未分配司机',
+          driverName: driver.name || unassigned,
           carModel: driver.car_model || '',
           departureTimeText: formatDateTime(item.departure_time),
           maxSeats,
@@ -135,14 +160,14 @@ Page({
       });
       this.setData({ availableShifts, loadingShifts: false });
     } catch (err) {
-      wx.showToast({ title: '加载班次失败', icon: 'none' });
+      wx.showToast({ title: t('assign_load_shifts_failed'), icon: 'none' });
       this.setData({ loadingShifts: false });
     }
   },
 
   async onSelectShift(e) {
     if (this.data.actionBusy) {
-      wx.showToast({ title: '操作进行中', icon: 'none' });
+      wx.showToast({ title: t('assign_op_in_progress'), icon: 'none' });
       return;
     }
     const shift = e.currentTarget.dataset.shift;
@@ -153,19 +178,18 @@ Page({
     try {
       const result = await api.assignRequestToShift(request.id, shift.id);
       if (result && result.warning) {
-        wx.showToast({ title: `已分配 (${result.warning})`, icon: 'none' });
+        wx.showToast({ title: `${t('assign_success')} (${result.warning})`, icon: 'none' });
       } else {
-        wx.showToast({ title: '分配成功', icon: 'success' });
+        wx.showToast({ title: t('assign_success'), icon: 'success' });
       }
       this.setData({ showShiftPopup: false, selectedRequest: null });
-      // 通知调度页刷新
       const app = getApp();
       if (app && app.globalData) {
         app.globalData.dashboardNeedsRefresh = true;
       }
       await this.loadRequests();
     } catch (err) {
-      wx.showToast({ title: '分配失败', icon: 'none' });
+      wx.showToast({ title: t('assign_failed'), icon: 'none' });
     } finally {
       this.setData({ actionBusy: false });
     }

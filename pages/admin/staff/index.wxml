@@ -1,15 +1,15 @@
 <view class="page staff-page">
 	<view class="card">
-		<view class="section-title">用户角色管理</view>
+		<view class="section-title">{{i18n.staff_role_management}}</view>
 
 		<view wx:if="{{!loading && userList.length === 0}}">
-			<van-empty description="暂无用户数据" />
+			<van-empty description="{{i18n.staff_no_users}}" />
 		</view>
 
 		<van-cell-group inset wx:else>
-			<van-cell wx:for="{{userList}}" wx:key="id" title="{{item.name || ('用户#' + item.id)}}" center use-slot use-label-slot>
+			<van-cell wx:for="{{userList}}" wx:key="id" title="{{item.name || (i18n.common_student_prefix + item.id)}}" center use-slot use-label-slot>
 				<view slot="label" class="cell-label">
-					<text class="cell-wechat">微信号：{{item.wechat_id || '--'}}</text>
+					<text class="cell-wechat">{{i18n.staff_wechat_label}}{{item.wechat_id || '--'}}</text>
 					<van-tag
 						type="{{item.role === 'admin' ? 'danger' : (item.role === 'staff' ? 'success' : (item.role === 'driver' ? 'warning' : 'primary'))}}"
 						plain
@@ -28,7 +28,7 @@
 						data-id="{{item.id}}"
 						data-role="{{item.role}}"
 						bind:click="onOpenRoleActions"
-					>操作</van-button>
+					>{{i18n.staff_operate}}</van-button>
 				</view>
 			</van-cell>
 		</van-cell-group>
@@ -36,7 +36,7 @@
 
   <van-action-sheet
     show="{{showRoleActions}}"
-    title="用户操作"
+    title="{{i18n.staff_role_actions_title}}"
     actions="{{roleActions}}"
     close-on-click-action="true"
     bind:select="onSelectRoleAction"
@@ -45,7 +45,7 @@
 
   <van-action-sheet
     show="{{showDriverPicker}}"
-    title="选择司机档案"
+    title="{{i18n.staff_driver_picker_title}}"
     actions="{{driverActions}}"
     close-on-click-action="true"
     bind:select="onSelectDriver"

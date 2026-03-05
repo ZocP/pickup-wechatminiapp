@@ -1,4 +1,5 @@
 const api = require('../../../utils/api');
+const { t } = require('../../../utils/i18n');
 const { pad2, formatDateOnly } = require('../../../utils/formatters');
 
 function resolveRequestName(request) {
@@ -16,16 +17,16 @@ function resolveRequestName(request) {
     || '';
   const normalized = String(name || '').trim();
   if (normalized) return normalized;
-  return `学生#${request.user_id || request.id || '--'}`;
+  return `${t('common_student_prefix')}${request.user_id || request.id || '--'}`;
 }
 
 function buildRideWithText(request) {
   const note = String((request && request.ride_with_note) || '').trim();
   const wxid = String((request && request.ride_with_wechat) || '').trim();
   if (!note && !wxid) return '';
-  if (note && wxid) return `同乘: ${note} | 微信: ${wxid}`;
-  if (note) return `同乘: ${note}`;
-  return `微信: ${wxid}`;
+  if (note && wxid) return `${t('common_ride_with_prefix')}${note} | ${t('common_wechat_prefix')}${wxid}`;
+  if (note) return `${t('common_ride_with_prefix')}${note}`;
+  return `${t('common_wechat_prefix')}${wxid}`;
 }
 
 function unwrapPayload(payload) {
@@ -89,7 +90,30 @@ function normalizeShiftStatus(status) {
 }
 
 function shiftStatusText(status) {
-  return normalizeShiftStatus(status) === 'published' ? '已发布' : '未发布';
+  return normalizeShiftStatus(status) === 'published' ? t('common_published') : t('common_unpublished');
+}
+
+function buildI18n() {
+  return {
+    dashboard_pending_count_label:    t('dashboard_pending_count_label'),
+    dashboard_today_shifts_label:     t('dashboard_today_shifts_label'),
+    dashboard_published_count_label:  t('dashboard_published_count_label'),
+    dashboard_add_shift:              t('dashboard_add_shift'),
+    dashboard_quick_assign:           t('dashboard_quick_assign'),
+    dashboard_no_shifts:              t('dashboard_no_shifts'),
+    dashboard_pending_pool_label:     t('dashboard_pending_pool_label'),
+    dashboard_pending_students:       t('dashboard_pending_students'),
+    dashboard_select_shift:           t('dashboard_select_shift'),
+    dashboard_remove_passenger_title: t('dashboard_remove_passenger_title'),
+    dashboard_create_shift_title:     t('dashboard_create_shift_title'),
+    dashboard_field_driver:           t('dashboard_field_driver'),
+    dashboard_field_date:             t('dashboard_field_date'),
+    dashboard_field_time:             t('dashboard_field_time'),
+    dashboard_placeholder_driver:     t('dashboard_placeholder_driver'),
+    dashboard_placeholder_date:       t('dashboard_placeholder_date'),
+    dashboard_placeholder_time:       t('dashboard_placeholder_time'),
+    dashboard_confirm_create:         t('dashboard_confirm_create'),
+  };
 }
 
 const MAX_PENDING_ACTIONS = 40;
@@ -104,6 +128,7 @@ Page({
     todayShiftCount: 0,
     publishedCount: 0,
     pendingActionOverflow: 0,
+    overflowTipText: '',
     actionBusy: false,
 
     showPendingSheet: false,
@@ -139,11 +164,13 @@ Page({
     currentEffectiveRole: 'admin',
     realRole: 'admin',
     roleOptions: [
-      { label: '学生视角', value: 'student', icon: 'user-o' },
-      { label: '工作人员', value: 'staff', icon: 'manager-o' },
-      { label: '司机视角', value: 'driver', icon: 'car-o' },
-      { label: '管理员', value: 'admin', icon: 'setting-o' },
+      { label: t('dashboard_role_student'), value: 'student', icon: 'user-o' },
+      { label: t('dashboard_role_staff'), value: 'staff', icon: 'manager-o' },
+      { label: t('dashboard_role_driver'), value: 'driver', icon: 'car-o' },
+      { label: t('dashboard_role_admin'), value: 'admin', icon: 'setting-o' },
     ],
+
+    i18n: buildI18n(),
   },
 
   onShow() {
@@ -166,7 +193,7 @@ Page({
     }
 
     if (!(role === 'admin' || role === 'staff')) {
-      wx.showToast({ title: '仅管理员可访问', icon: 'none' });
+      wx.showToast({ title: t('common_admin_only'), icon: 'none' });
       wx.switchTab({ url: '/pages/home/index' });
       return;
     }
@@ -181,6 +208,11 @@ Page({
     }
 
     this.loadAll();
+  },
+
+  onLoad() {
+    wx.setNavigationBarTitle({ title: t('dashboard_nav_title') });
+    this.setData({ i18n: buildI18n() });
   },
 
   async onPullDownRefresh() {
@@ -201,16 +233,16 @@ Page({
     const pendingRes = pendingResult.status === 'fulfilled' ? pendingResult.value : [];
 
     if (dashboardResult.status === 'rejected' && pendingResult.status === 'rejected') {
-      wx.showToast({ title: '加载失败，请下拉重试', icon: 'none' });
+      wx.showToast({ title: t('common_load_failed'), icon: 'none' });
       this.setData({ loading: false });
       return;
     }
 
     if (dashboardResult.status === 'rejected' || pendingResult.status === 'rejected') {
       const failed = [];
-      if (dashboardResult.status === 'rejected') failed.push('班次数据');
-      if (pendingResult.status === 'rejected') failed.push('待分配数据');
-      wx.showToast({ title: `${failed.join('、')}加载失败`, icon: 'none' });
+      if (dashboardResult.status === 'rejected') failed.push(t('dashboard_shift_data'));
+      if (pendingResult.status === 'rejected') failed.push(t('dashboard_pending_data'));
+      wx.showToast({ title: `${failed.join('、')}${t('assign_load_failed')}`, icon: 'none' });
     }
 
     const dashboardRows = extractArray(shiftsRes, ['shifts', 'items', 'list', 'rows']);
@@ -252,12 +284,13 @@ Page({
       return {
         name: `${resolveRequestName(r)} | ${(r.flight_no || '--')}`,
         subname: rideWith
-          ? `${rideWith} | 落地: ${r.arrival_time_api || r.arrival_date || '--'}`
-          : `落地: ${r.arrival_time_api || r.arrival_date || '--'}`,
+          ? `${rideWith} | ${t('assign_arrival_time')}${r.arrival_time_api || r.arrival_date || '--'}`
+          : `${t('assign_arrival_time')}${r.arrival_time_api || r.arrival_date || '--'}`,
         request: r,
       };
     });
 
+    const overflow = Math.max(0, pendingRequests.length - limitedPendingActions.length);
     this.setData({
       shifts,
       pendingRequests,
@@ -265,7 +298,10 @@ Page({
       todayShiftCount,
       publishedCount,
       pendingActions: limitedPendingActions,
-      pendingActionOverflow: Math.max(0, pendingRequests.length - limitedPendingActions.length),
+      pendingActionOverflow: overflow,
+      overflowTipText: overflow > 0
+        ? `${t('dashboard_pending_pool_label')}${t('common_op_in_progress').replace('操作进行中，请稍候', '')}仅展示前${limitedPendingActions.length}条，请缩小范围`
+        : '',
       loading: false,
     });
 
@@ -294,11 +330,11 @@ Page({
     const detail = (e && e.detail) || {};
     const shiftId = Number(detail.shiftId || detail.shiftid || detail.id || 0);
     if (!shiftId) {
-      wx.showToast({ title: '班次ID无效', icon: 'none' });
+      wx.showToast({ title: t('dashboard_shift_id_invalid'), icon: 'none' });
       return;
     }
     if (!(this.data.pendingRequests || []).length) {
-      wx.showToast({ title: '当前无待分配学生', icon: 'none' });
+      wx.showToast({ title: t('dashboard_no_pending_students'), icon: 'none' });
       return;
     }
 
@@ -313,7 +349,7 @@ Page({
     const detail = (e && e.detail) || {};
     const shiftId = Number(detail.shiftId || detail.shiftid || detail.id || 0);
     if (!shiftId) {
-      wx.showToast({ title: '班次ID无效', icon: 'none' });
+      wx.showToast({ title: t('dashboard_shift_id_invalid'), icon: 'none' });
       return;
     }
     wx.navigateTo({ url: `/pages/admin/shift-detail/index?id=${shiftId}` });
@@ -334,7 +370,7 @@ Page({
 
     const shiftActions = shifts.map((s) => ({
       name: `#${s.id} ${s.departure_time || '--'}`,
-      subname: `${(s.driver && s.driver.name) || '未分配司机'} | ${shiftStatusText(s.status)}`,
+      subname: `${(s.driver && s.driver.name) || t('common_unassigned_driver')} | ${shiftStatusText(s.status)}`,
       shiftId: s.id,
     }));
 
@@ -364,13 +400,13 @@ Page({
       try {
         const result = await api.assignStudent(shiftId, requestId);
         if (result && result.warning) {
-          wx.showToast({ title: `已分配 (${result.warning})`, icon: 'none' });
+          wx.showToast({ title: `${t('dashboard_assign_success')} (${result.warning})`, icon: 'none' });
         } else {
-          wx.showToast({ title: '分配成功', icon: 'success' });
+          wx.showToast({ title: t('dashboard_assign_success'), icon: 'success' });
         }
         await this.loadAll();
       } catch (error) {
-        wx.showToast({ title: '分配失败', icon: 'none' });
+        wx.showToast({ title: t('dashboard_assign_failed'), icon: 'none' });
       }
     });
   },
@@ -379,7 +415,7 @@ Page({
     const detail = (e && e.detail) || {};
     const shiftId = Number(detail.shiftId || detail.shiftid || detail.id || 0);
     if (!shiftId) {
-      wx.showToast({ title: '班次ID无效', icon: 'none' });
+      wx.showToast({ title: t('dashboard_shift_id_invalid'), icon: 'none' });
       return;
     }
 
@@ -408,7 +444,7 @@ Page({
     }
 
     if (!requests.length) {
-      wx.showToast({ title: '当前班次暂无乘客', icon: 'none' });
+      wx.showToast({ title: t('dashboard_no_passengers'), icon: 'none' });
       return;
     }
 
@@ -431,11 +467,11 @@ Page({
     await this.runWithActionLock(async () => {
       try {
         await api.removeStudent(this.data.removeShiftId, action.requestId);
-        wx.showToast({ title: '移出成功', icon: 'success' });
+        wx.showToast({ title: t('dashboard_remove_success'), icon: 'success' });
         this.setData({ showRemoveSheet: false, removeShiftId: 0, removeActions: [] });
         await this.loadAll();
       } catch (error) {
-        wx.showToast({ title: '移出失败', icon: 'none' });
+        wx.showToast({ title: t('dashboard_remove_failed'), icon: 'none' });
       }
     });
   },
@@ -448,17 +484,17 @@ Page({
     await this.runWithActionLock(async () => {
       try {
         await api.publishShift(shiftId);
-        wx.showToast({ title: '发布成功', icon: 'success' });
+        wx.showToast({ title: t('dashboard_publish_success'), icon: 'success' });
         await this.loadAll();
       } catch (error) {
-        wx.showToast({ title: '发布失败', icon: 'none' });
+        wx.showToast({ title: t('dashboard_publish_failed'), icon: 'none' });
       }
     });
   },
 
   async runWithActionLock(task) {
     if (this.data.actionBusy) {
-      wx.showToast({ title: '操作进行中，请稍候', icon: 'none' });
+      wx.showToast({ title: t('common_op_in_progress'), icon: 'none' });
       return;
     }
     this.setData({ actionBusy: true });
@@ -523,8 +559,10 @@ Page({
     try {
       const drivers = await api.getDrivers();
       const driverList = Array.isArray(drivers) ? drivers : [];
+      const unnamedDriver = t('dashboard_unnamed_driver');
+      const unknownCar = t('dashboard_unknown_car');
       const pickerColumns = driverList.map((item) => ({
-        text: `${item.name || '未命名司机'} - ${item.car_model || '未知车型'}`,
+        text: `${item.name || unnamedDriver} - ${item.car_model || unknownCar}`,
         value: item.id,
       }));
       this.setData({
@@ -532,13 +570,13 @@ Page({
         pickerColumns,
       });
     } catch (error) {
-      wx.showToast({ title: '司机列表加载失败', icon: 'none' });
+      wx.showToast({ title: t('dashboard_driver_load_failed'), icon: 'none' });
     }
   },
 
   onOpenDriverPicker() {
     if (!this.data.pickerColumns.length) {
-      wx.showToast({ title: '暂无可选司机', icon: 'none' });
+      wx.showToast({ title: t('dashboard_no_drivers'), icon: 'none' });
       return;
     }
     this.setTabBarHidden(true);
@@ -563,7 +601,9 @@ Page({
       const rawValue = detail.value;
       const value = Array.isArray(rawValue) ? rawValue[0] : rawValue;
       const valueText = value && typeof value === 'object' ? value.text : String(value || '');
-      driver = this.data.driverList.find((item) => (`${item.name || '未命名司机'} - ${item.car_model || '未知车型'}`) === valueText) || null;
+      const unnamedDriver = t('dashboard_unnamed_driver');
+      const unknownCar = t('dashboard_unknown_car');
+      driver = this.data.driverList.find((item) => (`${item.name || unnamedDriver} - ${item.car_model || unknownCar}`) === valueText) || null;
     }
 
     if (!driver) {
@@ -571,9 +611,11 @@ Page({
       return;
     }
 
+    const unnamedDriver = t('dashboard_unnamed_driver');
+    const unknownCar = t('dashboard_unknown_car');
     this.setData({
       selectedDriverId: driver.id,
-      selectedDriverName: `${driver.name || '未命名司机'} - ${driver.car_model || '未知车型'}`,
+      selectedDriverName: `${driver.name || unnamedDriver} - ${driver.car_model || unknownCar}`,
       showDriverPicker: false,
     });
   },
@@ -655,7 +697,7 @@ Page({
 
   async onSubmitShift() {
     if (!this.data.selectedDriverId || !this.data.formattedTime) {
-      wx.showToast({ title: '请先完善司机与发车时间', icon: 'none' });
+      wx.showToast({ title: t('dashboard_form_incomplete'), icon: 'none' });
       return;
     }
 
@@ -665,12 +707,12 @@ Page({
           driver_id: this.data.selectedDriverId,
           departure_time: this.data.formattedTime,
         });
-        wx.showToast({ title: '创建成功', icon: 'success' });
+        wx.showToast({ title: t('dashboard_create_success'), icon: 'success' });
         this.setData({ showCreatePopup: false });
         this.resetCreateForm();
         await this.loadAll();
       } catch (error) {
-        wx.showToast({ title: '创建失败', icon: 'none' });
+        wx.showToast({ title: t('dashboard_create_failed'), icon: 'none' });
       }
     });
   },
@@ -694,12 +736,11 @@ Page({
 
     const app = getApp();
     const targetRole = roleOption.value;
-    
+
     if (targetRole === 'admin') {
-      // 切换回管理员视角
       const success = app.setViewAsUser ? app.setViewAsUser(false) : false;
       if (success) {
-        wx.showToast({ title: '已切换为管理员视角', icon: 'success' });
+        wx.showToast({ title: t('dashboard_switch_admin'), icon: 'success' });
         this.setData({
           isViewingAsUser: false,
           currentEffectiveRole: 'admin',
@@ -708,10 +749,9 @@ Page({
         this.refreshView();
       }
     } else {
-      // 模拟其他角色
       const success = app.setViewAsUser ? app.setViewAsUser(true) : false;
       if (success) {
-        wx.showToast({ title: '已切换为' + roleOption.label, icon: 'success' });
+        wx.showToast({ title: `已切换为${roleOption.label}`, icon: 'success' });
         this.setData({
           isViewingAsUser: true,
           currentEffectiveRole: targetRole,
@@ -726,7 +766,7 @@ Page({
     const app = getApp();
     const success = app.setViewAsUser ? app.setViewAsUser(false) : false;
     if (success) {
-      wx.showToast({ title: '已退出角色模拟', icon: 'success' });
+      wx.showToast({ title: t('dashboard_exit_simulation'), icon: 'success' });
       this.setData({
         isViewingAsUser: false,
         currentEffectiveRole: 'admin',
@@ -736,13 +776,10 @@ Page({
   },
 
   refreshView() {
-    // 刷新tabbar
     const tabBar = this.getTabBar && this.getTabBar();
     if (tabBar && typeof tabBar.refreshTabs === 'function') {
       tabBar.refreshTabs();
     }
-    
-    // 重新加载数据
     this.loadAll();
   },
 
@@ -752,10 +789,10 @@ Page({
 
   getRoleDisplayText() {
     const roleMap = {
-      'student': '学生',
-      'staff': '工作人员', 
-      'driver': '司机',
-      'admin': '管理员'
+      'student': t('dashboard_role_student'),
+      'staff': t('dashboard_role_staff'),
+      'driver': t('dashboard_role_driver'),
+      'admin': t('dashboard_role_admin'),
     };
     return roleMap[this.data.currentEffectiveRole] || this.data.currentEffectiveRole;
   },

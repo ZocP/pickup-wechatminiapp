@@ -3,19 +3,19 @@
     <van-grid column-num="3" border="false">
       <van-grid-item use-slot>
         <view class="summary-item">
-          <text class="summary-label">待分配人数</text>
+          <text class="summary-label">{{i18n.dashboard_pending_count_label}}</text>
           <text class="grid-number danger">{{pendingCount}}</text>
         </view>
       </van-grid-item>
       <van-grid-item use-slot>
         <view class="summary-item">
-          <text class="summary-label">今日班次</text>
+          <text class="summary-label">{{i18n.dashboard_today_shifts_label}}</text>
           <text class="grid-number">{{todayShiftCount}}</text>
         </view>
       </van-grid-item>
       <van-grid-item use-slot>
         <view class="summary-item">
-          <text class="summary-label">已发布班次</text>
+          <text class="summary-label">{{i18n.dashboard_published_count_label}}</text>
           <text class="grid-number success">{{publishedCount}}</text>
         </view>
       </van-grid-item>
@@ -23,8 +23,8 @@
   </view>
 
   <view class="create-entry card">
-    <van-button type="info" block bind:tap="onShowCreatePopup">添加班次</van-button>
-    <van-button type="warning" block custom-style="margin-top: 16rpx;" bind:tap="onQuickAssign">快速分配</van-button>
+    <van-button type="info" block bind:tap="onShowCreatePopup">{{i18n.dashboard_add_shift}}</van-button>
+    <van-button type="warning" block custom-style="margin-top: 16rpx;" bind:tap="onQuickAssign">{{i18n.dashboard_quick_assign}}</van-button>
   </view>
 
   <view class="shift-list">
@@ -34,7 +34,7 @@
     </view>
 
     <view wx:if="{{!loading && shifts.length === 0}}" class="card">
-      <van-empty description="暂无班次数据" />
+      <van-empty description="{{i18n.dashboard_no_shifts}}" />
     </view>
 
     <shift-card
@@ -46,15 +46,15 @@
   </view>
 
   <view class="pending-fab" bind:tap="openPendingPool">
-    <text>待分配池 {{pendingCount}}</text>
+    <text>{{i18n.dashboard_pending_pool_label}} {{pendingCount}}</text>
   </view>
   <view wx:if="{{pendingActionOverflow > 0}}" class="card" style="margin-top: 16rpx;">
-    <text style="font-size: 24rpx; color: #999;">待分配人数较多，弹层仅展示前 {{pendingActions.length}} 条。</text>
+    <text style="font-size: 24rpx; color: #999;">{{overflowTipText}}</text>
   </view>
 
   <van-action-sheet
     show="{{showPendingSheet}}"
-    title="待分配学生"
+    title="{{i18n.dashboard_pending_students}}"
     z-index="2000"
     root-portal
     actions="{{pendingActions}}"
@@ -65,7 +65,7 @@
 
   <van-action-sheet
     show="{{showShiftPicker}}"
-    title="选择班次"
+    title="{{i18n.dashboard_select_shift}}"
     z-index="2000"
     root-portal
     actions="{{shiftActions}}"
@@ -76,7 +76,7 @@
 
   <van-action-sheet
     show="{{showRemoveSheet}}"
-    title="选择要移出的乘客"
+    title="{{i18n.dashboard_remove_passenger_title}}"
     z-index="2000"
     root-portal
     actions="{{removeActions}}"
@@ -87,40 +87,40 @@
 
   <van-popup show="{{showCreatePopup}}" position="bottom" round bind:close="onCloseCreatePopup">
     <view class="create-popup">
-      <view class="create-title">创建班次</view>
+      <view class="create-title">{{i18n.dashboard_create_shift_title}}</view>
       <van-cell-group inset>
         <van-field
-          label="选择司机"
+          label="{{i18n.dashboard_field_driver}}"
           value="{{selectedDriverName}}"
-          placeholder="请选择司机"
+          placeholder="{{i18n.dashboard_placeholder_driver}}"
           readonly
           is-link
           bind:click-input="onOpenDriverPicker"
         />
         <van-field
-          label="发车日期"
+          label="{{i18n.dashboard_field_date}}"
           value="{{selectedDate}}"
-          placeholder="请选择日期"
+          placeholder="{{i18n.dashboard_placeholder_date}}"
           readonly
           is-link
           bind:click-input="onOpenDatePicker"
         />
         <van-field
-          label="发车时刻"
+          label="{{i18n.dashboard_field_time}}"
           value="{{selectedClock}}"
-          placeholder="请选择时间"
+          placeholder="{{i18n.dashboard_placeholder_time}}"
           readonly
           is-link
           bind:click-input="onOpenTimePicker"
         />
       </van-cell-group>
-      <van-button type="info" block custom-style="margin-top: 24rpx;" bind:tap="onSubmitShift">确认创建</van-button>
+      <van-button type="info" block custom-style="margin-top: 24rpx;" bind:tap="onSubmitShift">{{i18n.dashboard_confirm_create}}</van-button>
     </view>
   </van-popup>
 
   <van-popup show="{{showDriverPicker}}" position="bottom" bind:close="onCancelDriverPicker">
     <van-picker
-      title="选择司机"
+      title="{{i18n.dashboard_field_driver}}"
       show-toolbar
       columns="{{pickerColumns}}"
       bind:confirm="onConfirmDriver"
@@ -131,7 +131,7 @@
   <van-popup show="{{showDatePicker}}" position="bottom" bind:close="onCancelDatePicker">
     <van-datetime-picker
       type="date"
-      title="发车日期"
+      title="{{i18n.dashboard_field_date}}"
       show-toolbar
       min-date="{{minDateTs}}"
       value="{{selectedDateTs}}"
@@ -143,7 +143,7 @@
   <van-popup show="{{showTimePicker}}" position="bottom" bind:close="onCancelTimePicker">
     <van-datetime-picker
       type="time"
-      title="发车时刻"
+      title="{{i18n.dashboard_field_time}}"
       show-toolbar
       value="{{selectedClock}}"
       bind:confirm="onConfirmTime"

@@ -1,4 +1,5 @@
 const api = require('../../../utils/api');
+const { t } = require('../../../utils/i18n');
 
 function defaultForm() {
   return {
@@ -10,6 +11,23 @@ function defaultForm() {
   };
 }
 
+function buildI18n() {
+  return {
+    drivers_title:          t('drivers_title'),
+    drivers_no_drivers:     t('drivers_no_drivers'),
+    drivers_add_btn:        t('drivers_add_btn'),
+    drivers_popup_title:    t('drivers_popup_title'),
+    drivers_field_name:     t('drivers_field_name'),
+    drivers_field_car_model:t('drivers_field_car_model'),
+    drivers_name_placeholder:t('drivers_name_placeholder'),
+    drivers_car_placeholder:t('drivers_car_placeholder'),
+    drivers_max_seats:      t('drivers_max_seats'),
+    drivers_max_checked:    t('drivers_max_checked'),
+    drivers_max_carry_on:   t('drivers_max_carry_on'),
+    drivers_submit:         t('drivers_submit'),
+  };
+}
+
 Page({
   data: {
     loading: false,
@@ -17,6 +35,12 @@ Page({
     driverList: [],
     showAddPopup: false,
     form: defaultForm(),
+    i18n: buildI18n(),
+  },
+
+  onLoad() {
+    wx.setNavigationBarTitle({ title: t('drivers_nav_title') });
+    this.setData({ i18n: buildI18n() });
   },
 
   onShow() {
@@ -58,7 +82,7 @@ Page({
         const driver = driverMap.get(String(driverId)) || {};
         return {
           id: u.id,
-          name: u.name || u.real_name || driver.name || `用户#${u.id}`,
+          name: u.name || u.real_name || driver.name || `${t('common_student_prefix')}${u.id}`,
           car_model: driver.car_model || driver.vehicle_model || driver.vehicle_plate || '--',
           max_seats: driver.max_seats || driver.max_passengers || 0,
           max_checked: driver.max_checked || driver.max_checked_luggage || 0,
@@ -70,7 +94,7 @@ Page({
         driverList: merged.length ? merged : drivers,
       });
     } catch (error) {
-      wx.showToast({ title: '司机列表加载失败', icon: 'none' });
+      wx.showToast({ title: t('drivers_load_failed'), icon: 'none' });
     } finally {
       this.setData({ loading: false });
     }
@@ -114,19 +138,19 @@ Page({
 
     const payload = { ...this.data.form };
     if (!payload.name || !payload.car_model) {
-      wx.showToast({ title: '请填写姓名和车型', icon: 'none' });
+      wx.showToast({ title: t('drivers_form_incomplete'), icon: 'none' });
       return;
     }
 
     this.setData({ submitting: true });
     try {
       await api.createDriver(payload);
-      wx.showToast({ title: '录入成功', icon: 'success' });
+      wx.showToast({ title: t('drivers_add_success'), icon: 'success' });
       this.setData({ showAddPopup: false });
       this.resetForm();
       await this.loadDrivers();
     } catch (error) {
-      wx.showToast({ title: (error && error.message) || '录入失败', icon: 'none' });
+      wx.showToast({ title: (error && error.message) || t('drivers_add_failed'), icon: 'none' });
     } finally {
       this.setData({ submitting: false });
     }

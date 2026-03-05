@@ -6,13 +6,13 @@
         <van-tag type="{{statusTagType}}" plain>{{statusText}}</van-tag>
       </view>
       <view class="header-row-meta">
-        <view class="header-driver">司机：{{driverText}}</view>
-        <van-tag plain type="primary" size="medium">{{terminalRoute || '暂无路线'}}</van-tag>
+        <view class="header-driver">{{i18n.shift_detail_driver_prefix}}{{driverText}}</view>
+        <van-tag plain type="primary" size="medium">{{terminalRoute || i18n.shift_detail_no_route}}</van-tag>
       </view>
 
       <view class="resource-block">
         <view class="resource-line">
-          <text class="resource-label">座位</text>
+          <text class="resource-label">{{i18n.shift_detail_seats}}</text>
           <view class="resource-progress">
             <van-progress percentage="{{seatUsage.percent}}" color="{{seatUsage.color}}" pivot-text="" show-pivot="false" stroke-width="8" />
           </view>
@@ -20,7 +20,7 @@
         </view>
 
         <view class="resource-line">
-          <text class="resource-label">托运</text>
+          <text class="resource-label">{{i18n.shift_detail_checked}}</text>
           <view class="resource-progress">
             <van-progress percentage="{{checkedUsage.percent}}" color="{{checkedUsage.color}}" pivot-text="" show-pivot="false" stroke-width="8" />
           </view>
@@ -28,19 +28,19 @@
         </view>
 
         <view class="resource-line">
-          <text class="resource-label">登机</text>
+          <text class="resource-label">{{i18n.shift_detail_carry_on}}</text>
           <view class="resource-progress">
             <van-progress percentage="{{carryOnUsage.percent}}" color="{{carryOnUsage.color}}" pivot-text="" show-pivot="false" stroke-width="8" />
           </view>
           <text class="resource-value">{{carryOnUsage.used}} / {{carryOnUsage.max}}</text>
         </view>
-        
+
         <!-- 登车状态 -->
         <view class="resource-line boarding-status-line" wx:if="{{boardedCount !== undefined && unboardedCount !== undefined}}">
-          <text class="resource-label">登车</text>
+          <text class="resource-label">{{i18n.shift_detail_boarding}}</text>
           <view class="boarding-status-values">
-            <text class="boarding-count boarded">{{boardedCount}} 已登</text>
-            <text class="boarding-count unboarded">{{unboardedCount}} 待登</text>
+            <text class="boarding-count boarded">{{boardedCount}} {{i18n.shift_detail_boarded_suffix}}</text>
+            <text class="boarding-count unboarded">{{unboardedCount}} {{i18n.shift_detail_unboarded_suffix}}</text>
           </view>
         </view>
       </view>
@@ -48,10 +48,10 @@
   </van-sticky>
 
   <van-tabs active="{{activeTab}}" bind:change="onTabChange" sticky="false">
-    <van-tab title="车上乘客 ({{onboardCount}})">
+    <van-tab title="{{i18n.shift_detail_tab_onboard}} ({{onboardCount}})">
       <view class="tab-panel">
         <view wx:if="{{onboardCount === 0}}" class="card">
-          <van-empty description="车上暂无乘客" />
+          <van-empty description="{{i18n.shift_detail_no_onboard}}" />
         </view>
 
         <view wx:else class="card">
@@ -64,10 +64,10 @@
                     <text class="passenger-name">{{passenger.name}}</text>
                     <text class="passenger-meta">{{passenger.flight_no}} | {{passenger.terminal || '--'}}</text>
                   </view>
-                  <view class="passenger-sub">预计上车: {{passenger.pickup_time_text || '--'}}</view>
-                  <view class="passenger-sub">行李: {{passenger.checked_luggage_count || 0}}托 {{passenger.carryon_luggage_count || 0}}登</view>
-                  <view wx:if="{{passenger.ride_with_note}}" class="passenger-sub">同乘备注: {{passenger.ride_with_note}}</view>
-                  <view wx:if="{{passenger.ride_with_wechat}}" class="passenger-sub">微信: {{passenger.ride_with_wechat}}</view>
+                  <view class="passenger-sub">{{i18n.shift_detail_pickup_time}}{{passenger.pickup_time_text || '--'}}</view>
+                  <view class="passenger-sub">{{i18n.shift_detail_luggage_label}}{{passenger.checked_luggage_count || 0}}{{i18n.shift_detail_luggage_checked}} {{passenger.carryon_luggage_count || 0}}{{i18n.shift_detail_luggage_carry_on}}</view>
+                  <view wx:if="{{passenger.ride_with_note}}" class="passenger-sub">{{i18n.shift_detail_ride_with_note}}{{passenger.ride_with_note}}</view>
+                  <view wx:if="{{passenger.ride_with_wechat}}" class="passenger-sub">{{i18n.shift_detail_wechat}}{{passenger.ride_with_wechat}}</view>
                 </view>
                 <view class="passenger-right">
                   <van-button
@@ -79,7 +79,7 @@
                     loading="{{actingRequestId === passenger.id}}"
                     data-id="{{passenger.id}}"
                     bind:tap="onRemovePassenger"
-                  >移出</van-button>
+                  >{{i18n.shift_detail_remove}}</van-button>
                 </view>
               </view>
             </view>
@@ -88,7 +88,7 @@
       </view>
     </van-tab>
 
-    <van-tab title="待分配池">
+    <van-tab title="{{i18n.shift_detail_tab_pending}}">
       <view class="tab-panel">
         <van-dropdown-menu>
           <van-dropdown-item value="{{terminalFilter}}" options="{{terminalOptions}}" bind:change="onTerminalChange" />
@@ -97,7 +97,7 @@
 
         <view class="card pending-card">
           <view wx:if="{{pendingView.length === 0}}">
-            <van-empty description="暂无可分配乘客" />
+            <van-empty description="{{i18n.shift_detail_no_pending}}" />
           </view>
 
           <view wx:for="{{pendingGroups}}" wx:key="key" class="group-block">
@@ -109,13 +109,13 @@
                     <text class="passenger-name">{{passenger.name}}</text>
                     <text class="passenger-meta">{{passenger.flight_no}} | {{passenger.terminal || '--'}}</text>
                   </view>
-                  <view class="passenger-sub">预计上车: {{passenger.pickup_time_text || '--'}}</view>
-                  <view class="passenger-sub">行李: {{passenger.checked_luggage_count || 0}}托 {{passenger.carryon_luggage_count || 0}}登</view>
-                  <view wx:if="{{passenger.ride_with_note}}" class="passenger-sub">同乘备注: {{passenger.ride_with_note}}</view>
-                  <view wx:if="{{passenger.ride_with_wechat}}" class="passenger-sub">微信: {{passenger.ride_with_wechat}}</view>
+                  <view class="passenger-sub">{{i18n.shift_detail_pickup_time}}{{passenger.pickup_time_text || '--'}}</view>
+                  <view class="passenger-sub">{{i18n.shift_detail_luggage_label}}{{passenger.checked_luggage_count || 0}}{{i18n.shift_detail_luggage_checked}} {{passenger.carryon_luggage_count || 0}}{{i18n.shift_detail_luggage_carry_on}}</view>
+                  <view wx:if="{{passenger.ride_with_note}}" class="passenger-sub">{{i18n.shift_detail_ride_with_note}}{{passenger.ride_with_note}}</view>
+                  <view wx:if="{{passenger.ride_with_wechat}}" class="passenger-sub">{{i18n.shift_detail_wechat}}{{passenger.ride_with_wechat}}</view>
                   <view class="pending-tip-row">
-                    <van-tag wx:if="{{passenger.recommended}}" type="success" plain>推荐</van-tag>
-                    <van-tag wx:if="{{passenger.late}}" type="danger" plain>已错过</van-tag>
+                    <van-tag wx:if="{{passenger.recommended}}" type="success" plain>{{i18n.shift_detail_recommended}}</van-tag>
+                    <van-tag wx:if="{{passenger.late}}" type="danger" plain>{{i18n.shift_detail_late}}</van-tag>
                   </view>
                 </view>
                 <view class="passenger-right">
@@ -128,7 +128,7 @@
                     loading="{{actingRequestId === passenger.id}}"
                     data-id="{{passenger.id}}"
                     bind:tap="onAddPassenger"
-                  >添加</van-button>
+                  >{{i18n.shift_detail_add}}</van-button>
                 </view>
               </view>
             </view>

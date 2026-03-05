@@ -5,7 +5,7 @@
   </view>
 
   <view wx:elif="{{!requests.length}}" class="card">
-    <van-empty description="暂无待分配学生" />
+    <van-empty description="{{i18n.assign_no_requests}}" />
   </view>
 
   <block wx:else>
@@ -16,13 +16,13 @@
           <van-tag type="primary" plain>{{item.flight_no}}</van-tag>
         </view>
         <view class="request-detail">
-          <text>落地日期：{{item.arrivalDateText}}</text>
+          <text>{{i18n.assign_arrival_date}}{{item.arrivalDateText}}</text>
         </view>
         <view class="request-detail">
-          <text>落地时间：{{item.arrivalTimeText}}</text>
+          <text>{{i18n.assign_arrival_time}}{{item.arrivalTimeText}}</text>
         </view>
         <view class="request-detail">
-          <text>托运×{{item.checked_bags}} 登机×{{item.carry_on_bags}}</text>
+          <text>{{i18n.assign_checked_bags_label}}{{item.checked_bags}} {{i18n.assign_carry_on_bags_label}}{{item.carry_on_bags}}</text>
         </view>
         <view wx:if="{{item.rideWithText}}" class="request-detail ride-with">
           <text>{{item.rideWithText}}</text>
@@ -34,7 +34,7 @@
           size="small"
           bind:tap="onAssign"
           data-request="{{item}}"
-        >分配班次</van-button>
+        >{{i18n.assign_shift_btn}}</van-button>
       </view>
     </view>
   </block>
@@ -48,15 +48,15 @@
     bind:close="onCloseShiftPopup"
   >
     <view class="shift-popup">
-      <view class="popup-title">为 {{selectedRequest.userName}} 选择班次</view>
-      <view class="popup-subtitle">落地时间：{{selectedRequest.arrivalTimeText}}</view>
+      <view class="popup-title">{{i18n.assign_popup_for_prefix}}{{selectedRequest.userName}}{{i18n.assign_popup_for_suffix}}</view>
+      <view class="popup-subtitle">{{i18n.assign_arrival_time}}{{selectedRequest.arrivalTimeText}}</view>
 
       <view wx:if="{{loadingShifts}}" class="popup-loading">
-        <van-loading size="24px">加载推荐班次...</van-loading>
+        <van-loading size="24px">{{i18n.assign_loading_shifts}}</van-loading>
       </view>
 
       <view wx:elif="{{!availableShifts.length}}" class="popup-empty">
-        <van-empty description="暂无可用班次" />
+        <van-empty description="{{i18n.assign_no_shifts}}" />
       </view>
 
       <block wx:else>
@@ -74,7 +74,7 @@
             <van-icon wx:if="{{shiftItem.is_full}}" name="warning-o" color="#ee0a24" size="16px" />
           </view>
           <view class="shift-detail">
-            <text>出发时间：{{shiftItem.departureTimeText}}</text>
+            <text>{{i18n.assign_depart_time}}{{shiftItem.departureTimeText}}</text>
           </view>
           <view class="shift-capacity">
             <van-tag type="{{shiftItem.seatsFull ? 'danger' : 'success'}}" plain>
@@ -88,7 +88,7 @@
             </van-tag>
           </view>
           <view wx:if="{{shiftItem.is_full}}" class="shift-warning">
-            <text>⚠️ 容量紧张，分配后可能超载</text>
+            <text>{{i18n.assign_capacity_warning}}</text>
           </view>
         </view>
       </block>

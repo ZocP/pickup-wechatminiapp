@@ -1,4 +1,17 @@
 const api = require('../../../utils/api');
+const { t } = require('../../../utils/i18n');
+
+function buildI18n() {
+  return {
+    staff_role_management:    t('staff_role_management'),
+    staff_no_users:           t('staff_no_users'),
+    staff_wechat_label:       t('staff_wechat_label'),
+    staff_operate:            t('staff_operate'),
+    staff_role_actions_title: t('staff_role_actions_title'),
+    staff_driver_picker_title:t('staff_driver_picker_title'),
+    common_student_prefix:    t('common_student_prefix'),
+  };
+}
 
 Page({
   data: {
@@ -13,6 +26,12 @@ Page({
     roleActions: [],
     targetUserIdForAction: 0,
     targetUserRoleForAction: '',
+    i18n: buildI18n(),
+  },
+
+  onLoad() {
+    wx.setNavigationBarTitle({ title: t('staff_nav_title') });
+    this.setData({ i18n: buildI18n() });
   },
 
   onShow() {
@@ -24,7 +43,7 @@ Page({
 
     const role = app.getEffectiveRole ? app.getEffectiveRole() : ((app.globalData.userInfo && app.globalData.userInfo.role) || 'student');
     if (role !== 'admin') {
-      wx.showToast({ title: '仅管理员可访问', icon: 'none' });
+      wx.showToast({ title: t('common_admin_only'), icon: 'none' });
       wx.switchTab({ url: '/pages/home/index' });
       return;
     }
@@ -45,7 +64,7 @@ Page({
       const driverList = Array.isArray(driversRes) ? driversRes : [];
       this.setData({ userList, driverList });
     } catch (error) {
-      wx.showToast({ title: (error && error.message) || '数据加载失败', icon: 'none' });
+      wx.showToast({ title: (error && error.message) || t('staff_load_failed'), icon: 'none' });
     } finally {
       this.setData({ loading: false });
     }
@@ -65,14 +84,14 @@ Page({
     try {
       if (role === 'staff') {
         await api.cancelUserAsStaff(userId);
-        wx.showToast({ title: '已取消 staff', icon: 'success' });
+        wx.showToast({ title: t('staff_unset_staff_success'), icon: 'success' });
       } else {
         await api.setUserAsStaff(userId);
-        wx.showToast({ title: '已设为 staff', icon: 'success' });
+        wx.showToast({ title: t('staff_set_staff_success'), icon: 'success' });
       }
       await this.loadAll();
     } catch (error) {
-      wx.showToast({ title: (error && error.message) || '操作失败', icon: 'none' });
+      wx.showToast({ title: (error && error.message) || t('staff_op_failed'), icon: 'none' });
     } finally {
       this.setData({ actingUserId: 0 });
     }
@@ -89,7 +108,7 @@ Page({
     }));
 
     if (!driverActions.length) {
-      wx.showToast({ title: '请先创建司机档案', icon: 'none' });
+      wx.showToast({ title: t('staff_no_driver_profiles'), icon: 'none' });
       return;
     }
 
@@ -106,11 +125,11 @@ Page({
     this.setData({ actingUserId: userId });
     try {
       await api.setUserAsDriver(userId, action.driverId);
-      wx.showToast({ title: '已设为司机', icon: 'success' });
+      wx.showToast({ title: t('staff_set_driver_success'), icon: 'success' });
       this.onCloseDriverPicker();
       await this.loadAll();
     } catch (error) {
-      wx.showToast({ title: (error && error.message) || '设为司机失败', icon: 'none' });
+      wx.showToast({ title: (error && error.message) || t('staff_set_driver_failed'), icon: 'none' });
     } finally {
       this.setData({ actingUserId: 0 });
     }
@@ -124,10 +143,10 @@ Page({
     this.setData({ actingUserId: userId });
     try {
       await api.cancelUserAsDriver(userId);
-      wx.showToast({ title: '已取消司机', icon: 'success' });
+      wx.showToast({ title: t('staff_unset_driver_success'), icon: 'success' });
       await this.loadAll();
     } catch (error) {
-      wx.showToast({ title: (error && error.message) || '取消司机失败', icon: 'none' });
+      wx.showToast({ title: (error && error.message) || t('staff_unset_driver_failed'), icon: 'none' });
     } finally {
       this.setData({ actingUserId: 0 });
     }
@@ -140,11 +159,14 @@ Page({
     if (!userId || role === 'admin') return;
 
     const actions = [];
-    actions.push({ name: role === 'staff' ? '取消Staff' : '设为Staff', action: 'toggleStaff' });
+    actions.push({
+      name: role === 'staff' ? t('staff_action_unset_staff') : t('staff_action_set_staff'),
+      action: 'toggleStaff',
+    });
     if (role === 'driver') {
-      actions.push({ name: '取消司机', action: 'unsetDriver' });
+      actions.push({ name: t('staff_action_unset_driver'), action: 'unsetDriver' });
     } else {
-      actions.push({ name: '设为司机', action: 'setDriver' });
+      actions.push({ name: t('staff_action_set_driver'), action: 'setDriver' });
     }
 
     this.setData({
@@ -157,7 +179,6 @@ Page({
 
   onSelectRoleAction(e) {
     const action = e && e.detail ? e.detail : null;
-    // action is e.detail directly (Vant action-sheet bind:select)
     const userId = this.data.targetUserIdForAction;
     const role = this.data.targetUserRoleForAction;
     if (!action || !userId) return;
