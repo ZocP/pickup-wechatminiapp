@@ -405,4 +405,24 @@ module.exports = {
   driver_detail_loading:            'Loading...',
   driver_detail_load_failed:        'Load failed',
 
+  // Status tracking - request info card
+  request_info_title:               'Request Details',
+  request_info_flight:              'Flight: ',
+  request_info_arrival:             'Arrival: ',
+  request_info_bags:                'Bags: Checked ',
+  request_info_bags_sep:            ' / Carry-on ',
+  request_info_bags_unit:           '',
+  request_info_wechat:              'Ride-with WeChat: ',
+  request_info_note:                'Note: ',
+  request_info_terminal:            'Terminal: ',
+  // pending edit
+  request_edit_btn:                 'Edit Request',
+  request_edit_save:                'Save Changes',
+  request_edit_cancel:              'Cancel',
+  request_updated:                  'Request updated',
+  request_update_failed:            'Update failed',
+  // modification limits
+  mod_limit_exceeded:               'Max modifications reached (3 times)',
+  mod_too_close_to_arrival:         'Cannot modify within 24h of arrival',
+  mod_count_label:                  'Modifications used: ',
 }

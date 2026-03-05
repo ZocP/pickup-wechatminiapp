@@ -97,12 +97,97 @@
     <view wx:else>
       <van-steps steps="{{trackSteps}}" active="{{activeStep}}" direction="horizontal" />
 
-      <view class="latest">
-        <text>{{i18n.student_request_current_flight}}{{latestRequest.flight_no}}</text>
-        <van-tag type="primary" plain custom-style="margin-left: 12rpx;">{{latestRequest.status_text || latestRequest.status}}</van-tag>
+      <!-- 申请信息卡片 -->
+      <view class="info-card card-inner">
+        <view class="inner-title">{{i18n.request_info_title}}</view>
+
+        <!-- 非编辑模式：只读展示 -->
+        <block wx:if="{{!editing}}">
+          <view class="line">{{i18n.request_info_flight}}{{latestRequest.flight_no}}</view>
+          <view class="line">{{i18n.request_info_arrival}}{{formattedArrivalTime || '--'}}</view>
+          <view class="line">{{i18n.request_info_terminal}}{{latestRequest.terminal || '--'}}</view>
+          <view class="line">{{i18n.request_info_bags}}{{latestRequest.checked_bags}}{{i18n.request_info_bags_sep}}{{latestRequest.carry_on_bags}}{{i18n.request_info_bags_unit}}</view>
+          <view wx:if="{{latestRequest.ride_with_wechat}}" class="line">{{i18n.request_info_wechat}}{{latestRequest.ride_with_wechat}}</view>
+          <view wx:if="{{latestRequest.ride_with_note}}" class="line">{{i18n.request_info_note}}{{latestRequest.ride_with_note}}</view>
+        </block>
+
+        <!-- 编辑模式（仅 pending 状态） -->
+        <block wx:if="{{editing}}">
+          <van-cell-group inset>
+            <van-field
+              label="{{i18n.student_request_flight_label}}"
+              value="{{editForm.flight_no}}"
+              data-field="flight_no"
+              bind:change="onEditFieldChange"
+            />
+            <view bindtap="openEditDatePicker">
+              <van-field
+                label="{{i18n.student_request_date_label}}"
+                value="{{editForm.arrival_date}}"
+                readonly
+                is-link
+              />
+            </view>
+            <van-field
+              label="{{i18n.student_request_terminal_label}}"
+              value="{{editForm.terminal}}"
+              readonly
+              is-link
+              bind:click-input="openEditTerminalPicker"
+            />
+            <van-field
+              label="{{i18n.student_request_time_label}}"
+              value="{{editForm.arrival_time}}"
+              readonly
+              is-link
+              bind:click-input="openEditTimePicker"
+            />
+            <view class="stepper-row">
+              <text class="stepper-label">{{i18n.student_request_checked_label}}</text>
+              <van-stepper value="{{editForm.checked_bags}}" min="0" max="10" bind:change="onEditCheckedChange" />
+            </view>
+            <view class="stepper-row">
+              <text class="stepper-label">{{i18n.student_request_carryon_label}}</text>
+              <van-stepper value="{{editForm.carry_on_bags}}" min="0" max="10" bind:change="onEditCarryOnChange" />
+            </view>
+            <van-field
+              label="{{i18n.student_request_ridewith_label}}"
+              type="textarea"
+              autosize
+              maxlength="200"
+              value="{{editForm.ride_with_note}}"
+              data-field="ride_with_note"
+              bind:change="onEditFieldChange"
+            />
+            <van-field
+              label="{{i18n.student_request_wechat_label}}"
+              maxlength="20"
+              value="{{editForm.ride_with_wechat}}"
+              data-field="ride_with_wechat"
+              bind:change="onEditFieldChange"
+            />
+          </van-cell-group>
+          <view class="edit-actions">
+            <van-button type="primary" block loading="{{savingEdit}}" bind:tap="saveEdit" custom-style="margin-top: 16rpx;">{{i18n.request_edit_save}}</van-button>
+            <van-button type="default" block bind:tap="cancelEdit" custom-style="margin-top: 12rpx;">{{i18n.request_edit_cancel}}</van-button>
+          </view>
+        </block>
+
+        <!-- 修改次数 & pending 编辑按钮 -->
+        <view wx:if="{{latestRequest.modification_count > 0}}" class="line mod-count">{{i18n.mod_count_label}}{{latestRequest.modification_count}} / 3</view>
+        <van-button
+          wx:if="{{latestRequest.status === 'pending' && !editing}}"
+          type="warning"
+          plain
+          block
+          custom-style="margin-top: 16rpx;"
+          bind:tap="editRequest"
+        >{{i18n.request_edit_btn}}</van-button>
       </view>
-      <view wx:if="{{latestRequest.ride_with_note}}" class="line">{{i18n.student_request_ridewith_note}}{{latestRequest.ride_with_note}}</view>
-      <view wx:if="{{latestRequest.ride_with_wechat}}" class="line">{{i18n.student_request_ridewith_wechat}}{{latestRequest.ride_with_wechat}}</view>
+
+      <view class="latest">
+        <van-tag type="primary" plain>{{latestRequest.status_text || latestRequest.status}}</van-tag>
+      </view>
 
       <view wx:if="{{assignedShift}}" class="assigned card-inner">
         <view class="inner-title">{{i18n.student_request_assigned_title}}</view>

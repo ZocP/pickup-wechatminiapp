@@ -404,4 +404,24 @@ module.exports = {
   driver_detail_loading:            '加载中…',
   driver_detail_load_failed:        '加载失败',
 
+  // 状态追踪 - 申请信息卡片
+  request_info_title:               '申请信息',
+  request_info_flight:              '航班号：',
+  request_info_arrival:             '落地时间：',
+  request_info_bags:                '行李：托运 ',
+  request_info_bags_sep:            ' 件 / 随身 ',
+  request_info_bags_unit:           ' 件',
+  request_info_wechat:              '同乘微信：',
+  request_info_note:                '备注：',
+  request_info_terminal:            '航站楼：',
+  // pending 编辑
+  request_edit_btn:                 '修改申请',
+  request_edit_save:                '保存修改',
+  request_edit_cancel:              '取消',
+  request_updated:                  '申请已更新',
+  request_update_failed:            '更新失败',
+  // 修改限制
+  mod_limit_exceeded:               '已达到最大修改次数（3次）',
+  mod_too_close_to_arrival:         '距落地时间不足24小时，无法修改',
+  mod_count_label:                  '已修改次数：',
 }

@@ -50,6 +50,11 @@ Page({
     generatingQrCode: false,
     // 修改申请相关
     modRequestStatus: null,
+    // 申请信息 & 编辑
+    editing: false,
+    savingEdit: false,
+    formattedArrivalTime: '',
+    editForm: {},
   },
 
   onLoad() {
@@ -98,6 +103,23 @@ Page({
         mod_request_pending: t('mod_request_pending'),
         mod_request_submit_success: t('mod_request_submit_success'),
         mod_request_submit_fail: t('mod_request_submit_fail'),
+        request_info_title: t('request_info_title'),
+        request_info_flight: t('request_info_flight'),
+        request_info_arrival: t('request_info_arrival'),
+        request_info_bags: t('request_info_bags'),
+        request_info_bags_sep: t('request_info_bags_sep'),
+        request_info_bags_unit: t('request_info_bags_unit'),
+        request_info_wechat: t('request_info_wechat'),
+        request_info_note: t('request_info_note'),
+        request_info_terminal: t('request_info_terminal'),
+        request_edit_btn: t('request_edit_btn'),
+        request_edit_save: t('request_edit_save'),
+        request_edit_cancel: t('request_edit_cancel'),
+        request_updated: t('request_updated'),
+        request_update_failed: t('request_update_failed'),
+        mod_limit_exceeded: t('mod_limit_exceeded'),
+        mod_too_close_to_arrival: t('mod_too_close_to_arrival'),
+        mod_count_label: t('mod_count_label'),
       },
       trackSteps: [t('student_request_step_submitted'), t('student_request_step_scheduling'), t('student_request_step_assigned')],
     });
@@ -168,10 +190,11 @@ Page({
       return;
     }
     this.setTabBarHidden(false);
-    this.setData({
-      showTerminalPicker: false,
-      'form.terminal': value,
-    });
+    if (this.data._editTerminalMode) {
+      this.setData({ showTerminalPicker: false, _editTerminalMode: false, 'editForm.terminal': value });
+    } else {
+      this.setData({ showTerminalPicker: false, 'form.terminal': value });
+    }
   },
 
   openDatePicker() {
@@ -190,11 +213,12 @@ Page({
     const arrivalDate = formatDateOnly(selectedDate);
 
     this.setTabBarHidden(false);
-    this.setData({
-      showDatePicker: false,
-      'form.arrival_date': arrivalDate,
-    });
-    this.syncExpectedArrivalTime();
+    if (this.data._editDateMode) {
+      this.setData({ showDatePicker: false, _editDateMode: false, 'editForm.arrival_date': arrivalDate });
+    } else {
+      this.setData({ showDatePicker: false, 'form.arrival_date': arrivalDate });
+      this.syncExpectedArrivalTime();
+    }
   },
 
   openTimePicker() {
@@ -213,12 +237,12 @@ Page({
   onTimeConfirm(e) {
     const arrivalTime = (e && e.detail) || '';
     this.setTabBarHidden(false);
-    this.setData({
-      showTimePicker: false,
-      timePickerValue: arrivalTime || this.data.timePickerValue,
-      'form.arrival_time': arrivalTime,
-    });
-    this.syncExpectedArrivalTime();
+    if (this.data._editTimeMode) {
+      this.setData({ showTimePicker: false, _editTimeMode: false, timePickerValue: arrivalTime || this.data.timePickerValue, 'editForm.arrival_time': arrivalTime });
+    } else {
+      this.setData({ showTimePicker: false, timePickerValue: arrivalTime || this.data.timePickerValue, 'form.arrival_time': arrivalTime });
+      this.syncExpectedArrivalTime();
+    }
   },
 
   syncExpectedArrivalTime() {
@@ -320,6 +344,11 @@ Page({
           boardingToken: null,
           qrCodePath: null,
           modRequestStatus: null,
+    // 申请信息 & 编辑
+    editing: false,
+    savingEdit: false,
+    formattedArrivalTime: '',
+    editForm: {},
         });
         return;
       }
@@ -351,12 +380,25 @@ Page({
         }
       }
 
+      // Format arrival time for display
+      let formattedArrivalTime = '--';
+      const rawTime = latest.arrival_time_api || latest.expected_arrival_time;
+      if (rawTime) {
+        const d = new Date(rawTime);
+        if (!isNaN(d.getTime())) {
+          const pad = (n) => String(n).padStart(2, '0');
+          formattedArrivalTime = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+        }
+      }
+
       this.setData({
         latestRequest: { ...latest, status_text: requestStatusText(latest.status) },
         activeStep: step,
         assignedShift: shiftData,
         boardingToken: boardingToken,
         hasSubmitted: true,
+        formattedArrivalTime: formattedArrivalTime,
+        editing: false,
       });
 
       // 非 pending 状态时加载修改申请状态
@@ -561,9 +603,120 @@ Page({
   },
 
   goToModification() {
+    const req = this.data.latestRequest;
+    // 前端校验：修改次数限制
+    if (req.modification_count >= 3) {
+      wx.showToast({ title: t('mod_limit_exceeded'), icon: 'none' });
+      return;
+    }
+    // 前端校验：落地时间前 24 小时
+    const rawTime = req.arrival_time_api || req.expected_arrival_time;
+    if (rawTime) {
+      const arrivalMs = new Date(rawTime).getTime();
+      if (arrivalMs - Date.now() < 24 * 60 * 60 * 1000) {
+        wx.showToast({ title: t('mod_too_close_to_arrival'), icon: 'none' });
+        return;
+      }
+    }
     wx.navigateTo({
-      url: `/pages/student/modification/index?requestId=${this.data.latestRequest.id}`,
+      url: `/pages/student/modification/index?requestId=${req.id}`,
     });
+  },
+
+  // === Pending 状态直接编辑 ===
+  editRequest() {
+    const req = this.data.latestRequest;
+    // 解析 arrival_time_api 为 date + time
+    let arrivalDate = '';
+    let arrivalTime = '';
+    const rawTime = req.arrival_time_api || req.expected_arrival_time;
+    if (rawTime) {
+      const d = new Date(rawTime);
+      if (!isNaN(d.getTime())) {
+        const pad = (n) => String(n).padStart(2, '0');
+        arrivalDate = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+        arrivalTime = pad(d.getHours()) + ':' + pad(d.getMinutes());
+      }
+    }
+    this.setData({
+      editing: true,
+      editForm: {
+        flight_no: req.flight_no || '',
+        arrival_date: arrivalDate,
+        arrival_time: arrivalTime,
+        terminal: req.terminal || '',
+        checked_bags: req.checked_bags || 0,
+        carry_on_bags: req.carry_on_bags || 0,
+        ride_with_note: req.ride_with_note || '',
+        ride_with_wechat: req.ride_with_wechat || '',
+      },
+    });
+  },
+
+  cancelEdit() {
+    this.setData({ editing: false });
+  },
+
+  onEditFieldChange(e) {
+    const { field } = e.currentTarget.dataset;
+    this.setData({ [`editForm.${field}`]: e.detail });
+  },
+
+  onEditCheckedChange(e) {
+    this.setData({ 'editForm.checked_bags': e.detail });
+  },
+
+  onEditCarryOnChange(e) {
+    this.setData({ 'editForm.carry_on_bags': e.detail });
+  },
+
+  openEditDatePicker() {
+    this.setTabBarHidden(true);
+    this.setData({ showDatePicker: true, _editDateMode: true });
+  },
+
+  openEditTerminalPicker() {
+    this.setTabBarHidden(true);
+    this.setData({ showTerminalPicker: true, _editTerminalMode: true });
+  },
+
+  openEditTimePicker() {
+    this.setTabBarHidden(true);
+    this.setData({
+      showTimePicker: true,
+      _editTimeMode: true,
+      timePickerValue: this.data.editForm.arrival_time || '12:00',
+    });
+  },
+
+  async saveEdit() {
+    if (this.data.savingEdit) return;
+    const ef = this.data.editForm;
+    if (!ef.flight_no || !ef.arrival_date || !ef.terminal || !ef.arrival_time) {
+      wx.showToast({ title: t('student_request_form_incomplete'), icon: 'none' });
+      return;
+    }
+    const expectedArrivalTime = ef.arrival_date + ' ' + ef.arrival_time + ':00';
+    this.setData({ savingEdit: true });
+    try {
+      await api.updateStudentRequest(this.data.latestRequest.id, {
+        flight_no: ef.flight_no,
+        arrival_date: ef.arrival_date,
+        terminal: ef.terminal,
+        checked_bags: ef.checked_bags,
+        carry_on_bags: ef.carry_on_bags,
+        expected_arrival_time: expectedArrivalTime,
+        ride_with_note: ef.ride_with_note,
+        ride_with_wechat: ef.ride_with_wechat,
+      });
+      wx.showToast({ title: t('request_updated'), icon: 'success' });
+      this.setData({ editing: false });
+      await this.loadTrack();
+    } catch (err) {
+      wx.showToast({ title: (err && err.message) || t('request_update_failed'), icon: 'none' });
+    } finally {
+      this.setData({ savingEdit: false });
+    }
   },
 
   setTabBarHidden(hidden) {

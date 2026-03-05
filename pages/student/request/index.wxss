@@ -158,3 +158,19 @@
   text-align: center;
   padding: 16rpx 0;
 }
+
+/* 申请信息卡片 */
+.info-card {
+  margin-top: 16rpx;
+  margin-bottom: 12rpx;
+}
+
+.mod-count {
+  color: #969799;
+  font-size: 22rpx;
+  margin-top: 12rpx;
+}
+
+.edit-actions {
+  margin-top: 8rpx;
+}
