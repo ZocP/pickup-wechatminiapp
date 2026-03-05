@@ -157,88 +157,55 @@ Page({
   async verifyBoarding(qrCode) {
     try {
       const result = await api.verifyBoarding(qrCode);
-      
+
       const success = result.success || result.status === 'success' || result.boarded === true;
       const message = result.message || result.msg || t('driver_board_success');
       const studentName = result.student_name || result.name || result.passenger_name || '';
-      
+
       if (success) {
-        wx.showToast({
-          title: t('driver_board_success'),
-          icon: 'success',
-        });
-        
+        wx.vibrateShort({ type: 'heavy' });
         this.setData({
           scanResult: {
             success: true,
-            message: message,
+            message: `✅ 已登车 — ${studentName || '乘客'}`,
             studentName: studentName,
           }
         });
-        
         await this.loadDriverShifts();
       } else {
         const errMsg = message || t('driver_board_failed');
-        
-        if (errMsg.includes('已登车') || errMsg.includes('already boarded') || 
-            errMsg.includes('重复') || errMsg.includes('duplicate')) {
-          wx.showToast({
-            title: t('driver_already_boarded'),
-            icon: 'none',
-          });
-          
-          this.setData({
-            scanResult: {
-              success: false,
-              message: t('driver_already_boarded_msg'),
-              studentName: studentName,
-            }
-          });
-        } else {
-          wx.showToast({
-            title: errMsg,
-            icon: 'none',
-          });
-          
-          this.setData({
-            scanResult: {
-              success: false,
-              message: errMsg,
-            }
-          });
-        }
+        const isDuplicate = errMsg.includes('已登车') || errMsg.includes('already boarded') ||
+            errMsg.includes('重复') || errMsg.includes('duplicate');
+
+        this.setData({
+          scanResult: {
+            success: false,
+            message: isDuplicate ? t('driver_already_boarded_msg') : errMsg,
+            studentName: studentName,
+          }
+        });
       }
-      
     } catch (error) {
       const errMsg = error.message || t('driver_board_failed');
-      
-      if (errMsg.includes('已登车') || errMsg.includes('already boarded') || 
-          errMsg.includes('重复') || errMsg.includes('duplicate')) {
-        wx.showToast({
-          title: t('driver_already_boarded'),
-          icon: 'none',
-        });
-        
-        this.setData({
-          scanResult: {
-            success: false,
-            message: t('driver_already_boarded_msg'),
-          }
-        });
-      } else {
-        wx.showToast({
-          title: errMsg,
-          icon: 'none',
-        });
-        
-        this.setData({
-          scanResult: {
-            success: false,
-            message: errMsg,
-          }
-        });
-      }
+      const isDuplicate = errMsg.includes('已登车') || errMsg.includes('already boarded') ||
+          errMsg.includes('重复') || errMsg.includes('duplicate');
+
+      this.setData({
+        scanResult: {
+          success: false,
+          message: isDuplicate ? t('driver_already_boarded_msg') : errMsg,
+        }
+      });
     }
+  },
+
+  continueScan() {
+    this.setData({ scanResult: null });
+    this.startScan();
+  },
+
+  finishScan() {
+    this.setData({ showScanModal: false, scanResult: null });
   },
 
   formatTime(timeStr) {

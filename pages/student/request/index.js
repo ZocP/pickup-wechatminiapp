@@ -330,10 +330,23 @@ Page({
         }
       }
 
+      const shiftData = (status === 'assigned' || status === 'published') ? latest.shift || null : null;
+      if (shiftData && shiftData.departure_time) {
+        const dt = shiftData.departure_time;
+        // Format ISO string to YYYY-MM-DD HH:mm
+        if (dt.includes('T')) {
+          const d = new Date(dt);
+          const pad = (n) => String(n).padStart(2, '0');
+          shiftData.formattedDepartureTime = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+        } else {
+          shiftData.formattedDepartureTime = dt.substring(0, 16).replace('T', ' ');
+        }
+      }
+
       this.setData({
         latestRequest: { ...latest, status_text: requestStatusText(latest.status) },
         activeStep: step,
-        assignedShift: status === 'published' ? latest.shift || null : null,
+        assignedShift: shiftData,
         boardingToken: boardingToken,
         hasSubmitted: true,
       });

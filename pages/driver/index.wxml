@@ -44,6 +44,7 @@
         >
           <view slot="label">
             <text>{{i18n.driver_student_id}}{{item.student_id}}</text>
+            <text wx:if="{{item.ride_with_wechat}}" class="ride-with-wechat">同乘微信：{{item.ride_with_wechat}}</text>
           </view>
         </van-cell>
       </van-cell-group>
@@ -82,8 +83,10 @@
             size="48px" 
           />
           <view class="result-message">{{scanResult.message}}</view>
-          <view wx:if="{{scanResult.studentName}}" class="student-name">
-            {{scanResult.studentName}}
+          <view class="scan-continue-hint">继续扫下一位？</view>
+          <view class="scan-result-actions">
+            <van-button type="primary" size="small" bindtap="continueScan">继续扫码</van-button>
+            <van-button type="default" size="small" bindtap="finishScan">完成</van-button>
           </view>
         </view>
 

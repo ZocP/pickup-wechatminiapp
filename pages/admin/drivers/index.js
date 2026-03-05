@@ -63,9 +63,11 @@ Page({
   async loadDrivers() {
     this.setData({ loading: true });
     try {
+      const app = getApp();
+      const isAdmin = (app.globalData?.userInfo?.role || app.globalData?.role) === 'admin';
       const [driversRes, usersRes] = await Promise.all([
         api.getDrivers(),
-        api.getUsers(),
+        isAdmin ? api.getUsers() : Promise.resolve([]),
       ]);
 
       const drivers = Array.isArray(driversRes) ? driversRes : [];
