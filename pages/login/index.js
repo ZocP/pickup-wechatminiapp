@@ -38,6 +38,9 @@ Page({
       }
 
       wx.setStorageSync('token', result.token);
+      if (result.refresh_token) {
+        wx.setStorageSync('refresh_token', result.refresh_token);
+      }
       wx.setStorageSync('userInfo', result.user || {});
       getApp().setUserInfo(result.user || {});
 

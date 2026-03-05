@@ -9,6 +9,10 @@ module.exports = {
     return request.post('/auth/login', { code });
   },
 
+  authRefresh(refreshToken) {
+    return request.post('/auth/refresh', { refresh_token: refreshToken });
+  },
+
   bindPhone(phoneCode) {
     return request.post('/auth/bind-phone', { phone_code: phoneCode });
   },

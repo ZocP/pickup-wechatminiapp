@@ -1,12 +1,19 @@
 const DEFAULT_BASE_URL = 'https://api.zocpstudio.com/api/v1';
 const REQUEST_TIMEOUT = 15000;
 
+let isRefreshing = false;
+let pendingRetryQueue = [];
+
 function getBaseURL() {
   return DEFAULT_BASE_URL;
 }
 
 function getToken() {
   return wx.getStorageSync('token') || '';
+}
+
+function getRefreshToken() {
+  return wx.getStorageSync('refresh_token') || '';
 }
 
 function joinURL(baseURL, url) {
@@ -46,40 +53,82 @@ function getNetworkFailMessage(err, finalURL) {
   return `网络异常：${errMsg} (${finalURL})`;
 }
 
+function clearTokenAndRedirect(message) {
+  wx.removeStorageSync('token');
+  wx.removeStorageSync('refresh_token');
+  wx.removeStorageSync('userInfo');
+  showErrorToast(message || '登录状态失效，请重新登录');
+
+  const app = getApp && getApp();
+  if (app && app.globalData) {
+    app.globalData.userInfo = { id: 0, name: '', role: 'student', phone: '', wechat_id: '' };
+    app.globalData.viewAsRole = '';
+  }
+  if (app && typeof app.onTokenExpired === 'function') {
+    app.onTokenExpired();
+  }
+
+  wx.reLaunch({ url: '/pages/login/index' });
+}
+
+function doRefreshToken() {
+  return new Promise((resolve, reject) => {
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) {
+      reject(new Error('no refresh token'));
+      return;
+    }
+
+    const baseURL = getBaseURL();
+    const url = joinURL(baseURL, '/auth/refresh');
+
+    wx.request({
+      url,
+      method: 'POST',
+      data: { refresh_token: refreshToken },
+      header: { 'Content-Type': 'application/json' },
+      timeout: REQUEST_TIMEOUT,
+      success(res) {
+        if (res.statusCode >= 200 && res.statusCode < 300 && res.data && res.data.token) {
+          wx.setStorageSync('token', res.data.token);
+          if (res.data.refresh_token) {
+            wx.setStorageSync('refresh_token', res.data.refresh_token);
+          }
+          resolve(res.data.token);
+        } else {
+          reject(new Error('refresh failed'));
+        }
+      },
+      fail(err) {
+        reject(err);
+      },
+    });
+  });
+}
+
 function handleStatusCode(statusCode, data) {
   const serverMsg = (data && (data.message || data.error)) || '';
 
   if (statusCode === 403 && data && data.code === 'WECHAT_NOT_BOUND') {
     const app = getApp && getApp();
-    // If local state says wechat IS bound but the backend says it's NOT,
-    // the JWT is stale (e.g. DB was rebuilt and user_id changed).
-    // Force a fresh login so the new JWT resolves to the correct user record.
     if (app && typeof app.isWechatBound === 'function' && app.isWechatBound()) {
-      wx.removeStorageSync('token');
-      wx.removeStorageSync('userInfo');
-      if (app.globalData) {
-        app.globalData.userInfo = { id: 0, name: '', role: 'student', phone: '', wechat_id: '' };
-        app.globalData.viewAsRole = '';
-      }
-      showErrorToast('登录状态已过期，请重新登录');
-      wx.reLaunch({ url: '/pages/login/index' });
+      clearTokenAndRedirect('登录状态已过期，请重新登录');
     } else {
-      // Normal case: user genuinely hasn't bound a wechat_id yet
       showErrorToast('请先绑定微信号后再继续使用');
       wx.reLaunch({ url: '/pages/bind/index' });
     }
     return;
   }
 
-  if (statusCode === 401) {
-    wx.removeStorageSync('token');
-    wx.removeStorageSync('userInfo');
-    showErrorToast(serverMsg || '登录状态失效，请重新登录');
+  // 401 with TOKEN_VERSION_MISMATCH: role changed, force re-login
+  if (statusCode === 401 && data && data.code === 'TOKEN_VERSION_MISMATCH') {
+    clearTokenAndRedirect('权限已变更，请重新登录');
+    return;
+  }
 
-    const app = getApp && getApp();
-    if (app && typeof app.onTokenExpired === 'function') {
-      app.onTokenExpired();
-    }
+  if (statusCode === 401) {
+    // 401 is now handled by the auto-refresh logic in request()
+    // This branch only fires for non-retryable 401s
     return;
   }
 
@@ -98,19 +147,14 @@ function handleStatusCode(statusCode, data) {
   }
 }
 
-function request(options = {}) {
+function rawRequest(options) {
   const {
     url,
     method = 'GET',
     data = {},
     header = {},
     timeout = REQUEST_TIMEOUT,
-    showError = true,
   } = options;
-
-  if (!url) {
-    return Promise.reject(new Error('request url is required'));
-  }
 
   const token = getToken();
   const baseURL = getBaseURL();
@@ -141,31 +185,118 @@ function request(options = {}) {
       header: finalHeader,
       timeout,
       success(res) {
-        const { statusCode, data: resData } = res;
-
-        if (statusCode >= 200 && statusCode < 300) {
-          resolve(resData);
-          return;
-        }
-
-        if (showError) handleStatusCode(statusCode, resData);
-
-        reject({
-          statusCode,
-          data: resData,
-          message: (resData && (resData.message || resData.error)) || `HTTP ${statusCode} Request failed`,
-        });
+        resolve(res);
       },
       fail(err) {
-        if (showError) showErrorToast(getNetworkFailMessage(err, finalURL));
         reject({
           statusCode: 0,
           data: null,
           message: err && err.errMsg ? err.errMsg : 'Network error',
+          _networkError: true,
         });
       },
     });
   });
+}
+
+function request(options = {}) {
+  const {
+    url,
+    method = 'GET',
+    data = {},
+    header = {},
+    timeout = REQUEST_TIMEOUT,
+    showError = true,
+    _isRetry = false,
+  } = options;
+
+  if (!url) {
+    return Promise.reject(new Error('request url is required'));
+  }
+
+  return rawRequest({ url, method, data, header, timeout })
+    .then(function (res) {
+      const { statusCode, data: resData } = res;
+
+      if (statusCode >= 200 && statusCode < 300) {
+        return resData;
+      }
+
+      // Auto refresh on 401 (but not if this is already a retry)
+      if (statusCode === 401 && !_isRetry) {
+        // If TOKEN_VERSION_MISMATCH, don't try refresh — force re-login
+        if (resData && resData.code === 'TOKEN_VERSION_MISMATCH') {
+          clearTokenAndRedirect('权限已变更，请重新登录');
+          return Promise.reject({
+            statusCode,
+            data: resData,
+            message: resData.error || 'Token invalidated',
+          });
+        }
+
+        // Try refresh token
+        if (!isRefreshing) {
+          isRefreshing = true;
+          return doRefreshToken()
+            .then(function (newToken) {
+              isRefreshing = false;
+              // Retry all queued requests
+              pendingRetryQueue.forEach(function (cb) { cb(newToken); });
+              pendingRetryQueue = [];
+              // Retry current request
+              return request({
+                url, method, data, header, timeout, showError,
+                _isRetry: true,
+              });
+            })
+            .catch(function () {
+              isRefreshing = false;
+              pendingRetryQueue.forEach(function (cb) { cb(null); });
+              pendingRetryQueue = [];
+              clearTokenAndRedirect('登录已过期，请重新登录');
+              return Promise.reject({
+                statusCode: 401,
+                data: resData,
+                message: 'Session expired',
+              });
+            });
+        } else {
+          // Another request is already refreshing, queue this one
+          return new Promise(function (resolve, reject) {
+            pendingRetryQueue.push(function (newToken) {
+              if (newToken) {
+                resolve(request({
+                  url, method, data, header, timeout, showError,
+                  _isRetry: true,
+                }));
+              } else {
+                reject({
+                  statusCode: 401,
+                  data: resData,
+                  message: 'Session expired',
+                });
+              }
+            });
+          });
+        }
+      }
+
+      if (showError) handleStatusCode(statusCode, resData);
+
+      return Promise.reject({
+        statusCode,
+        data: resData,
+        message: (resData && (resData.message || resData.error)) || `HTTP ${statusCode} Request failed`,
+      });
+    })
+    .catch(function (err) {
+      if (err && err._networkError) {
+        const baseURL = getBaseURL();
+        const finalURL = joinURL(baseURL, url);
+        if (showError) showErrorToast(getNetworkFailMessage(err, finalURL));
+      }
+      return Promise.reject(err);
+    });
 }
 
 request.get = (url, data = {}, options = {}) => request({
