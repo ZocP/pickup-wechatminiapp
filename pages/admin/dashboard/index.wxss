@@ -121,11 +121,16 @@
 /* 日期筛选栏 */
 .date-filter {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
   gap: 16rpx;
-  padding: 16rpx 20rpx;
+  padding: 16rpx 24rpx;
   margin-bottom: 18rpx;
+  flex-wrap: wrap;
 }
 
 .date-filter .date-label {
@@ -134,4 +139,8 @@
   color: #323233;
   min-width: 180rpx;
   text-align: center;
+}
+
+.date-filter van-button {
+  flex-shrink: 0;
 }
