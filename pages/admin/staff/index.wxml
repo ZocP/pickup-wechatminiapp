@@ -19,7 +19,6 @@
 				</view>
 				<view class="right-wrap">
 					<van-button
-						wx:if="{{item.role !== 'admin'}}"
 						size="small"
 						type="primary"
 						plain

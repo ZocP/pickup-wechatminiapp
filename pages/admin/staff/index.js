@@ -158,7 +158,7 @@ Page({
     const detail = (e && e.currentTarget && e.currentTarget.dataset) || {};
     const userId = Number(detail.id || 0);
     const role = detail.role || 'student';
-    if (!userId || role === 'admin') return;
+    if (!userId) return;
 
     const actions = [];
     actions.push({
