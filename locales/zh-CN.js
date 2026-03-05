@@ -335,4 +335,32 @@ module.exports = {
   shiftcard_manage_btn:             '管理班次',
   shiftcard_student_prefix:         '学生#',
 
+
+  // 修改申请相关
+  mod_request_btn:                  '申请修改',
+  mod_request_pending:              '修改申请审核中',
+  mod_request_reason_title:         '请输入修改原因',
+  mod_request_reason_placeholder:   '请描述需要修改的原因（如航班改签等）',
+  mod_request_submit_success:       '修改申请已提交',
+  mod_request_submit_fail:          '提交失败',
+  mod_request_approved:             '已通过',
+  mod_request_rejected:             '已拒绝',
+  mod_review_title:                 '修改申请审核',
+  mod_review_nav_title:             '修改申请审核',
+  mod_review_tab_all:               '全部',
+  mod_review_tab_pending:           '待审批',
+  mod_review_tab_approved:          '已通过',
+  mod_review_tab_rejected:          '已拒绝',
+  mod_review_reason_label:          '申请原因',
+  mod_review_status_label:          '当前状态',
+  mod_review_time_label:            '提交时间',
+  mod_review_approve:               '通过',
+  mod_review_reject:                '拒绝',
+  mod_review_approve_confirm:       '确认通过该修改申请？通过后学生可重新编辑。',
+  mod_review_reject_confirm:        '确认拒绝该修改申请？',
+  mod_review_op_success:            '操作成功',
+  mod_review_op_fail:               '操作失败',
+  mod_review_empty:                 '暂无修改申请',
+  home_mod_review:                  '待审批申请',
+
 }

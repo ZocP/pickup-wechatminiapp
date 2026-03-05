@@ -12,6 +12,7 @@ Page({
     loadingMyInfo: false,
     latestRequest: null,
     myShiftTime: '--',
+    pendingModCount: 0,
   },
 
   onLoad() {
@@ -30,8 +31,23 @@ Page({
         home_request_status: t('home_request_status'),
         home_my_shift_time: t('home_my_shift_time'),
         home_no_request: t('home_no_request'),
+        home_mod_review: t('home_mod_review'),
       },
-    });
+    
+  async loadPendingModCount() {
+    try {
+      const list = await api.getModificationRequests('pending');
+      const count = Array.isArray(list) ? list.length : 0;
+      this.setData({ pendingModCount: count });
+    } catch (e) {
+      this.setData({ pendingModCount: 0 });
+    }
+  },
+
+  goModificationReview() {
+    wx.navigateTo({ url: '/pages/admin/modification-requests/index' });
+  },
+});
     wx.setNavigationBarTitle({ title: t('home_nav_title') });
   },
 
@@ -80,6 +96,7 @@ Page({
       this.loadMySummary();
     } else {
       this.setData({ latestRequest: null, myShiftTime: '--' });
+      this.loadPendingModCount();
     }
   },
 
@@ -88,6 +105,8 @@ Page({
     try {
       if (role === 'student') {
         await this.loadMySummary();
+      } else {
+        await this.loadPendingModCount();
       }
     } finally {
       wx.stopPullDownRefresh();

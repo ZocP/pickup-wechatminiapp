@@ -1,0 +1,64 @@
+.mod-review-page {
+  padding-bottom: 40rpx;
+}
+
+.loading-wrap {
+  padding: 24rpx;
+}
+
+.empty-wrap {
+  padding-top: 100rpx;
+}
+
+.list {
+  padding: 24rpx;
+}
+
+.mod-card {
+  margin-bottom: 20rpx;
+  padding: 24rpx;
+  background: #fff;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.student-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #323233;
+}
+
+.card-body {
+  margin-bottom: 16rpx;
+}
+
+.info-line {
+  font-size: 26rpx;
+  color: #646566;
+  margin-top: 8rpx;
+}
+
+.info-line.reason {
+  color: #323233;
+  font-weight: 500;
+}
+
+.info-line.time {
+  font-size: 24rpx;
+  color: #969799;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #ebedf0;
+}

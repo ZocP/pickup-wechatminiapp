@@ -48,6 +48,10 @@ Page({
     boardingToken: null,
     qrCodePath: null,
     generatingQrCode: false,
+    // 修改申请相关
+    modRequestStatus: null,
+    showModDialog: false,
+    modReason: '',
   },
 
   onLoad() {
@@ -92,6 +96,12 @@ Page({
         student_request_qr_instruction: t('student_request_qr_instruction'),
         student_request_terminal_title: t('student_request_terminal_title'),
         student_request_time_title: t('student_request_time_title'),
+        mod_request_btn: t('mod_request_btn'),
+        mod_request_pending: t('mod_request_pending'),
+        mod_request_reason_title: t('mod_request_reason_title'),
+        mod_request_reason_placeholder: t('mod_request_reason_placeholder'),
+        mod_request_submit_success: t('mod_request_submit_success'),
+        mod_request_submit_fail: t('mod_request_submit_fail'),
       },
       trackSteps: [t('student_request_step_submitted'), t('student_request_step_scheduling'), t('student_request_step_assigned')],
     });
@@ -313,6 +323,7 @@ Page({
           hasSubmitted: false,
           boardingToken: null,
           qrCodePath: null,
+          modRequestStatus: null,
         });
         return;
       }
@@ -351,6 +362,13 @@ Page({
         boardingToken: boardingToken,
         hasSubmitted: true,
       });
+
+      // 非 pending 状态时加载修改申请状态
+      if (status !== 'pending') {
+        this.loadModificationStatus(latest.id);
+      } else {
+        this.setData({ modRequestStatus: null });
+      }
 
       if (boardingToken) {
         this.generateQrCode(boardingToken);
@@ -532,6 +550,45 @@ Page({
         }
       },
     });
+  },
+
+
+  async loadModificationStatus(requestId) {
+    try {
+      const result = await api.getModificationStatus(requestId);
+      if (result && result.status) {
+        this.setData({ modRequestStatus: result.status });
+      }
+    } catch (e) {
+      this.setData({ modRequestStatus: null });
+    }
+  },
+
+  onRequestModification() {
+    this.setData({ showModDialog: true, modReason: '' });
+  },
+
+  onModReasonChange(e) {
+    this.setData({ modReason: e.detail });
+  },
+
+  onModDialogClose() {
+    this.setData({ showModDialog: false });
+  },
+
+  async onModDialogConfirm() {
+    const reason = (this.data.modReason || '').trim();
+    if (!reason) {
+      wx.showToast({ title: '请填写修改原因', icon: 'none' });
+      return;
+    }
+    try {
+      await api.submitModification(this.data.latestRequest.id, reason);
+      wx.showToast({ title: this.data.i18n.mod_request_submit_success, icon: 'success' });
+      this.setData({ showModDialog: false, modRequestStatus: 'pending' });
+    } catch (e) {
+      wx.showToast({ title: (e && e.message) || this.data.i18n.mod_request_submit_fail, icon: 'none' });
+    }
   },
 
   setTabBarHidden(hidden) {

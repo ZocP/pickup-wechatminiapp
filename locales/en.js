@@ -336,4 +336,32 @@ module.exports = {
   shiftcard_manage_btn:             'Manage Shift',
   shiftcard_student_prefix:         'Student#',
 
+
+  // Modification request
+  mod_request_btn:                  'Request Change',
+  mod_request_pending:              'Change request under review',
+  mod_request_reason_title:         'Reason for change',
+  mod_request_reason_placeholder:   'Describe why you need to change (e.g. flight rescheduled)',
+  mod_request_submit_success:       'Change request submitted',
+  mod_request_submit_fail:          'Submission failed',
+  mod_request_approved:             'Approved',
+  mod_request_rejected:             'Rejected',
+  mod_review_title:                 'Modification Review',
+  mod_review_nav_title:             'Modification Review',
+  mod_review_tab_all:               'All',
+  mod_review_tab_pending:           'Pending',
+  mod_review_tab_approved:          'Approved',
+  mod_review_tab_rejected:          'Rejected',
+  mod_review_reason_label:          'Reason',
+  mod_review_status_label:          'Current Status',
+  mod_review_time_label:            'Submitted',
+  mod_review_approve:               'Approve',
+  mod_review_reject:                'Reject',
+  mod_review_approve_confirm:       'Approve this request? Student can re-edit after approval.',
+  mod_review_reject_confirm:        'Reject this request?',
+  mod_review_op_success:            'Done',
+  mod_review_op_fail:               'Operation failed',
+  mod_review_empty:                 'No modification requests',
+  home_mod_review:                  'Pending Reviews',
+
 }

@@ -148,3 +148,13 @@
 .modal-actions {
   margin-top: 32rpx;
 }
+/* 修改申请 */
+.mod-request-section {
+  margin-top: 24rpx;
+  padding-top: 16rpx;
+}
+
+.mod-request-pending {
+  text-align: center;
+  padding: 16rpx 0;
+}

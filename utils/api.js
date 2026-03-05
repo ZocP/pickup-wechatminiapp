@@ -150,4 +150,26 @@ module.exports = {
   assignRequestToShift(requestId, shiftId) {
     return request.post(`/admin/requests/${requestId}/assign`, { shift_id: shiftId });
   },
+
+  // 修改申请相关接口
+  submitModification(requestId, reason) {
+    return request.post(`/student/requests/${requestId}/modification`, { reason });
+  },
+
+  getModificationStatus(requestId) {
+    return request.get(`/student/requests/${requestId}/modification`);
+  },
+
+  getModificationRequests(status) {
+    const query = status ? `?status=${status}` : '';
+    return request.get(`/admin/modification-requests${query}`);
+  },
+
+  approveModification(id) {
+    return request.post(`/admin/modification-requests/${id}/approve`, {});
+  },
+
+  rejectModification(id, adminNote) {
+    return request.post(`/admin/modification-requests/${id}/reject`, { admin_note: adminNote || '' });
+  },
 };

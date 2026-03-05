@@ -146,6 +146,21 @@
           </view>
         </view>
       </view>
+
+      <!-- 申请修改按钮（非 pending 状态显示） -->
+      <view wx:if="{{latestRequest.status !== 'pending'}}" class="mod-request-section">
+        <view wx:if="{{modRequestStatus === 'pending'}}" class="mod-request-pending">
+          <van-tag type="warning" size="medium">{{i18n.mod_request_pending}}</van-tag>
+        </view>
+        <van-button
+          wx:else
+          type="warning"
+          plain
+          block
+          custom-style="margin-top: 24rpx;"
+          bind:tap="onRequestModification"
+        >{{i18n.mod_request_btn}}</van-button>
+      </view>
     </view>
   </view>
 
@@ -222,4 +237,29 @@
       </view>
     </view>
   </van-popup>
+
+  <!-- 修改申请弹窗 -->
+  <van-dialog
+    use-slot
+    show="{{showModDialog}}"
+    title="{{i18n.mod_request_reason_title}}"
+    show-cancel-button
+    confirm-button-text="提交"
+    cancel-button-text="取消"
+    bind:confirm="onModDialogConfirm"
+    bind:close="onModDialogClose"
+    bind:cancel="onModDialogClose"
+  >
+    <van-field
+      type="textarea"
+      value="{{modReason}}"
+      placeholder="{{i18n.mod_request_reason_placeholder}}"
+      autosize="{{ {maxHeight: 200} }}"
+      maxlength="200"
+      show-word-limit
+      data-field="modReason"
+      bind:change="onModReasonChange"
+      custom-style="margin: 16rpx;"
+    />
+  </van-dialog>
 </view>
