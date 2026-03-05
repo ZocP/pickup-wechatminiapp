@@ -124,6 +124,9 @@ Page({
     shifts: [],
     pendingRequests: [],
 
+    filterDate: null,
+    filterDateLabel: '全部',
+
     pendingCount: 0,
     todayShiftCount: 0,
     publishedCount: 0,
@@ -228,7 +231,7 @@ Page({
     this.setData({ loading: true });
 
     const [dashboardResult, pendingResult] = await Promise.allSettled([
-      api.getDashboard(),
+      api.getDashboard(this.data.filterDate),
       api.getPendingRequests(),
     ]);
 
@@ -784,6 +787,78 @@ Page({
       tabBar.refreshTabs();
     }
     this.loadAll();
+  },
+
+  // 日期筛选方法
+  filterPrevDay() {
+    const current = this.data.filterDate;
+    let date;
+    if (!current) {
+      const today = new Date();
+      today.setDate(today.getDate() - 1);
+      date = this._formatDate(today);
+    } else {
+      const d = new Date(current + 'T00:00:00');
+      d.setDate(d.getDate() - 1);
+      date = this._formatDate(d);
+    }
+    this.setData({ filterDate: date, filterDateLabel: date });
+    this.loadAll();
+  },
+
+  filterNextDay() {
+    const current = this.data.filterDate;
+    let date;
+    if (!current) {
+      const today = new Date();
+      today.setDate(today.getDate() + 1);
+      date = this._formatDate(today);
+    } else {
+      const d = new Date(current + 'T00:00:00');
+      d.setDate(d.getDate() + 1);
+      date = this._formatDate(d);
+    }
+    this.setData({ filterDate: date, filterDateLabel: date });
+    this.loadAll();
+  },
+
+  filterPickDate() {
+    const now = new Date();
+    wx.showModal({
+      title: '选择日期',
+      editable: true,
+      placeholderText: 'YYYY-MM-DD',
+      content: this.data.filterDate || this._formatDate(now),
+      success: (res) => {
+        if (res.confirm && res.content) {
+          const val = res.content.trim();
+          if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+            this.setData({ filterDate: val, filterDateLabel: val });
+            this.loadAll();
+          } else {
+            wx.showToast({ title: '日期格式错误', icon: 'none' });
+          }
+        }
+      },
+    });
+  },
+
+  filterToday() {
+    const date = this._formatDate(new Date());
+    this.setData({ filterDate: date, filterDateLabel: date });
+    this.loadAll();
+  },
+
+  filterReset() {
+    this.setData({ filterDate: null, filterDateLabel: '全部' });
+    this.loadAll();
+  },
+
+  _formatDate(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
   },
 
   onQuickAssign() {

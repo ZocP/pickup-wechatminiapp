@@ -117,3 +117,21 @@
 .shift-list .card {
   border: 1rpx solid #edf3ff;
 }
+
+/* 日期筛选栏 */
+.date-filter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  padding: 16rpx 20rpx;
+  margin-bottom: 18rpx;
+}
+
+.date-filter .date-label {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #323233;
+  min-width: 180rpx;
+  text-align: center;
+}

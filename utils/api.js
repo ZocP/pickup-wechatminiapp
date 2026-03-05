@@ -29,8 +29,9 @@ module.exports = {
     return request.get('/auth/me');
   },
 
-  getDashboard() {
-    return request.get('/admin/shifts/dashboard');
+  getDashboard(date) {
+    const url = date ? `/admin/shifts/dashboard?date=${date}` : '/admin/shifts/dashboard';
+    return request.get(url);
   },
 
   getPendingRequests() {

@@ -27,6 +27,15 @@
     <van-button type="warning" block custom-style="margin-top: 16rpx;" bind:tap="onQuickAssign">{{i18n.dashboard_quick_assign}}</van-button>
   </view>
 
+  <!-- 日期筛选栏 -->
+  <view class="date-filter card">
+    <van-button size="small" type="default" bindtap="filterPrevDay">‹</van-button>
+    <view class="date-label" bindtap="filterPickDate">{{filterDateLabel}}</view>
+    <van-button size="small" type="default" bindtap="filterNextDay">›</van-button>
+    <van-button size="small" type="default" bindtap="filterToday">今天</van-button>
+    <van-button size="small" type="default" bindtap="filterReset">全部</van-button>
+  </view>
+
   <view class="shift-list">
     <view wx:if="{{loading}}" class="card">
       <van-skeleton title row="3" />
