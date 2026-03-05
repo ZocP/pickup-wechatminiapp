@@ -78,6 +78,7 @@ Page({
       this.setData({
         editing: true,
         form: {
+          name: d.name || '',
           car_model: d.car_model || '',
           car_plate: d.car_plate || '',
           car_color: d.car_color || '',
