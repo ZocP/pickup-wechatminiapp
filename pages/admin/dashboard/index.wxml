@@ -29,13 +29,13 @@
 
   <!-- 日期筛选栏 -->
   <view class="date-filter-bar">
-    <button class="filter-nav-btn" bindtap="prevDay">‹</button>
-    <view class="filter-date-label" bindtap="pickDate">
-      <text>{{selectedDateLabel}}</text>
+    <button class="filter-nav-btn" bindtap="filterPrevDay">‹</button>
+    <view class="filter-date-label" bindtap="filterPickDate">
+      <text>{{filterDateLabel}}</text>
     </view>
-    <button class="filter-nav-btn" bindtap="nextDay">›</button>
-    <button class="filter-action-btn" bindtap="goToday">今天</button>
-    <button class="filter-action-btn {{!selectedDate ? 'active' : ''}}" bindtap="resetDate">全部</button>
+    <button class="filter-nav-btn" bindtap="filterNextDay">›</button>
+    <button class="filter-action-btn" bindtap="filterToday">今天</button>
+    <button class="filter-action-btn {{!filterDate ? 'active' : ''}}" bindtap="filterReset">全部</button>
   </view>
 
   <view class="shift-list">
