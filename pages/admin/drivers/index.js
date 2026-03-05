@@ -66,7 +66,11 @@ Page({
     this.setData({ loading: true });
     try {
       const app = getApp();
-      const isAdmin = app.getRealRole() === 'admin';
+      // 用有效角色判断（考虑 X-View-As 视角切换）
+      const effectiveRole = typeof app.getEffectiveRole === 'function'
+        ? app.getEffectiveRole()
+        : app.getRealRole();
+      const isAdmin = effectiveRole === 'admin';
       const [driversRes, usersRes] = await Promise.all([
         api.getDrivers(),
         isAdmin ? api.getUsers() : Promise.resolve([]),
@@ -94,8 +98,23 @@ Page({
         };
       });
 
+      // 找出未关联 User 的 Driver，也加入列表
+      const linkedDriverIds = new Set(
+        driverUsers.map(u => String(u.driver_id || u.driverId || '')).filter(Boolean)
+      );
+      const unlinkedDrivers = drivers
+        .filter(d => !linkedDriverIds.has(String(d.id)))
+        .map(d => ({
+          id: d.id,
+          name: d.name,
+          car_model: d.car_model || '--',
+          max_seats: d.max_seats || 0,
+          max_checked: d.max_checked || 0,
+          max_carry_on: d.max_carry_on || 0,
+        }));
+
       this.setData({
-        driverList: merged.length ? merged : drivers,
+        driverList: [...merged, ...unlinkedDrivers],
       });
     } catch (error) {
       wx.showToast({ title: t('drivers_load_failed'), icon: 'none' });

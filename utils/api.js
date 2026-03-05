@@ -157,7 +157,7 @@ module.exports = {
   },
 
   getModificationStatus(requestId) {
-    return request.get(`/student/requests/${requestId}/modification`);
+    return request.get(`/student/requests/${requestId}/modification`, {}, { showError: false });
   },
 
   getModificationRequests(status) {

@@ -117,6 +117,10 @@ Page({
     }
   },
 
+  goToMyRequest() {
+    wx.navigateTo({ url: '/pages/student/request/index' });
+  },
+
   goStudentRequest() {
     wx.navigateTo({ url: '/pages/student/request/index' });
   },
