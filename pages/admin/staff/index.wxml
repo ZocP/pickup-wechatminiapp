@@ -27,7 +27,7 @@
 						loading="{{actingUserId === item.id}}"
 						data-id="{{item.id}}"
 						data-role="{{item.role}}"
-						bindtap="onOpenRoleActions"
+						bind:click="onOpenRoleActions"
 					>操作</van-button>
 				</view>
 			</van-cell>
