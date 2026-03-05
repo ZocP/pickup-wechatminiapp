@@ -9,12 +9,11 @@
 }
 
 .right-wrap {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	justify-content: flex-end;
 	gap: 12rpx;
-	flex: 0 0 auto;
-	width: fit-content;
+	flex-shrink: 0;
 }
 
 .cell-label {
