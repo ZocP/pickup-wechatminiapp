@@ -424,4 +424,6 @@ module.exports = {
   mod_limit_exceeded:               '已达到最大修改次数（3次）',
   mod_too_close_to_arrival:         '距落地时间不足24小时，无法修改',
   mod_count_label:                  '已修改次数：',
+  today:                            '今天',
+  all:                              '全部',
 }

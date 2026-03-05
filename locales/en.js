@@ -425,4 +425,6 @@ module.exports = {
   mod_limit_exceeded:               'Max modifications reached (3 times)',
   mod_too_close_to_arrival:         'Cannot modify within 24h of arrival',
   mod_count_label:                  'Modifications used: ',
+  today:                            'Today',
+  all:                              'All',
 }

@@ -113,6 +113,8 @@ function buildI18n() {
     dashboard_placeholder_date:       t('dashboard_placeholder_date'),
     dashboard_placeholder_time:       t('dashboard_placeholder_time'),
     dashboard_confirm_create:         t('dashboard_confirm_create'),
+    today:                            t('today'),
+    all:                              t('all'),
   };
 }
 
@@ -125,7 +127,9 @@ Page({
     pendingRequests: [],
 
     filterDate: null,
-    filterDateLabel: '全部',
+    filterDateLabel: '',
+    showCalendar: false,
+    calendarDefaultDate: null,
 
     pendingCount: 0,
     todayShiftCount: 0,
@@ -218,7 +222,7 @@ Page({
 
   onLoad() {
     wx.setNavigationBarTitle({ title: t('dashboard_nav_title') });
-    this.setData({ i18n: buildI18n() });
+    this.setData({ i18n: buildI18n(), filterDateLabel: t('all') });
   },
 
   async onPullDownRefresh() {
@@ -823,24 +827,20 @@ Page({
   },
 
   filterPickDate() {
-    const now = new Date();
-    wx.showModal({
-      title: '选择日期',
-      editable: true,
-      placeholderText: 'YYYY-MM-DD',
-      content: this.data.filterDate || this._formatDate(now),
-      success: (res) => {
-        if (res.confirm && res.content) {
-          const val = res.content.trim();
-          if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
-            this.setData({ filterDate: val, filterDateLabel: val });
-            this.loadAll();
-          } else {
-            wx.showToast({ title: '日期格式错误', icon: 'none' });
-          }
-        }
-      },
-    });
+    const current = this.data.filterDate;
+    const defaultDate = current ? new Date(current + 'T00:00:00').getTime() : Date.now();
+    this.setData({ showCalendar: true, calendarDefaultDate: defaultDate });
+  },
+
+  onCalendarConfirm(e) {
+    const d = e.detail;
+    const date = this._formatDate(d);
+    this.setData({ showCalendar: false, filterDate: date, filterDateLabel: date });
+    this.loadAll();
+  },
+
+  onCalendarClose() {
+    this.setData({ showCalendar: false });
   },
 
   filterToday() {
@@ -850,7 +850,7 @@ Page({
   },
 
   filterReset() {
-    this.setData({ filterDate: null, filterDateLabel: '全部' });
+    this.setData({ filterDate: null, filterDateLabel: t('all') });
     this.loadAll();
   },
 
