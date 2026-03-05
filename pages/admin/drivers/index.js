@@ -66,7 +66,7 @@ Page({
     this.setData({ loading: true });
     try {
       const app = getApp();
-      const isAdmin = (app.globalData?.userInfo?.role || app.globalData?.role) === 'admin';
+      const isAdmin = app.getRealRole() === 'admin';
       const [driversRes, usersRes] = await Promise.all([
         api.getDrivers(),
         isAdmin ? api.getUsers() : Promise.resolve([]),
