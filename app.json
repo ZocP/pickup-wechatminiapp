@@ -6,6 +6,7 @@
     "pages/admin/shift-detail/index",
     "pages/admin/drivers/index",
     "pages/admin/staff/index",
+    "pages/admin/assign/index",
     "pages/profile/index",
     "pages/student/request/index",
     "pages/login/index",

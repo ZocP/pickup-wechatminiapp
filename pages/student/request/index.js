@@ -83,6 +83,16 @@ Page({
     this.setData({ 'form.carry_on_bags': e.detail });
   },
 
+  onBagsOverLimit(e) {
+    if (e.detail === 'plus' || (e.detail && e.detail.type === 'plus')) {
+      wx.showToast({
+        title: '行李较多，请联系工作人员',
+        icon: 'none',
+        duration: 2500,
+      });
+    }
+  },
+
   openTerminalPicker() {
     this.setTabBarHidden(true);
     this.setData({ showTerminalPicker: true });

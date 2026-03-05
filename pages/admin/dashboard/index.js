@@ -746,6 +746,10 @@ Page({
     this.loadAll();
   },
 
+  onQuickAssign() {
+    wx.navigateTo({ url: '/pages/admin/assign/index' });
+  },
+
   getRoleDisplayText() {
     const roleMap = {
       'student': '学生',

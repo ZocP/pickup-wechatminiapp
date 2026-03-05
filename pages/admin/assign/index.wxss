@@ -1,0 +1,118 @@
+.assign-page {
+  padding: 20rpx;
+  padding-bottom: 40rpx;
+}
+
+.request-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.request-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.request-header {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 8rpx;
+}
+
+.student-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #323233;
+}
+
+.request-detail {
+  font-size: 24rpx;
+  color: #969799;
+  margin-bottom: 4rpx;
+}
+
+.ride-with {
+  color: #1989fa;
+}
+
+.request-action {
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+.shift-popup {
+  padding: 24rpx;
+  padding-bottom: 40rpx;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.popup-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 8rpx;
+}
+
+.popup-subtitle {
+  font-size: 24rpx;
+  color: #969799;
+  margin-bottom: 20rpx;
+}
+
+.popup-loading {
+  display: flex;
+  justify-content: center;
+  padding: 40rpx 0;
+}
+
+.popup-empty {
+  padding: 20rpx 0;
+}
+
+.shift-card {
+  margin-bottom: 16rpx;
+  padding: 20rpx;
+}
+
+.shift-card.shift-full {
+  border: 1rpx solid #ee0a24;
+}
+
+.shift-header {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 8rpx;
+}
+
+.driver-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #323233;
+}
+
+.car-model {
+  font-size: 24rpx;
+  color: #969799;
+}
+
+.shift-detail {
+  font-size: 24rpx;
+  color: #646566;
+  margin-bottom: 8rpx;
+}
+
+.shift-capacity {
+  display: flex;
+  gap: 12rpx;
+  flex-wrap: wrap;
+  margin-bottom: 8rpx;
+}
+
+.shift-warning {
+  font-size: 22rpx;
+  color: #ee0a24;
+}

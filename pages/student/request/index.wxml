@@ -43,11 +43,11 @@
       />
       <view class="stepper-row">
         <text class="stepper-label">托运箱数量</text>
-        <van-stepper value="{{form.checked_bags}}" min="0" bind:change="onStepperCheckedChange" />
+        <van-stepper value="{{form.checked_bags}}" min="0" max="10" bind:change="onStepperCheckedChange" bind:overlimit="onBagsOverLimit" />
       </view>
       <view class="stepper-row">
         <text class="stepper-label">登机箱数量</text>
-        <van-stepper value="{{form.carry_on_bags}}" min="0" bind:change="onStepperCarryOnChange" />
+        <van-stepper value="{{form.carry_on_bags}}" min="0" max="10" bind:change="onStepperCarryOnChange" bind:overlimit="onBagsOverLimit" />
       </view>
       <van-field
         label="同乘备注"

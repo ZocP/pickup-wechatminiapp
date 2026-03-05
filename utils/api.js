@@ -127,4 +127,19 @@ module.exports = {
   getBoardingToken(requestId) {
     return request.get(`/student/requests/${requestId}/boarding-token`);
   },
+
+  // 快速分配相关接口
+  getUnassignedRequests() {
+    return request.get('/admin/requests/unassigned');
+  },
+
+  getAvailableShifts(arrivalTime, limit) {
+    let url = `/admin/shifts/available?arrival_time=${encodeURIComponent(arrivalTime)}`;
+    if (limit) url += `&limit=${limit}`;
+    return request.get(url);
+  },
+
+  assignRequestToShift(requestId, shiftId) {
+    return request.post(`/admin/requests/${requestId}/assign`, { shift_id: shiftId });
+  },
 };

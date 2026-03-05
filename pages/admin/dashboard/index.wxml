@@ -24,6 +24,7 @@
 
   <view class="create-entry card">
     <van-button type="info" block bind:tap="onShowCreatePopup">添加班次</van-button>
+    <van-button type="warning" block custom-style="margin-top: 16rpx;" bind:tap="onQuickAssign">快速分配</van-button>
   </view>
 
   <view class="shift-list">
