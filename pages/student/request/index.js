@@ -2,11 +2,13 @@ const api = require('../../../utils/api');
 const { requestStatusText } = require('../../../utils/status');
 const { formatDateOnly } = require('../../../utils/formatters');
 const { QRCodeModel, QRErrorCorrectLevel, getTypeNumber } = require('../../../utils/qrcode');
+const { t } = require('../../../utils/i18n');
 
 const WECHAT_ID_REGEXP = /^[a-zA-Z0-9_]{6,20}$/;
 
 Page({
   data: {
+    i18n: {},
     submitting: false,
     loadingTrack: false,
     hasSubmitted: false,
@@ -39,13 +41,61 @@ Page({
       ride_with_wechat: '',
     },
 
-    trackSteps: ['已提交', '正在排班', '已安排'],
+    trackSteps: [],
     activeStep: 0,
     latestRequest: null,
     assignedShift: null,
     boardingToken: null,
     qrCodePath: null,
     generatingQrCode: false,
+  },
+
+  onLoad() {
+    this.setData({
+      i18n: {
+        student_request_title: t('student_request_title'),
+        student_request_name_label: t('student_request_name_label'),
+        student_request_name_placeholder: t('student_request_name_placeholder'),
+        student_request_flight_label: t('student_request_flight_label'),
+        student_request_flight_placeholder: t('student_request_flight_placeholder'),
+        student_request_date_label: t('student_request_date_label'),
+        student_request_date_placeholder: t('student_request_date_placeholder'),
+        student_request_terminal_label: t('student_request_terminal_label'),
+        student_request_terminal_placeholder: t('student_request_terminal_placeholder'),
+        student_request_time_label: t('student_request_time_label'),
+        student_request_time_placeholder: t('student_request_time_placeholder'),
+        student_request_checked_label: t('student_request_checked_label'),
+        student_request_carryon_label: t('student_request_carryon_label'),
+        student_request_ridewith_label: t('student_request_ridewith_label'),
+        student_request_ridewith_placeholder: t('student_request_ridewith_placeholder'),
+        student_request_wechat_label: t('student_request_wechat_label'),
+        student_request_wechat_placeholder: t('student_request_wechat_placeholder'),
+        student_request_submit: t('student_request_submit'),
+        student_request_submitted_lock: t('student_request_submitted_lock'),
+        student_request_track_title: t('student_request_track_title'),
+        student_request_no_record: t('student_request_no_record'),
+        student_request_current_flight: t('student_request_current_flight'),
+        student_request_ridewith_note: t('student_request_ridewith_note'),
+        student_request_ridewith_wechat: t('student_request_ridewith_wechat'),
+        student_request_assigned_title: t('student_request_assigned_title'),
+        student_request_driver_label: t('student_request_driver_label'),
+        student_request_car_label: t('student_request_car_label'),
+        student_request_meetpoint_label: t('student_request_meetpoint_label'),
+        student_request_depart_label: t('student_request_depart_label'),
+        student_request_qr_title: t('student_request_qr_title'),
+        student_request_qr_tips: t('student_request_qr_tips'),
+        student_request_qr_generating: t('student_request_qr_generating'),
+        student_request_qr_view: t('student_request_qr_view'),
+        student_request_qr_save: t('student_request_qr_save'),
+        student_request_qr_failed: t('student_request_qr_failed'),
+        student_request_qr_modal_title: t('student_request_qr_modal_title'),
+        student_request_qr_instruction: t('student_request_qr_instruction'),
+        student_request_terminal_title: t('student_request_terminal_title'),
+        student_request_time_title: t('student_request_time_title'),
+      },
+      trackSteps: [t('student_request_step_submitted'), t('student_request_step_scheduling'), t('student_request_step_assigned')],
+    });
+    wx.setNavigationBarTitle({ title: t('student_request_nav_title') });
   },
 
   onShow() {
@@ -86,7 +136,7 @@ Page({
   onBagsOverLimit(e) {
     if (e.detail === 'plus' || (e.detail && e.detail.type === 'plus')) {
       wx.showToast({
-        title: '行李较多，请联系工作人员',
+        title: t('student_request_bags_overlimit'),
         icon: 'none',
         duration: 2500,
       });
@@ -173,7 +223,7 @@ Page({
   async onSubmit() {
     if (this.data.submitting) return;
     if (this.data.hasSubmitted) {
-      wx.showToast({ title: '你已提交申请，无需重复提交', icon: 'none' });
+      wx.showToast({ title: t('student_request_duplicate'), icon: 'none' });
       return;
     }
 
@@ -190,13 +240,13 @@ Page({
     } = this.data.form;
 
     if (!real_name || !flight_no || !arrival_date || !terminal || !expected_arrival_time) {
-      wx.showToast({ title: '请填写完整表单', icon: 'none' });
+      wx.showToast({ title: t('student_request_form_incomplete'), icon: 'none' });
       return;
     }
 
     const normalizedWechat = String(ride_with_wechat || '').trim();
     if (normalizedWechat && !WECHAT_ID_REGEXP.test(normalizedWechat)) {
-      wx.showToast({ title: '微信号仅支持字母数字下划线，6-20位', icon: 'none' });
+      wx.showToast({ title: t('student_request_wechat_invalid'), icon: 'none' });
       return;
     }
 
@@ -225,10 +275,10 @@ Page({
 
       await this.requestSubscribeMessageSafe();
       await api.createStudentRequest(payload);
-      wx.showToast({ title: '提交成功', icon: 'success' });
+      wx.showToast({ title: t('student_request_success'), icon: 'success' });
       await this.loadTrack();
     } catch (error) {
-      wx.showToast({ title: '提交失败', icon: 'none' });
+      wx.showToast({ title: t('student_request_failed'), icon: 'none' });
     } finally {
       this.setData({ submitting: false });
     }
@@ -270,7 +320,6 @@ Page({
       const status = (latest.status || '').toLowerCase();
       const step = status === 'pending' ? 0 : status === 'assigned' ? 1 : 2;
 
-      // 从后端获取签名登车 token（30 分钟有效，HMAC-SHA256 签名防伪造）
       let boardingToken = null;
       if (status === 'published' && latest.shift) {
         try {
@@ -289,21 +338,16 @@ Page({
         hasSubmitted: true,
       });
 
-      // 如果有token，生成二维码
       if (boardingToken) {
         this.generateQrCode(boardingToken);
       }
     } catch (error) {
-      wx.showToast({ title: (error && error.message) || '状态加载失败', icon: 'none' });
+      wx.showToast({ title: (error && error.message) || t('student_request_status_failed'), icon: 'none' });
     } finally {
       this.setData({ loadingTrack: false });
     }
   },
 
-  // generateBoardingToken removed: tokens are now issued by the backend
-  // via GET /student/requests/:id/boarding-token (HMAC-SHA256 signed, 30-min TTL)
-
-  // 生成二维码
   async generateQrCode(token) {
     if (!token || this.data.generatingQrCode) return;
 
@@ -311,11 +355,10 @@ Page({
     try {
       await new Promise((resolve) => wx.nextTick(resolve));
       await new Promise((resolve) => setTimeout(resolve, 50));
-      // 使用微信canvas生成二维码
       const qrCodePath = await this.drawQrCodeWithTimeout(token);
       this.setData({ qrCodePath: qrCodePath, qrCodeError: '' });
     } catch (error) {
-      const msg = (error && (error.errMsg || error.message)) || '二维码生成失败';
+      const msg = (error && (error.errMsg || error.message)) || t('student_request_qr_failed');
       console.error('生成二维码失败:', error);
       this.setData({ qrCodePath: null, qrCodeError: msg });
       wx.showToast({ title: msg, icon: 'none' });
@@ -326,7 +369,7 @@ Page({
 
   drawQrCodeWithTimeout(text, timeoutMs = 8000) {
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error('二维码生成超时')), timeoutMs);
+      const timer = setTimeout(() => reject(new Error(t('student_request_qr_timeout'))), timeoutMs);
       this.drawQrCode(text)
         .then((path) => {
           clearTimeout(timer);
@@ -339,7 +382,6 @@ Page({
     });
   },
 
-  // 使用canvas绘制二维码（2D canvas 优先，失败时回退到 legacy canvas）
   drawQrCode(text) {
     return new Promise((resolve, reject) => {
       const query = wx.createSelectorQuery().in(this);
@@ -363,14 +405,11 @@ Page({
             ctx.setTransform(1, 0, 0, 1, 0, 0);
             ctx.scale(dpr, dpr);
 
-            // 清空画布
             ctx.clearRect(0, 0, size, size);
 
-            // 绘制白色背景
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, size, size);
 
-            // 使用二维码库生成矩阵并绘制
             const typeNumber = getTypeNumber ? getTypeNumber(text, QRErrorCorrectLevel.M) : 4;
             const qr = new QRCodeModel(typeNumber, QRErrorCorrectLevel.M);
             qr.addData(text);
@@ -391,7 +430,6 @@ Page({
               }
             }
 
-            // 转换为图片路径
             wx.canvasToTempFilePath({
               canvas: canvas,
               success: (result) => {
@@ -408,13 +446,11 @@ Page({
     });
   },
 
-  // legacy canvas 绘制（兼容不支持2D canvas的环境）
   drawQrCodeLegacy(text) {
     return new Promise((resolve, reject) => {
       const ctx = wx.createCanvasContext('qrCodeCanvasLegacy', this);
       const size = 200;
 
-      // 清空画布
       ctx.setFillStyle('#FFFFFF');
       ctx.fillRect(0, 0, size, size);
 
@@ -448,17 +484,14 @@ Page({
     });
   },
 
-  // 打开二维码模态框
   openQrCodeModal() {
     this.setData({ showQrCodeModal: true });
   },
 
-  // 关闭二维码模态框
   closeQrCodeModal() {
     this.setData({ showQrCodeModal: false });
   },
 
-  // 保存二维码到相册
   saveQrCodeToAlbum() {
     if (!this.data.qrCodePath) return;
     
@@ -466,20 +499,20 @@ Page({
       filePath: this.data.qrCodePath,
       success: () => {
         wx.showToast({
-          title: '保存成功',
+          title: t('student_request_qr_save_success'),
           icon: 'success',
         });
       },
       fail: (err) => {
         if (err.errMsg.includes('auth deny')) {
           wx.showModal({
-            title: '提示',
-            content: '需要相册权限才能保存二维码',
+            title: t('student_request_qr_tips'),
+            content: t('student_request_qr_save_auth'),
             showCancel: false,
           });
         } else {
           wx.showToast({
-            title: '保存失败',
+            title: t('student_request_qr_save_failed'),
             icon: 'none',
           });
         }

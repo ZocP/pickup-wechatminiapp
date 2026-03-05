@@ -1,23 +1,23 @@
 <view class="page">
   <!-- 加载状态 -->
   <view wx:if="{{loading}}" class="loading-container">
-    <van-loading size="24px" vertical>加载中...</van-loading>
+    <van-loading size="24px" vertical>{{i18n.driver_loading}}</van-loading>
   </view>
 
   <!-- 无班次提示 -->
   <view wx:if="{{!loading && !currentShift}}" class="empty-container">
-    <van-empty description="暂无班次安排" />
-    <view class="empty-tips">请联系管理员分配班次</view>
+    <van-empty description="{{i18n.driver_no_shift}}" />
+    <view class="empty-tips">{{i18n.driver_contact_admin}}</view>
   </view>
 
   <!-- 班次信息 -->
   <view wx:if="{{currentShift}}" class="shift-container">
     <van-cell-group>
-      <van-cell title="当前班次" value="{{formatTime(currentShift.departure_time)}}" />
-      <van-cell title="司机" value="{{currentShift.driver_name || '未分配'}}" />
-      <van-cell title="车辆容量" value="{{currentShift.capacity}}人" />
-      <van-cell title="已安排" value="{{currentShift.assigned_count}}人" />
-      <van-cell title="状态" value="{{currentShift.status === 'published' ? '已发布' : '未发布'}}" />
+      <van-cell title="{{i18n.driver_current_shift}}" value="{{formatTime(currentShift.departure_time)}}" />
+      <van-cell title="{{i18n.driver_driver_label}}" value="{{currentShift.driver_name || i18n.driver_unassigned}}" />
+      <van-cell title="{{i18n.driver_capacity_label}}" value="{{currentShift.capacity}}{{i18n.driver_capacity_unit}}" />
+      <van-cell title="{{i18n.driver_assigned_label}}" value="{{currentShift.assigned_count}}{{i18n.driver_assigned_unit}}" />
+      <van-cell title="{{i18n.driver_status_label}}" value="{{currentShift.status === 'published' ? i18n.driver_status_published : i18n.driver_status_unpublished}}" />
     </van-cell-group>
 
     <!-- 扫码登车按钮 -->
@@ -28,27 +28,27 @@
         bindtap="openScanModal"
         loading="{{scanning}}"
       >
-        扫码登车
+        {{i18n.driver_scan_btn}}
       </van-button>
     </view>
 
     <!-- 乘客列表 -->
     <view class="passengers-section">
-      <view class="section-title">乘客列表 ({{passengers.length}}/{{currentShift.capacity}})</view>
+      <view class="section-title">{{i18n.driver_passengers_title}} ({{passengers.length}}/{{currentShift.capacity}})</view>
       <van-cell-group wx:if="{{passengers.length > 0}}">
         <van-cell 
           wx:for="{{passengers}}" 
           wx:key="id"
           title="{{item.name}}"
-          value="{{item.status === 'boarded' ? '已登车' : '待登车'}}"
+          value="{{item.status === 'boarded' ? i18n.driver_boarded : i18n.driver_waiting}}"
         >
           <view slot="label">
-            <text>学号: {{item.student_id}}</text>
+            <text>{{i18n.driver_student_id}}{{item.student_id}}</text>
           </view>
         </van-cell>
       </van-cell-group>
       <view wx:else class="empty-passengers">
-        <van-empty description="暂无乘客" mode="list" />
+        <van-empty description="{{i18n.driver_no_passengers}}" mode="list" />
       </view>
     </view>
   </view>
@@ -62,7 +62,7 @@
   >
     <view class="scan-modal">
       <view class="modal-header">
-        <text class="modal-title">扫码登车</text>
+        <text class="modal-title">{{i18n.driver_scan_title}}</text>
         <van-icon name="cross" size="18px" bindtap="closeScanModal" />
       </view>
       
@@ -83,21 +83,21 @@
           />
           <view class="result-message">{{scanResult.message}}</view>
           <view wx:if="{{scanResult.studentName}}" class="student-name">
-            学生: {{scanResult.studentName}}
+            {{scanResult.studentName}}
           </view>
         </view>
 
         <!-- 扫码按钮 -->
         <view wx:else class="scan-instruction">
           <view class="instruction-text">
-            请扫描学生的登车二维码
+            {{i18n.driver_scan_instruction}}
           </view>
           <view class="scan-button" bindtap="startScan">
             <van-icon name="scan" size="48px" color="#1989fa" />
-            <text class="scan-text">开始扫码</text>
+            <text class="scan-text">{{i18n.driver_scan_start}}</text>
           </view>
           <view class="scan-tips">
-            确保二维码在框内，光线充足
+            {{i18n.driver_scan_tips}}
           </view>
         </view>
       </view>

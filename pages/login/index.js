@@ -1,4 +1,5 @@
 const api = require('../../utils/api');
+const { t } = require('../../utils/i18n');
 
 function getCurrentBaseURL() {
   return wx.getStorageSync('baseURL') || 'http://192.168.50.94:9090/api/v1';
@@ -6,7 +7,20 @@ function getCurrentBaseURL() {
 
 Page({
   data: {
+    i18n: {},
     loading: false,
+  },
+
+  onLoad() {
+    this.setData({
+      i18n: {
+        login_title: t('login_title'),
+        login_subtitle: t('login_subtitle'),
+        login_notice: t('login_notice'),
+        login_btn: t('login_btn'),
+      },
+    });
+    wx.setNavigationBarTitle({ title: t('login_nav_title') });
   },
 
   onPullDownRefresh() {
@@ -34,7 +48,7 @@ Page({
       let result = await this.loginOnce();
 
       if (!result || !result.token) {
-        throw new Error('登录响应异常');
+        throw new Error(t('login_response_error'));
       }
 
       wx.setStorageSync('token', result.token);
@@ -49,7 +63,7 @@ Page({
       wx.setStorageSync('userInfo', mergedUser);
       getApp().setUserInfo(mergedUser);
 
-      wx.showToast({ title: '登录成功', icon: 'success' });
+      wx.showToast({ title: t('login_success'), icon: 'success' });
 
       const wechatID = String((mergedUser && mergedUser.wechat_id) || '').trim();
       if (!wechatID) {
@@ -64,20 +78,20 @@ Page({
         wx.switchTab({ url: '/pages/home/index' });
       }
     } catch (error) {
-      const message = (error && error.message) || '登录失败';
+      const message = (error && error.message) || t('login_failed');
       const runtimeAppId = this.getRuntimeAppId();
 
       if (/40013|invalid appid/i.test(message)) {
         if (error && error.origin === 'backend-auth') {
           wx.showModal({
-            title: '登录失败（后端微信配置异常）',
+            title: t('login_backend_title'),
             content: `wx.login 已拿到 code，后端换取 session_key 时返回 40013。请检查后端使用的 appid/appsecret 是否与当前小程序一致。\n运行时 AppID：${runtimeAppId || '未获取到'}\n当前 API：${error.baseURL || getCurrentBaseURL()}`,
             showCancel: false,
           });
         } else {
           wx.showModal({
-            title: '登录失败（AppID 异常）',
-            content: `wx.login 返回 40013。当前运行时 AppID：${runtimeAppId || '未获取到'}。请在开发者工具“项目详情”确认 AppID 与 project.config.json 一致，并重新导入项目。`,
+            title: t('login_appid_title'),
+            content: `wx.login 返回 40013。当前运行时 AppID：${runtimeAppId || '未获取到'}。请在开发者工具"项目详情"确认 AppID 与 project.config.json 一致，并重新导入项目。`,
             showCancel: false,
           });
         }
@@ -97,7 +111,7 @@ Page({
       wx.login({
         success: (res) => {
           if (!res.code) {
-            reject(new Error('获取 code 失败'));
+            reject(new Error(t('login_code_failed')));
             return;
           }
           resolve(res);

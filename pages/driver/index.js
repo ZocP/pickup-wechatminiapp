@@ -1,8 +1,10 @@
 const api = require('../../utils/api');
 const { formatDateTime } = require('../../utils/formatters');
+const { t } = require('../../utils/i18n');
 
 Page({
   data: {
+    i18n: {},
     loading: false,
     shifts: [],
     currentShift: null,
@@ -10,6 +12,37 @@ Page({
     showScanModal: false,
     scanResult: null,
     scanning: false,
+  },
+
+  onLoad() {
+    this.setData({
+      i18n: {
+        driver_loading: t('driver_loading'),
+        driver_no_shift: t('driver_no_shift'),
+        driver_contact_admin: t('driver_contact_admin'),
+        driver_current_shift: t('driver_current_shift'),
+        driver_driver_label: t('driver_driver_label'),
+        driver_capacity_label: t('driver_capacity_label'),
+        driver_capacity_unit: t('driver_capacity_unit'),
+        driver_assigned_label: t('driver_assigned_label'),
+        driver_assigned_unit: t('driver_assigned_unit'),
+        driver_status_label: t('driver_status_label'),
+        driver_status_published: t('driver_status_published'),
+        driver_status_unpublished: t('driver_status_unpublished'),
+        driver_unassigned: t('driver_unassigned'),
+        driver_scan_btn: t('driver_scan_btn'),
+        driver_passengers_title: t('driver_passengers_title'),
+        driver_boarded: t('driver_boarded'),
+        driver_waiting: t('driver_waiting'),
+        driver_student_id: t('driver_student_id'),
+        driver_no_passengers: t('driver_no_passengers'),
+        driver_scan_title: t('driver_scan_title'),
+        driver_scan_instruction: t('driver_scan_instruction'),
+        driver_scan_start: t('driver_scan_start'),
+        driver_scan_tips: t('driver_scan_tips'),
+      },
+    });
+    wx.setNavigationBarTitle({ title: t('driver_nav_title') });
   },
 
   onShow() {
@@ -32,11 +65,9 @@ Page({
   async loadDriverShifts() {
     this.setData({ loading: true });
     try {
-      // 获取司机班次
       const shiftsRes = await api.getDriverShifts();
       const shifts = Array.isArray(shiftsRes) ? shiftsRes : (shiftsRes.data || shiftsRes.shifts || []);
       
-      // 获取当前班次（假设第一个是当前班次，或根据状态筛选）
       const currentShift = shifts.find(shift => 
         shift.status === 'published' || shift.status === 'active'
       ) || (shifts.length > 0 ? shifts[0] : null);
@@ -44,20 +75,17 @@ Page({
       let passengers = [];
       if (currentShift && currentShift.id) {
         try {
-          // 获取班次乘客
           const passengersRes = await api.getShiftPassengers(currentShift.id);
           passengers = Array.isArray(passengersRes) ? passengersRes : (passengersRes.data || passengersRes.passengers || []);
           
-          // 确保乘客有正确的状态字段
           passengers = passengers.map(passenger => ({
             ...passenger,
             status: passenger.status || passenger.boarding_status || 'assigned',
-            name: passenger.name || passenger.user_name || passenger.student_name || passenger.passenger_name || `乘客#${passenger.id}`,
+            name: passenger.name || passenger.user_name || passenger.student_name || passenger.passenger_name || `${t('common_student_prefix')}${passenger.id}`,
             student_id: passenger.student_id || passenger.student_id_number || passenger.user_id || '',
           }));
         } catch (passengerError) {
           console.warn('获取乘客列表失败:', passengerError);
-          // 如果获取乘客失败，使用空数组
         }
       }
 
@@ -67,21 +95,19 @@ Page({
         passengers: passengers,
       });
       
-      // 如果没有班次，显示提示
       if (!currentShift) {
         wx.showToast({
-          title: '暂无班次安排',
+          title: t('driver_no_shift'),
           icon: 'none',
         });
       }
     } catch (error) {
       console.error('加载班次失败:', error);
       wx.showToast({
-        title: error.message || '加载失败',
+        title: error.message || t('driver_load_failed'),
         icon: 'none',
       });
       
-      // 出错时清空数据
       this.setData({
         shifts: [],
         currentShift: null,
@@ -92,7 +118,6 @@ Page({
     }
   },
 
-  // 打开扫码模态框
   openScanModal() {
     this.setData({
       showScanModal: true,
@@ -100,12 +125,10 @@ Page({
     });
   },
 
-  // 关闭扫码模态框
   closeScanModal() {
     this.setData({ showScanModal: false });
   },
 
-  // 开始扫码
   async startScan() {
     if (this.data.scanning) return;
     
@@ -122,7 +145,7 @@ Page({
     } catch (error) {
       if (error.errMsg !== 'scanCode:fail cancel') {
         wx.showToast({
-          title: '扫码失败',
+          title: t('driver_scan_failed'),
           icon: 'none',
         });
       }
@@ -131,20 +154,17 @@ Page({
     }
   },
 
-  // 核销登车
   async verifyBoarding(qrCode) {
     try {
-      // 调用后端核销接口
       const result = await api.verifyBoarding(qrCode);
       
-      // 解析响应
       const success = result.success || result.status === 'success' || result.boarded === true;
-      const message = result.message || result.msg || '登车成功';
+      const message = result.message || result.msg || t('driver_board_success');
       const studentName = result.student_name || result.name || result.passenger_name || '';
       
       if (success) {
         wx.showToast({
-          title: '登车成功',
+          title: t('driver_board_success'),
           icon: 'success',
         });
         
@@ -156,24 +176,21 @@ Page({
           }
         });
         
-        // 立即刷新乘客列表
         await this.loadDriverShifts();
       } else {
-        // 处理失败情况（包括幂等错误）
-        const errMsg = message || '核销失败';
+        const errMsg = message || t('driver_board_failed');
         
-        // 检查是否为幂等错误（已登车）
         if (errMsg.includes('已登车') || errMsg.includes('already boarded') || 
             errMsg.includes('重复') || errMsg.includes('duplicate')) {
           wx.showToast({
-            title: '该学生已登车',
+            title: t('driver_already_boarded'),
             icon: 'none',
           });
           
           this.setData({
             scanResult: {
               success: false,
-              message: '该学生已登车，无需重复核销',
+              message: t('driver_already_boarded_msg'),
               studentName: studentName,
             }
           });
@@ -193,20 +210,19 @@ Page({
       }
       
     } catch (error) {
-      const errMsg = error.message || '核销失败';
+      const errMsg = error.message || t('driver_board_failed');
       
-      // 检查是否为幂等错误（已登车）
       if (errMsg.includes('已登车') || errMsg.includes('already boarded') || 
           errMsg.includes('重复') || errMsg.includes('duplicate')) {
         wx.showToast({
-          title: '该学生已登车',
+          title: t('driver_already_boarded'),
           icon: 'none',
         });
         
         this.setData({
           scanResult: {
             success: false,
-            message: '该学生已登车，无需重复核销',
+            message: t('driver_already_boarded_msg'),
           }
         });
       } else {
@@ -225,7 +241,6 @@ Page({
     }
   },
 
-  // 格式化时间显示
   formatTime(timeStr) {
     if (!timeStr) return '';
     return formatDateTime(timeStr) || timeStr;

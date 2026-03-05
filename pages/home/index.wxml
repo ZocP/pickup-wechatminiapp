@@ -1,45 +1,45 @@
 <view class="page home-page">
   <view class="card welcome-card">
-    <view class="title">欢迎使用 UIUC 接机调度</view>
+    <view class="title">{{i18n.home_welcome}}</view>
     <view class="meta">
-      <text>当前用户：{{userInfo.name || ('用户#' + (userInfo.id || '--'))}}</text>
+      <text>{{i18n.home_current_user}}{{userInfo.name || (i18n.home_user_prefix + (userInfo.id || '--'))}}</text>
       <van-tag type="primary" plain custom-style="margin-left: 12rpx;">{{userInfo.role || 'student'}}</van-tag>
     </view>
   </view>
 
   <view class="card section">
     <view wx:if="{{isStudent}}" class="apply-entry">
-      <view class="section-title">申请接机</view>
+      <view class="section-title">{{i18n.home_apply_pickup}}</view>
       <van-cell-group inset>
-        <van-cell title="学生申请接机" is-link bind:click="goStudentRequest" />
+        <van-cell title="{{i18n.home_student_apply}}" is-link bind:click="goStudentRequest" />
       </van-cell-group>
     </view>
   </view>
 
   <view class="card section" wx:if="{{isManageRole}}">
-    <view class="section-title">管理功能</view>
+    <view class="section-title">{{i18n.home_manage_section}}</view>
     <van-cell-group inset>
-      <van-cell title="管理员调度中心" is-link bind:click="goDashboard" />
-      <van-cell title="司机与车辆管理" is-link bind:click="goDriverManage" />
-      <van-cell wx:if="{{canManageStaff}}" title="Staff 管理" is-link bind:click="goStaffManage" />
+      <van-cell title="{{i18n.home_admin_dispatch}}" is-link bind:click="goDashboard" />
+      <van-cell title="{{i18n.home_driver_manage}}" is-link bind:click="goDriverManage" />
+      <van-cell wx:if="{{canManageStaff}}" title="{{i18n.home_staff_manage}}" is-link bind:click="goStaffManage" />
     </van-cell-group>
   </view>
 
   <view wx:if="{{isStudent}}" class="card section">
-    <view class="section-title">我的接机信息</view>
+    <view class="section-title">{{i18n.home_my_pickup_info}}</view>
     <view wx:if="{{loadingMyInfo}}">
       <van-skeleton title row="2" />
     </view>
     <block wx:elif="{{latestRequest}}">
       <view class="summary-line">
-        <text>申请状态：{{latestRequest.status_text || latestRequest.status || '--'}}</text>
+        <text>{{i18n.home_request_status}}{{latestRequest.status_text || latestRequest.status || '--'}}</text>
       </view>
       <view class="summary-line">
-        <text>我的班车时间：{{myShiftTime}}</text>
+        <text>{{i18n.home_my_shift_time}}{{myShiftTime}}</text>
       </view>
     </block>
     <view wx:else class="summary-empty">
-      暂无申请记录
+      {{i18n.home_no_request}}
     </view>
   </view>
 </view>

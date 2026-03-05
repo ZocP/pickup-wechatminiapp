@@ -2,19 +2,19 @@
   <!-- Verifying state: checking with backend before showing bind form -->
   <view wx:if="{{verifying}}" class="card bind-card" style="text-align:center;padding:60rpx 40rpx;">
     <van-loading size="40px" type="spinner" />
-    <view style="margin-top:24rpx;color:#666;font-size:28rpx;">正在验证登录状态…</view>
+    <view style="margin-top:24rpx;color:#666;font-size:28rpx;">{{i18n.bind_verifying}}</view>
   </view>
 
   <!-- Bind form: shown when not verifying -->
   <view wx:else class="card bind-card">
-    <view class="title">先完成微信号绑定</view>
-    <view class="subtitle">未绑定前不可提交申请或使用任何业务功能</view>
+    <view class="title">{{i18n.bind_title}}</view>
+    <view class="subtitle">{{i18n.bind_subtitle}}</view>
 
-    <van-notice-bar left-icon="warning-o" text="请务必填写正确微信号，填写错误将影响接机联系服务" />
+    <van-notice-bar left-icon="warning-o" text="{{i18n.bind_notice}}" />
 
     <van-field
-      label="真实姓名"
-      placeholder="请输入真实姓名"
+      label="{{i18n.bind_name_label}}"
+      placeholder="{{i18n.bind_name_placeholder}}"
       value="{{name}}"
       maxlength="64"
       bind:change="onNameChange"
@@ -22,8 +22,8 @@
     />
 
     <van-field
-      label="微信号"
-      placeholder="请输入你的微信号"
+      label="{{i18n.bind_wechat_label}}"
+      placeholder="{{i18n.bind_wechat_placeholder}}"
       value="{{wechatID}}"
       maxlength="20"
       bind:change="onWechatIDChange"
@@ -36,7 +36,7 @@
       loading="{{loading}}"
       custom-style="margin-top: 24rpx;"
       bind:tap="onBindWechatID"
-    >确认绑定微信号</van-button>
+    >{{i18n.bind_submit}}</van-button>
 
     <van-button
       type="default"
@@ -44,6 +44,6 @@
       block
       custom-style="margin-top: 16rpx;"
       bind:tap="logout"
-    >退出登录</van-button>
+    >{{i18n.bind_logout}}</van-button>
   </view>
 </view>

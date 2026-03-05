@@ -1,68 +1,68 @@
 <view class="page request-page">
   <view class="card" wx:if="{{!hasSubmitted}}">
-    <view class="section-title">提交接机申请</view>
+    <view class="section-title">{{i18n.student_request_title}}</view>
     <van-cell-group inset>
       <van-field
-        label="真实姓名"
-        placeholder="请输入你的真实姓名"
+        label="{{i18n.student_request_name_label}}"
+        placeholder="{{i18n.student_request_name_placeholder}}"
         value="{{form.real_name}}"
         data-field="real_name"
         bind:change="onFieldChange"
       />
       <van-field
-        label="航班号"
-        placeholder="如 UA851"
+        label="{{i18n.student_request_flight_label}}"
+        placeholder="{{i18n.student_request_flight_placeholder}}"
         value="{{form.flight_no}}"
         data-field="flight_no"
         bind:change="onFieldChange"
       />
       <view bindtap="openDatePicker">
         <van-field
-          label="落地日期"
-          placeholder="请选择日期"
+          label="{{i18n.student_request_date_label}}"
+          placeholder="{{i18n.student_request_date_placeholder}}"
           value="{{form.arrival_date}}"
           readonly
           is-link
         />
       </view>
       <van-field
-        label="航站楼"
-        placeholder="请选择航站楼"
+        label="{{i18n.student_request_terminal_label}}"
+        placeholder="{{i18n.student_request_terminal_placeholder}}"
         value="{{form.terminal}}"
         readonly
         is-link
         bind:click-input="openTerminalPicker"
       />
       <van-field
-        label="预计落地时间"
-        placeholder="请选择时间"
+        label="{{i18n.student_request_time_label}}"
+        placeholder="{{i18n.student_request_time_placeholder}}"
         value="{{form.arrival_time}}"
         readonly
         is-link
         bind:click-input="openTimePicker"
       />
       <view class="stepper-row">
-        <text class="stepper-label">托运箱数量</text>
+        <text class="stepper-label">{{i18n.student_request_checked_label}}</text>
         <van-stepper value="{{form.checked_bags}}" min="0" max="10" bind:change="onStepperCheckedChange" bind:overlimit="onBagsOverLimit" />
       </view>
       <view class="stepper-row">
-        <text class="stepper-label">登机箱数量</text>
+        <text class="stepper-label">{{i18n.student_request_carryon_label}}</text>
         <van-stepper value="{{form.carry_on_bags}}" min="0" max="10" bind:change="onStepperCarryOnChange" bind:overlimit="onBagsOverLimit" />
       </view>
       <van-field
-        label="同乘备注"
+        label="{{i18n.student_request_ridewith_label}}"
         type="textarea"
         autosize
         maxlength="200"
-        placeholder="可选：想和谁同一班车（如：想和张三同车）"
+        placeholder="{{i18n.student_request_ridewith_placeholder}}"
         value="{{form.ride_with_note}}"
         data-field="ride_with_note"
         bind:change="onFieldChange"
       />
       <van-field
-        label="对方微信号"
+        label="{{i18n.student_request_wechat_label}}"
         maxlength="20"
-        placeholder="可选：仅字母数字下划线，6-20位"
+        placeholder="{{i18n.student_request_wechat_placeholder}}"
         value="{{form.ride_with_wechat}}"
         data-field="ride_with_wechat"
         bind:change="onFieldChange"
@@ -75,49 +75,49 @@
       loading="{{submitting}}"
       custom-style="margin-top: 24rpx;"
       bind:tap="onSubmit"
-    >提交申请</van-button>
+    >{{i18n.student_request_submit}}</van-button>
   </view>
 
   <view class="card" wx:else>
-    <view class="section-title">提交接机申请</view>
-    <view class="submit-locked">你已提交过申请，当前仅可查看申请状态追踪。</view>
+    <view class="section-title">{{i18n.student_request_title}}</view>
+    <view class="submit-locked">{{i18n.student_request_submitted_lock}}</view>
   </view>
 
   <view class="card tracker-card">
-    <view class="section-title">申请状态追踪</view>
+    <view class="section-title">{{i18n.student_request_track_title}}</view>
 
     <view wx:if="{{loadingTrack}}">
       <van-skeleton title row="3" />
     </view>
 
     <view wx:elif="{{!latestRequest}}">
-      <van-empty description="暂无申请记录" />
+      <van-empty description="{{i18n.student_request_no_record}}" />
     </view>
 
     <view wx:else>
       <van-steps steps="{{trackSteps}}" active="{{activeStep}}" direction="horizontal" />
 
       <view class="latest">
-        <text>当前航班：{{latestRequest.flight_no}}</text>
+        <text>{{i18n.student_request_current_flight}}{{latestRequest.flight_no}}</text>
         <van-tag type="primary" plain custom-style="margin-left: 12rpx;">{{latestRequest.status_text || latestRequest.status}}</van-tag>
       </view>
-      <view wx:if="{{latestRequest.ride_with_note}}" class="line">同乘备注：{{latestRequest.ride_with_note}}</view>
-      <view wx:if="{{latestRequest.ride_with_wechat}}" class="line">对方微信号：{{latestRequest.ride_with_wechat}}</view>
+      <view wx:if="{{latestRequest.ride_with_note}}" class="line">{{i18n.student_request_ridewith_note}}{{latestRequest.ride_with_note}}</view>
+      <view wx:if="{{latestRequest.ride_with_wechat}}" class="line">{{i18n.student_request_ridewith_wechat}}{{latestRequest.ride_with_wechat}}</view>
 
       <view wx:if="{{assignedShift}}" class="assigned card-inner">
-        <view class="inner-title">已分配车辆信息</view>
-        <view class="line">司机：{{assignedShift.driver.name || '--'}}</view>
-        <view class="line">车型：{{assignedShift.driver.car_model || '--'}}</view>
-        <view class="line">集合点：Terminal {{latestRequest.terminal || '--'}}</view>
-        <view class="line">出发时间：{{assignedShift.departure_time || '--'}}</view>
+        <view class="inner-title">{{i18n.student_request_assigned_title}}</view>
+        <view class="line">{{i18n.student_request_driver_label}}{{assignedShift.driver.name || '--'}}</view>
+        <view class="line">{{i18n.student_request_car_label}}{{assignedShift.driver.car_model || '--'}}</view>
+        <view class="line">{{i18n.student_request_meetpoint_label}}{{latestRequest.terminal || '--'}}</view>
+        <view class="line">{{i18n.student_request_depart_label}}{{assignedShift.departure_time || '--'}}</view>
         
         <!-- 登车二维码 -->
         <view class="qr-code-section">
-          <view class="inner-title">登车二维码</view>
-          <view class="qr-code-tips">请向司机出示此二维码进行登车核销</view>
+          <view class="inner-title">{{i18n.student_request_qr_title}}</view>
+          <view class="qr-code-tips">{{i18n.student_request_qr_tips}}</view>
           
           <view wx:if="{{generatingQrCode}}" class="qr-code-loading">
-            <van-loading size="24px">生成二维码中...</van-loading>
+            <van-loading size="24px">{{i18n.student_request_qr_generating}}</van-loading>
           </view>
           
           <view wx:elif="{{qrCodePath}}" class="qr-code-container">
@@ -128,20 +128,20 @@
                 size="small" 
                 bindtap="openQrCodeModal"
               >
-                查看大图
+                {{i18n.student_request_qr_view}}
               </van-button>
               <van-button 
                 type="default" 
                 size="small" 
                 bindtap="saveQrCodeToAlbum"
               >
-                保存到相册
+                {{i18n.student_request_qr_save}}
               </van-button>
             </view>
           </view>
           
           <view wx:else class="qr-code-empty">
-            <van-empty description="{{qrCodeError || '二维码生成失败'}}" mode="list" />
+            <van-empty description="{{qrCodeError || i18n.student_request_qr_failed}}" mode="list" />
             <view wx:if="{{qrCodeError}}" class="qr-code-error">{{qrCodeError}}</view>
           </view>
         </view>
@@ -165,7 +165,7 @@
 
   <van-action-sheet
     show="{{showTerminalPicker}}"
-    title="选择航站楼"
+    title="{{i18n.student_request_terminal_title}}"
     actions="{{terminalActions}}"
     close-on-click-action="true"
     bind:select="onSelectTerminal"
@@ -183,7 +183,7 @@
     <van-datetime-picker
       type="time"
       value="{{timePickerValue}}"
-      title="选择时间"
+      title="{{i18n.student_request_time_title}}"
       bind:cancel="onTimePickerCancel"
       bind:confirm="onTimeConfirm"
     />
@@ -198,7 +198,7 @@
   >
     <view class="qr-code-modal">
       <view class="modal-header">
-        <text class="modal-title">登车二维码</text>
+        <text class="modal-title">{{i18n.student_request_qr_modal_title}}</text>
         <van-icon name="cross" size="18px" bindtap="closeQrCodeModal" />
       </view>
       
@@ -206,7 +206,7 @@
         <view wx:if="{{qrCodePath}}" class="large-qr-code">
           <image src="{{qrCodePath}}" class="qr-code-large-image" mode="widthFix" />
           <view class="qr-code-instruction">
-            请向司机出示此二维码进行登车核销
+            {{i18n.student_request_qr_instruction}}
           </view>
         </view>
         
@@ -216,7 +216,7 @@
             block
             bindtap="saveQrCodeToAlbum"
           >
-            保存到相册
+            {{i18n.student_request_qr_save}}
           </van-button>
         </view>
       </view>

@@ -1,8 +1,10 @@
 const api = require('../../utils/api');
 const { requestStatusText } = require('../../utils/status');
+const { t } = require('../../utils/i18n');
 
 Page({
   data: {
+    i18n: {},
     userInfo: {},
     isManageRole: false,
     isStudent: true,
@@ -10,6 +12,27 @@ Page({
     loadingMyInfo: false,
     latestRequest: null,
     myShiftTime: '--',
+  },
+
+  onLoad() {
+    this.setData({
+      i18n: {
+        home_welcome: t('home_welcome'),
+        home_current_user: t('home_current_user'),
+        home_user_prefix: t('home_user_prefix'),
+        home_apply_pickup: t('home_apply_pickup'),
+        home_student_apply: t('home_student_apply'),
+        home_manage_section: t('home_manage_section'),
+        home_admin_dispatch: t('home_admin_dispatch'),
+        home_driver_manage: t('home_driver_manage'),
+        home_staff_manage: t('home_staff_manage'),
+        home_my_pickup_info: t('home_my_pickup_info'),
+        home_request_status: t('home_request_status'),
+        home_my_shift_time: t('home_my_shift_time'),
+        home_no_request: t('home_no_request'),
+      },
+    });
+    wx.setNavigationBarTitle({ title: t('home_nav_title') });
   },
 
   onShow() {

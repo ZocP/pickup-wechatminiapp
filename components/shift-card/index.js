@@ -1,3 +1,5 @@
+const { t } = require('../../utils/i18n');
+
 Component({
   properties: {
     shift: {
@@ -10,12 +12,13 @@ Component({
   },
 
   data: {
+    i18n: {},
     headerTime: '--',
     flightsText: '--',
     statusText: 'draft',
     statusType: 'default',
     hasDelayWarning: false,
-    driverText: '未分配司机',
+    driverText: '',
     routeText: '',
     showRouteNotice: false,
     staffs: [],
@@ -27,6 +30,21 @@ Component({
 
   lifetimes: {
     attached() {
+      this.setData({
+        i18n: {
+          shiftcard_delay_warning: t('shiftcard_delay_warning'),
+          shiftcard_driver_label: t('shiftcard_driver_label'),
+          shiftcard_boarded: t('shiftcard_boarded'),
+          shiftcard_waiting: t('shiftcard_waiting'),
+          shiftcard_boarded_unit: t('shiftcard_boarded_unit'),
+          shiftcard_waiting_unit: t('shiftcard_waiting_unit'),
+          shiftcard_route_prefix: t('shiftcard_route_prefix'),
+          shiftcard_staff_title: t('shiftcard_staff_title'),
+          shiftcard_volunteer: t('shiftcard_volunteer'),
+          shiftcard_member_prefix: t('shiftcard_member_prefix'),
+          shiftcard_manage_btn: t('shiftcard_manage_btn'),
+        },
+      });
       this.buildViewModel(this.data.shift || {});
     },
   },
@@ -56,7 +74,6 @@ Component({
 
       const hasDelayWarning = requests.some((item) => !!item.is_delayed);
       
-      // Calculate boarded/unboarded counts
       const boardedCount = requests.filter(item => 
         item.status === 'boarded' || item.boarded === true || item.boarding_status === 'boarded'
       ).length;
@@ -65,7 +82,7 @@ Component({
       this.setData({
         headerTime: this.formatDateTime(shift.departure_time || shift.DepartureTime),
         flightsText: this.collectFlightNos(requests),
-        statusText: status === 'published' ? '已发布' : '未发布',
+        statusText: status === 'published' ? t('shiftcard_published') : t('shiftcard_unpublished'),
         statusType: status === 'published' ? 'success' : 'default',
         hasDelayWarning,
         driverText: this.getDriverText(driver),
@@ -73,9 +90,9 @@ Component({
         showRouteNotice: terminals.length > 1,
         staffs: staffs,
         passengers: requests.map((item) => this.toPassenger(item)),
-        seatUsage: this.makeUsage('座位', usedSeats, maxSeats),
-        checkedUsage: this.makeUsage('托运箱', usedChecked, maxChecked),
-        carryOnUsage: this.makeUsage('登机箱', usedCarryOn, maxCarryOn),
+        seatUsage: this.makeUsage(t('shiftcard_seat_label'), usedSeats, maxSeats),
+        checkedUsage: this.makeUsage(t('shiftcard_checked_label'), usedChecked, maxChecked),
+        carryOnUsage: this.makeUsage(t('shiftcard_carryon_label'), usedCarryOn, maxCarryOn),
         boardedCount: boardedCount,
         unboardedCount: unboardedCount,
       });
@@ -101,7 +118,7 @@ Component({
         || '';
       return {
         id: item.id,
-        name: String(name).trim() || `学生#${item.user_id || item.id || '--'}`,
+        name: String(name).trim() || `${t('shiftcard_student_prefix')}${item.user_id || item.id || '--'}`,
         flightNo: item.flight_no || '--',
         arrivalTime: this.formatDateTime(item.arrival_time_api || item.expected_arrival_time),
         pickupTime: this.formatDateTime(item.calc_pickup_time),
@@ -111,9 +128,9 @@ Component({
     },
 
     getDriverText(driver) {
-      if (!driver) return '未分配司机';
-      const name = driver.name || '未知司机';
-      const car = driver.car_model || '未知车型';
+      if (!driver) return t('shiftcard_unassigned');
+      const name = driver.name || t('shiftcard_unknown_driver');
+      const car = driver.car_model || t('shiftcard_unknown_car');
       return `${name} (${car})`;
     },
 
@@ -126,8 +143,8 @@ Component({
       const car = shift.car_model || shift.vehicle_model || shift.vehicle_plate || '';
       if (!name && !car) return null;
       return {
-        name: name || '未知司机',
-        car_model: car || '未知车型',
+        name: name || t('shiftcard_unknown_driver'),
+        car_model: car || t('shiftcard_unknown_car'),
         max_seats: shift.max_passengers,
         max_checked: shift.max_checked_luggage,
         max_carry_on: shift.max_carry_on_luggage,
@@ -160,8 +177,8 @@ Component({
       }
       const unique = [];
       requests.forEach((r) => {
-        const t = (r.terminal || '').trim();
-        if (t && unique.indexOf(t) === -1) unique.push(t);
+        const tVal = (r.terminal || '').trim();
+        if (tVal && unique.indexOf(tVal) === -1) unique.push(tVal);
       });
       return unique;
     },
@@ -179,7 +196,7 @@ Component({
         percent,
         color: isOverload ? '#ee0a24' : '#07c160',
         isOverload,
-        overloadText: isOverload && safeMax > 0 ? `超载 +${used - safeMax}` : '',
+        overloadText: isOverload && safeMax > 0 ? `${t('shiftcard_overload_prefix')}${used - safeMax}` : '',
       };
     },
 

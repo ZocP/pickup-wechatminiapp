@@ -158,10 +158,6 @@ module.exports = {
   shift_detail_withdraw_success:    '已撤回发布',
   shift_detail_publish_success:     '发布成功',
   shift_detail_op_failed:           '操作失败',
-}
-
-// ─── NOTE: The file above uses module.exports = { ... }
-// We need to insert keys BEFORE the closing 
   // ─── Home ─────────────────────────────────────────────────────────────
   home_nav_title:                   '首页',
   home_welcome:                     '欢迎使用 UIUC 接机调度',

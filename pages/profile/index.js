@@ -1,16 +1,40 @@
+const { t } = require('../../utils/i18n');
+
 Page({
   data: {
+    i18n: {},
     userInfo: {},
     isAdminReal: false,
     currentEffectiveRole: 'student',
     viewAsRole: '',
     showRolePicker: false,
-    roleOptions: [
-      { name: '管理员', value: 'admin' },
-      { name: '工作人员', value: 'staff' },
-      { name: '司机', value: 'driver' },
-      { name: '乘客', value: 'student' },
-    ],
+    roleOptions: [],
+  },
+
+  onLoad() {
+    this.setData({
+      i18n: {
+        profile_user_prefix: t('profile_user_prefix'),
+        profile_role_label: t('profile_role_label'),
+        profile_current_view: t('profile_current_view'),
+        profile_role_admin: t('profile_role_admin'),
+        profile_role_staff: t('profile_role_staff'),
+        profile_role_driver: t('profile_role_driver'),
+        profile_role_student: t('profile_role_student'),
+        profile_wechat_label: t('profile_wechat_label'),
+        profile_my_request: t('profile_my_request'),
+        profile_switch_view: t('profile_switch_view'),
+        profile_logout: t('profile_logout'),
+        profile_role_picker_title: t('profile_role_picker_title'),
+      },
+      roleOptions: [
+        { name: t('profile_role_admin'), value: 'admin' },
+        { name: t('profile_role_staff'), value: 'staff' },
+        { name: t('profile_role_driver'), value: 'driver' },
+        { name: t('profile_role_student'), value: 'student' },
+      ],
+    });
+    wx.setNavigationBarTitle({ title: t('profile_nav_title') });
   },
 
   onShow() {
@@ -92,7 +116,7 @@ Page({
     });
 
     wx.showToast({
-      title: action.value === 'admin' ? '已恢复管理员视角' : `已切换为${action.name}视角`,
+      title: action.value === 'admin' ? t('profile_switched_admin') : t('profile_switched_to') + action.name + t('profile_switched_suffix'),
       icon: 'none',
     });
 
@@ -106,8 +130,8 @@ Page({
 
   logout() {
     wx.showModal({
-      title: '确认退出',
-      content: '退出后需要重新登录',
+      title: t('profile_logout_title'),
+      content: t('profile_logout_content'),
       success: (res) => {
         if (!res.confirm) return;
         getApp().onTokenExpired();

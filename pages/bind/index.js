@@ -1,11 +1,31 @@
 const api = require('../../utils/api');
+const { t } = require('../../utils/i18n');
 
 Page({
   data: {
+    i18n: {},
     loading: false,
     verifying: false,
     name: '',
     wechatID: '',
+  },
+
+  onLoad() {
+    this.setData({
+      i18n: {
+        bind_verifying: t('bind_verifying'),
+        bind_title: t('bind_title'),
+        bind_subtitle: t('bind_subtitle'),
+        bind_notice: t('bind_notice'),
+        bind_name_label: t('bind_name_label'),
+        bind_name_placeholder: t('bind_name_placeholder'),
+        bind_wechat_label: t('bind_wechat_label'),
+        bind_wechat_placeholder: t('bind_wechat_placeholder'),
+        bind_submit: t('bind_submit'),
+        bind_logout: t('bind_logout'),
+      },
+    });
+    wx.setNavigationBarTitle({ title: t('bind_nav_title') });
   },
 
   async onShow() {
@@ -18,21 +38,17 @@ Page({
 
     const bound = app.isWechatBound ? app.isWechatBound() : false;
     if (bound) {
-      // Local state says bound — verify with backend before auto-redirecting.
-      // This prevents a loop if the local state is stale (e.g. after DB rebuild).
       this.setData({ verifying: true });
       try {
         const me = await api.getAuthMe();
         const freshWechatID = String((me && me.wechat_id) || '').trim();
         if (freshWechatID) {
-          // Backend confirms it's bound — update local state and proceed
           wx.setStorageSync('userInfo', me || {});
           app.setUserInfo(me || {});
           this.goNext();
         }
-        // If freshWechatID is empty, fall through and show the bind form
       } catch (_err) {
-        // If /auth/me fails (e.g. 401), the token is invalid — let the error handler deal with it
+        // If /auth/me fails, let the error handler deal with it
       } finally {
         this.setData({ verifying: false });
       }
@@ -54,11 +70,11 @@ Page({
     const name = String(this.data.name || '').trim();
     const wechatID = String(this.data.wechatID || '').trim();
     if (!name) {
-      wx.showToast({ title: '请填写真实姓名', icon: 'none' });
+      wx.showToast({ title: t('bind_name_required'), icon: 'none' });
       return;
     }
     if (!/^[a-zA-Z0-9_]{6,20}$/.test(wechatID)) {
-      wx.showToast({ title: '微信号格式不正确（6-20位字母数字下划线）', icon: 'none' });
+      wx.showToast({ title: t('bind_wechat_invalid'), icon: 'none' });
       return;
     }
 
@@ -68,10 +84,10 @@ Page({
       const me = await api.getAuthMe();
       wx.setStorageSync('userInfo', me || {});
       getApp().setUserInfo(me || {});
-      wx.showToast({ title: '绑定成功', icon: 'success' });
+      wx.showToast({ title: t('bind_success'), icon: 'success' });
       this.goNext();
     } catch (error) {
-      wx.showToast({ title: (error && error.message) || '绑定失败', icon: 'none' });
+      wx.showToast({ title: (error && error.message) || t('bind_failed'), icon: 'none' });
     } finally {
       this.setData({ loading: false });
     }

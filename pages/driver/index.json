@@ -1,5 +1,13 @@
 {
   "navigationBarTitleText": "司机班次",
   "enablePullDownRefresh": true,
-  "usingComponents": {}
+  "usingComponents": {
+    "van-loading": "/miniprogram_npm/@vant/weapp/loading/index",
+    "van-empty": "/miniprogram_npm/@vant/weapp/empty/index",
+    "van-cell": "/miniprogram_npm/@vant/weapp/cell/index",
+    "van-cell-group": "/miniprogram_npm/@vant/weapp/cell-group/index",
+    "van-button": "/miniprogram_npm/@vant/weapp/button/index",
+    "van-popup": "/miniprogram_npm/@vant/weapp/popup/index",
+    "van-icon": "/miniprogram_npm/@vant/weapp/icon/index"
+  }
 }
