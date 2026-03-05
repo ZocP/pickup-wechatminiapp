@@ -61,9 +61,16 @@ Page({
     try {
       const status = this.data.activeTab || '';
       const result = await api.getModificationRequests(status);
+      const statusMap = {
+        'pending': '待分配',
+        'assigned': '已分配',
+        'published': '已发布',
+      };
       const list = Array.isArray(result) ? result.map(item => ({
         ...item,
         formattedTime: item.created_at ? item.created_at.replace('T', ' ').substring(0, 16) : '--',
+        formattedNewArrival: item.new_arrival_time ? item.new_arrival_time.replace('T', ' ').substring(0, 16) : '--',
+        statusLabel: statusMap[item.request_status] || item.request_status || '--',
       })) : [];
       this.setData({ list });
     } catch (e) {

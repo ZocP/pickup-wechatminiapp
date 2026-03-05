@@ -57,8 +57,35 @@
 
 .card-actions {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: row;
   gap: 16rpx;
-  padding-top: 16rpx;
+  padding: 16rpx 0 0;
   border-top: 1rpx solid #ebedf0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.card-actions van-button {
+  flex: 1;
+  min-width: 0;
+}
+
+.new-details {
+  margin: 12rpx 0;
+  padding: 16rpx;
+  background: #f7f8fa;
+  border-radius: 8rpx;
+}
+
+.new-details-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #323233;
+  margin-bottom: 8rpx;
+}
+
+.new-detail-line {
+  font-size: 24rpx;
+  color: #646566;
+  margin-top: 6rpx;
 }
