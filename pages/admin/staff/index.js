@@ -99,7 +99,7 @@ Page({
 
   async onSelectDriver(e) {
     const detail = e && e.detail ? e.detail : {};
-    const action = detail.index !== undefined ? this.data.driverActions[detail.index] : null;
+    const action = detail || null;
     const userId = this.data.targetUserIdForDriver;
     if (!action || !userId) return;
 
@@ -156,8 +156,8 @@ Page({
   },
 
   onSelectRoleAction(e) {
-    const index = e && e.detail ? e.detail.index : -1;
-    const action = this.data.roleActions[index];
+    const action = e && e.detail ? e.detail : null;
+    // action is e.detail directly (Vant action-sheet bind:select)
     const userId = this.data.targetUserIdForAction;
     const role = this.data.targetUserRoleForAction;
     if (!action || !userId) return;
