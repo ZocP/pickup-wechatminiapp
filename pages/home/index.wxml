@@ -19,7 +19,7 @@
   <view class="card section" wx:if="{{isManageRole}}">
     <view class="section-title">管理功能</view>
     <van-cell-group inset>
-      <van-cell title="管理员调度大盘" is-link bind:click="goDashboard" />
+      <van-cell title="管理员调度中心" is-link bind:click="goDashboard" />
       <van-cell title="司机与车辆管理" is-link bind:click="goDriverManage" />
       <van-cell wx:if="{{canManageStaff}}" title="Staff 管理" is-link bind:click="goStaffManage" />
     </van-cell-group>

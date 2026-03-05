@@ -158,7 +158,7 @@ Page({
         wx.showToast({ title: '分配成功', icon: 'success' });
       }
       this.setData({ showShiftPopup: false, selectedRequest: null });
-      // 通知大盘页刷新
+      // 通知调度页刷新
       const app = getApp();
       if (app && app.globalData) {
         app.globalData.dashboardNeedsRefresh = true;

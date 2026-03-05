@@ -29,7 +29,7 @@ Component({
         },
         {
           pagePath: '/pages/admin/dashboard/index',
-          text: '大盘',
+          text: '调度',
           iconPath: '/assets/tabbar/dashboard.png',
           selectedIconPath: '/assets/tabbar/dashboard-active.png',
           manageOnly: true,

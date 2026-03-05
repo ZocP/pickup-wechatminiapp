@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "调度大盘",
+  "navigationBarTitleText": "调度中心",
   "enablePullDownRefresh": true,
   "usingComponents": {
     "van-grid": "/miniprogram_npm/@vant/weapp/grid/index",
