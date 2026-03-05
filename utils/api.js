@@ -81,6 +81,10 @@ module.exports = {
     return request.post(`/admin/shifts/${shiftId}/publish`, {});
   },
 
+  unpublishShift(shiftId) {
+    return request.post(`/admin/shifts/${shiftId}/unpublish`, {});
+  },
+
   assignStudent(shiftId, requestId) {
     return request.post(`/admin/shifts/${shiftId}/assign-student`, { request_id: requestId });
   },

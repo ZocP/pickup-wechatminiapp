@@ -148,7 +148,8 @@ function toPassengerFromRequest(request) {
     carryon_luggage_count: toNumber(request.carryon_luggage_count || request.carry_on_bags),
     ride_with_note: String(request.ride_with_note || '').trim(),
     ride_with_wechat: String(request.ride_with_wechat || '').trim(),
-    _pickupTs: pickupDate ? pickupDate.getTime() : Number.MAX_SAFE_INTEGER
+    _pickupTs: pickupDate ? pickupDate.getTime() : Number.MAX_SAFE_INTEGER,
+    boarded_at: request.boarded_at || null
   }
 }
 
@@ -325,7 +326,7 @@ Page({
       const normalizedOnboard = (shift.requests || shift.passengers || []).map(toPassengerFromRequest)
 
       const boardedCount = normalizedOnboard.filter(item =>
-        item.status === 'boarded' || item.boarded === true || item.boarding_status === 'boarded'
+        item.boarded_at != null
       ).length;
       const unboardedCount = normalizedOnboard.length - boardedCount;
 
@@ -512,7 +513,7 @@ Page({
         const shiftStatus = this.data.shift && this.data.shift.status ? this.data.shift.status : ''
         const isPublished = String(shiftStatus).toLowerCase() === 'published'
         if (isPublished) {
-          await updateShift(this.data.shiftId, { status: 'unpublished' })
+          await unpublishShift(this.data.shiftId)
           wx.showToast({ title: t('shift_detail_withdraw_success'), icon: 'success' })
         } else {
           await publishShift(this.data.shiftId)

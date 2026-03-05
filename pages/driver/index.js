@@ -69,7 +69,7 @@ Page({
       const shifts = Array.isArray(shiftsRes) ? shiftsRes : (shiftsRes.data || shiftsRes.shifts || []);
       
       const currentShift = shifts.find(shift => 
-        shift.status === 'published' || shift.status === 'active'
+        shift.status === 'published'
       ) || (shifts.length > 0 ? shifts[0] : null);
       
       let passengers = [];
