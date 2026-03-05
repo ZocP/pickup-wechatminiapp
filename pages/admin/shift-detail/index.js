@@ -175,10 +175,11 @@ function withinWindowMinutes(a, b, minutes) {
 function usageOf(used, max) {
   const safeMax = Number(max) > 0 ? Number(max) : 1
   const safeUsed = Number(used) || 0
-  const percent = Math.max(0, Math.min(200, Math.round((safeUsed / safeMax) * 100)))
+  const rawPercent = Math.round((safeUsed / safeMax) * 100)
+  const percent = Math.max(0, Math.min(100, rawPercent))
   let color = '#1989fa'
-  if (percent > 100) color = '#ee0a24'
-  else if (percent >= 90) color = '#ff976a'
+  if (rawPercent > 100) color = '#ee0a24'
+  else if (rawPercent >= 90) color = '#ff976a'
   return {
     used: safeUsed,
     max: Number(max) || 0,
