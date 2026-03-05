@@ -2,6 +2,25 @@ const api = require('../../utils/api');
 const { requestStatusText } = require('../../utils/status');
 const { t } = require('../../utils/i18n');
 
+function buildI18n() {
+  return {
+    home_welcome: t('home_welcome'),
+    home_current_user: t('home_current_user'),
+    home_user_prefix: t('home_user_prefix'),
+    home_apply_pickup: t('home_apply_pickup'),
+    home_student_apply: t('home_student_apply'),
+    home_manage_section: t('home_manage_section'),
+    home_admin_dispatch: t('home_admin_dispatch'),
+    home_driver_manage: t('home_driver_manage'),
+    home_staff_manage: t('home_staff_manage'),
+    home_my_pickup_info: t('home_my_pickup_info'),
+    home_request_status: t('home_request_status'),
+    home_my_shift_time: t('home_my_shift_time'),
+    home_no_request: t('home_no_request'),
+    home_mod_review: t('home_mod_review'),
+  };
+}
+
 Page({
   data: {
     i18n: {},
@@ -16,38 +35,7 @@ Page({
   },
 
   onLoad() {
-    this.setData({
-      i18n: {
-        home_welcome: t('home_welcome'),
-        home_current_user: t('home_current_user'),
-        home_user_prefix: t('home_user_prefix'),
-        home_apply_pickup: t('home_apply_pickup'),
-        home_student_apply: t('home_student_apply'),
-        home_manage_section: t('home_manage_section'),
-        home_admin_dispatch: t('home_admin_dispatch'),
-        home_driver_manage: t('home_driver_manage'),
-        home_staff_manage: t('home_staff_manage'),
-        home_my_pickup_info: t('home_my_pickup_info'),
-        home_request_status: t('home_request_status'),
-        home_my_shift_time: t('home_my_shift_time'),
-        home_no_request: t('home_no_request'),
-        home_mod_review: t('home_mod_review'),
-      },
-    
-  async loadPendingModCount() {
-    try {
-      const list = await api.getModificationRequests('pending');
-      const count = Array.isArray(list) ? list.length : 0;
-      this.setData({ pendingModCount: count });
-    } catch (e) {
-      this.setData({ pendingModCount: 0 });
-    }
-  },
-
-  goModificationReview() {
-    wx.navigateTo({ url: '/pages/admin/modification-requests/index' });
-  },
-});
+    this.setData({ i18n: buildI18n() });
     wx.setNavigationBarTitle({ title: t('home_nav_title') });
   },
 
@@ -74,21 +62,7 @@ Page({
       isManageRole: role === 'admin' || role === 'staff',
       isStudent: role === 'student',
       canManageStaff: role === 'admin',
-      i18n: {
-        home_welcome: t('home_welcome'),
-        home_current_user: t('home_current_user'),
-        home_user_prefix: t('home_user_prefix'),
-        home_apply_pickup: t('home_apply_pickup'),
-        home_student_apply: t('home_student_apply'),
-        home_manage_section: t('home_manage_section'),
-        home_admin_dispatch: t('home_admin_dispatch'),
-        home_driver_manage: t('home_driver_manage'),
-        home_staff_manage: t('home_staff_manage'),
-        home_my_pickup_info: t('home_my_pickup_info'),
-        home_request_status: t('home_request_status'),
-        home_my_shift_time: t('home_my_shift_time'),
-        home_no_request: t('home_no_request'),
-      },
+      i18n: buildI18n(),
     });
     wx.setNavigationBarTitle({ title: t('home_nav_title') });
 
@@ -133,6 +107,16 @@ Page({
     }
   },
 
+  async loadPendingModCount() {
+    try {
+      const list = await api.getModificationRequests('pending');
+      const count = Array.isArray(list) ? list.length : 0;
+      this.setData({ pendingModCount: count });
+    } catch (e) {
+      this.setData({ pendingModCount: 0 });
+    }
+  },
+
   goStudentRequest() {
     wx.navigateTo({ url: '/pages/student/request/index' });
   },
@@ -147,5 +131,9 @@ Page({
 
   goStaffManage() {
     wx.navigateTo({ url: '/pages/admin/staff/index' });
+  },
+
+  goModificationReview() {
+    wx.navigateTo({ url: '/pages/admin/modification-requests/index' });
   },
 });
