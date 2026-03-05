@@ -28,12 +28,14 @@
   </view>
 
   <!-- 日期筛选栏 -->
-  <view class="date-filter card">
-    <van-button size="small" type="default" bindtap="filterPrevDay">‹</van-button>
-    <view class="date-label" bindtap="filterPickDate">{{filterDateLabel}}</view>
-    <van-button size="small" type="default" bindtap="filterNextDay">›</van-button>
-    <van-button size="small" type="default" bindtap="filterToday">今天</van-button>
-    <van-button size="small" type="default" bindtap="filterReset">全部</van-button>
+  <view class="date-filter-bar">
+    <button class="filter-nav-btn" bindtap="prevDay">‹</button>
+    <view class="filter-date-label" bindtap="pickDate">
+      <text>{{selectedDateLabel}}</text>
+    </view>
+    <button class="filter-nav-btn" bindtap="nextDay">›</button>
+    <button class="filter-action-btn" bindtap="goToday">今天</button>
+    <button class="filter-action-btn {{!selectedDate ? 'active' : ''}}" bindtap="resetDate">全部</button>
   </view>
 
   <view class="shift-list">
