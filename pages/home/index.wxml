@@ -7,8 +7,8 @@
     </view>
   </view>
 
-  <view class="card section">
-    <view wx:if="{{isStudent}}" class="apply-entry">
+  <view wx:if="{{isStudent}}" class="card section">
+    <view class="apply-entry">
       <view class="section-title">{{i18n.home_apply_pickup}}</view>
       <van-cell-group inset>
         <van-cell title="{{i18n.home_student_apply}}" is-link bind:click="goStudentRequest" />
