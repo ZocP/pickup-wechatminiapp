@@ -437,4 +437,15 @@ module.exports = {
   mod_count_label:                  '已修改次数：',
   today:                            '今天',
   all:                              '全部',
+
+  // ─── Home Driver ──────────────────────────────────────────────────────
+  home_driver_section:              '司机功能',
+  home_driver_my_shifts:            '我的班次',
+
+  // ─── Driver extra i18n ────────────────────────────────────────────────
+  driver_scan_continue_hint:        '继续扫下一位？',
+  driver_scan_continue_btn:         '继续扫码',
+  driver_scan_finish_btn:           '完成',
+  driver_ride_with_wechat:          '同乘微信：',
+  driver_passengers_load_failed:    '乘客列表加载失败',
 }

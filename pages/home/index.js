@@ -18,6 +18,8 @@ function buildI18n() {
     home_my_shift_time: t('home_my_shift_time'),
     home_no_request: t('home_no_request'),
     home_mod_review: t('home_mod_review'),
+    home_driver_section: t('home_driver_section'),
+    home_driver_my_shifts: t('home_driver_my_shifts'),
   };
 }
 
@@ -27,6 +29,7 @@ Page({
     userInfo: {},
     isManageRole: false,
     isStudent: true,
+    isDriver: false,
     canManageStaff: false,
     loadingMyInfo: false,
     latestRequest: null,
@@ -61,6 +64,7 @@ Page({
       userInfo,
       isManageRole: role === 'admin' || role === 'staff',
       isStudent: role === 'student',
+      isDriver: role === 'driver',
       canManageStaff: role === 'admin',
       i18n: buildI18n(),
     });
@@ -68,6 +72,8 @@ Page({
 
     if (role === 'student') {
       this.loadMySummary();
+    } else if (role === 'driver') {
+      // Driver sees home with link to driver page
     } else {
       this.setData({ latestRequest: null, myShiftTime: '--' });
       this.loadPendingModCount();
@@ -115,6 +121,10 @@ Page({
     } catch (e) {
       this.setData({ pendingModCount: 0 });
     }
+  },
+
+  goDriverPage() {
+    wx.navigateTo({ url: '/pages/driver/index' });
   },
 
   goToMyRequest() {

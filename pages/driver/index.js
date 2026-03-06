@@ -12,6 +12,10 @@ Page({
     showScanModal: false,
     scanResult: null,
     scanning: false,
+    currentShiftDepartureTimeFmt: '',
+    shiftCapacity: '',
+    shiftAssignedCount: 0,
+    shiftDriverName: '',
   },
 
   onLoad() {
@@ -40,6 +44,10 @@ Page({
         driver_scan_instruction: t('driver_scan_instruction'),
         driver_scan_start: t('driver_scan_start'),
         driver_scan_tips: t('driver_scan_tips'),
+        driver_scan_continue_hint: t('driver_scan_continue_hint'),
+        driver_scan_continue_btn: t('driver_scan_continue_btn'),
+        driver_scan_finish_btn: t('driver_scan_finish_btn'),
+        driver_ride_with_wechat: t('driver_ride_with_wechat'),
       },
     });
     wx.setNavigationBarTitle({ title: t('driver_nav_title') });
@@ -86,14 +94,28 @@ Page({
             student_id: passenger.student_id || passenger.student_id_number || passenger.user_id || '',
           }));
         } catch (passengerError) {
-          console.warn('获取乘客列表失败:', passengerError);
+          console.warn('Failed to load passengers:', passengerError);
+          wx.showToast({
+            title: t('driver_passengers_load_failed'),
+            icon: 'none',
+          });
         }
       }
+
+      // Fix #3 & #4: preprocess fields in JS instead of calling functions in WXML
+      const departureTimeFmt = this.formatTime(currentShift ? currentShift.departure_time : '');
+      const driverName = (currentShift && currentShift.driver && currentShift.driver.name) || '';
+      const capacity = (currentShift && currentShift.driver && currentShift.driver.max_seats) || '';
+      const assignedCount = passengers.length;
 
       this.setData({
         shifts: shifts,
         currentShift: currentShift,
         passengers: passengers,
+        currentShiftDepartureTimeFmt: departureTimeFmt,
+        shiftDriverName: driverName,
+        shiftCapacity: capacity,
+        shiftAssignedCount: assignedCount,
       });
       
       if (!currentShift) {
@@ -103,7 +125,7 @@ Page({
         });
       }
     } catch (error) {
-      console.error('加载班次失败:', error);
+      console.error('Failed to load shifts:', error);
       wx.showToast({
         title: error.message || t('driver_load_failed'),
         icon: 'none',
@@ -113,6 +135,10 @@ Page({
         shifts: [],
         currentShift: null,
         passengers: [],
+        currentShiftDepartureTimeFmt: '',
+        shiftDriverName: '',
+        shiftCapacity: '',
+        shiftAssignedCount: 0,
       });
     } finally {
       this.setData({ loading: false });
@@ -157,35 +183,35 @@ Page({
 
   async verifyBoarding(qrCode) {
     try {
+      // Fix #2: HTTP 200 means success — request.js rejects on non-2xx
       const result = await api.verifyBoarding(qrCode);
 
-      const success = result.success || result.status === 'success' || result.boarded === true;
-      const message = result.message || result.msg || t('driver_board_success');
-      const studentName = result.student_name || result.name || result.passenger_name || '';
+      // Fix #6: detect already-boarded via response message (idempotent 200)
+      const message = result.message || '';
+      const studentName = (result.request && result.request.user && result.request.user.name) || '';
+      const alreadyBoarded = result.request && result.request.boarded_at;
 
-      if (success) {
-        wx.vibrateShort({ type: 'heavy' });
+      wx.vibrateShort({ type: 'heavy' });
+
+      if (alreadyBoarded) {
         this.setData({
           scanResult: {
             success: true,
-            message: `✅ 已登车 — ${studentName || '乘客'}`,
+            message: t('driver_already_boarded_msg'),
             studentName: studentName,
           }
         });
-        await this.loadDriverShifts();
       } else {
-        const errMsg = message || t('driver_board_failed');
-        const isDuplicate = errMsg.includes('已登车') || errMsg.includes('already boarded') ||
-            errMsg.includes('重复') || errMsg.includes('duplicate');
-
         this.setData({
           scanResult: {
-            success: false,
-            message: isDuplicate ? t('driver_already_boarded_msg') : errMsg,
+            success: true,
+            message: `✅ ${t('driver_board_success')} — ${studentName || t('common_student_prefix')}`,
             studentName: studentName,
           }
         });
       }
+
+      await this.loadDriverShifts();
     } catch (error) {
       const errMsg = error.message || t('driver_board_failed');
       const isDuplicate = errMsg.includes('已登车') || errMsg.includes('already boarded') ||

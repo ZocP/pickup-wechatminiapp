@@ -28,6 +28,14 @@
     </van-cell-group>
   </view>
 
+
+  <view wx:if="{{isDriver}}" class="card section">
+    <view class="section-title">{{i18n.home_driver_section}}</view>
+    <van-cell-group inset>
+      <van-cell title="{{i18n.home_driver_my_shifts}}" is-link bind:click="goDriverPage" />
+    </van-cell-group>
+  </view>
+
   <view wx:if="{{isStudent}}" class="card section" bindtap="goToMyRequest">
     <view class="section-title">{{i18n.home_my_pickup_info}}</view>
     <view wx:if="{{loadingMyInfo}}">

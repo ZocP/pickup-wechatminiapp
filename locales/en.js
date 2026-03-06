@@ -438,4 +438,15 @@ module.exports = {
   mod_count_label:                  'Modifications used: ',
   today:                            'Today',
   all:                              'All',
+
+  // ─── Home Driver ──────────────────────────────────────────────────────
+  home_driver_section:              'Driver',
+  home_driver_my_shifts:            'My Shifts',
+
+  // ─── Driver extra i18n ────────────────────────────────────────────────
+  driver_scan_continue_hint:        'Scan next passenger?',
+  driver_scan_continue_btn:         'Continue Scan',
+  driver_scan_finish_btn:           'Done',
+  driver_ride_with_wechat:          'Ride with WeChat: ',
+  driver_passengers_load_failed:    'Failed to load passengers',
 }

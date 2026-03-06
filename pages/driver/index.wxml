@@ -13,10 +13,10 @@
   <!-- 班次信息 -->
   <view wx:if="{{currentShift}}" class="shift-container">
     <van-cell-group>
-      <van-cell title="{{i18n.driver_current_shift}}" value="{{formatTime(currentShift.departure_time)}}" />
-      <van-cell title="{{i18n.driver_driver_label}}" value="{{currentShift.driver_name || i18n.driver_unassigned}}" />
-      <van-cell title="{{i18n.driver_capacity_label}}" value="{{currentShift.capacity}}{{i18n.driver_capacity_unit}}" />
-      <van-cell title="{{i18n.driver_assigned_label}}" value="{{currentShift.assigned_count}}{{i18n.driver_assigned_unit}}" />
+      <van-cell title="{{i18n.driver_current_shift}}" value="{{currentShiftDepartureTimeFmt}}" />
+      <van-cell title="{{i18n.driver_driver_label}}" value="{{shiftDriverName || i18n.driver_unassigned}}" />
+      <van-cell title="{{i18n.driver_capacity_label}}" value="{{shiftCapacity}}{{i18n.driver_capacity_unit}}" />
+      <van-cell title="{{i18n.driver_assigned_label}}" value="{{shiftAssignedCount}}{{i18n.driver_assigned_unit}}" />
       <van-cell title="{{i18n.driver_status_label}}" value="{{currentShift.status === 'published' ? i18n.driver_status_published : i18n.driver_status_unpublished}}" />
     </van-cell-group>
 
@@ -34,7 +34,7 @@
 
     <!-- 乘客列表 -->
     <view class="passengers-section">
-      <view class="section-title">{{i18n.driver_passengers_title}} ({{passengers.length}}/{{currentShift.capacity}})</view>
+      <view class="section-title">{{i18n.driver_passengers_title}} ({{passengers.length}}/{{shiftCapacity}})</view>
       <van-cell-group wx:if="{{passengers.length > 0}}">
         <van-cell 
           wx:for="{{passengers}}" 
@@ -44,7 +44,7 @@
         >
           <view slot="label">
             <text>{{i18n.driver_student_id}}{{item.student_id}}</text>
-            <text wx:if="{{item.ride_with_wechat}}" class="ride-with-wechat">同乘微信：{{item.ride_with_wechat}}</text>
+            <text wx:if="{{item.ride_with_wechat}}" class="ride-with-wechat">{{i18n.driver_ride_with_wechat}}{{item.ride_with_wechat}}</text>
           </view>
         </van-cell>
       </van-cell-group>
@@ -83,10 +83,10 @@
             size="48px" 
           />
           <view class="result-message">{{scanResult.message}}</view>
-          <view class="scan-continue-hint">继续扫下一位？</view>
+          <view class="scan-continue-hint">{{i18n.driver_scan_continue_hint}}</view>
           <view class="scan-result-actions">
-            <van-button type="primary" size="small" bindtap="continueScan">继续扫码</van-button>
-            <van-button type="default" size="small" bindtap="finishScan">完成</van-button>
+            <van-button type="primary" size="small" bindtap="continueScan">{{i18n.driver_scan_continue_btn}}</van-button>
+            <van-button type="default" size="small" bindtap="finishScan">{{i18n.driver_scan_finish_btn}}</van-button>
           </view>
         </view>
 

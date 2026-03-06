@@ -127,10 +127,6 @@ module.exports = {
     return request.get('/driver/shifts');
   },
 
-  getDriverShiftDetail(shiftId) {
-    return request.get(`/driver/shifts/${shiftId}`);
-  },
-
   getShiftPassengers(shiftId) {
     return request.get(`/driver/shifts/${shiftId}/passengers`);
   },
