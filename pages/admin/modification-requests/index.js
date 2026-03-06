@@ -28,6 +28,14 @@ Page({
         mod_review_op_success: t('mod_review_op_success'),
         mod_review_op_fail: t('mod_review_op_fail'),
         mod_review_empty: t('mod_review_empty'),
+        mod_review_new_details_title: t('mod_review_new_details_title'),
+        mod_review_new_flight: t('mod_review_new_flight'),
+        mod_review_new_arrival: t('mod_review_new_arrival'),
+        mod_review_new_checked_bags: t('mod_review_new_checked_bags'),
+        mod_review_new_carry_on_bags: t('mod_review_new_carry_on_bags'),
+        mod_review_new_ride_wechat: t('mod_review_new_ride_wechat'),
+        mod_review_bags_unit: t('mod_review_bags_unit'),
+        mod_review_confirm_title: t('mod_review_confirm_title'),
       },
       tabs: [
         { name: 'pending', title: t('mod_review_tab_pending') },
@@ -62,9 +70,9 @@ Page({
       const status = this.data.activeTab || '';
       const result = await api.getModificationRequests(status);
       const statusMap = {
-        'pending': '待分配',
-        'assigned': '已分配',
-        'published': '已发布',
+        'pending': t('mod_review_request_status_pending'),
+        'assigned': t('mod_review_request_status_assigned'),
+        'published': t('mod_review_request_status_published'),
       };
       const list = Array.isArray(result) ? result.map(item => ({
         ...item,
@@ -83,7 +91,7 @@ Page({
   onApprove(e) {
     const { id } = e.currentTarget.dataset;
     wx.showModal({
-      title: '确认',
+      title: this.data.i18n.mod_review_confirm_title,
       content: this.data.i18n.mod_review_approve_confirm,
       success: async (res) => {
         if (res.confirm) {
@@ -102,7 +110,7 @@ Page({
   onReject(e) {
     const { id } = e.currentTarget.dataset;
     wx.showModal({
-      title: '确认',
+      title: this.data.i18n.mod_review_confirm_title,
       content: this.data.i18n.mod_review_reject_confirm,
       success: async (res) => {
         if (res.confirm) {

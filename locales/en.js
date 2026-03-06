@@ -372,6 +372,17 @@ module.exports = {
   mod_review_op_success:            'Done',
   mod_review_op_fail:               'Operation failed',
   mod_review_empty:                 'No modification requests',
+  mod_review_new_details_title:     'Requested Changes',
+  mod_review_new_flight:            'New Flight: ',
+  mod_review_new_arrival:           'New Arrival: ',
+  mod_review_new_checked_bags:      'New Checked Bags: ',
+  mod_review_new_carry_on_bags:     'New Carry-on Bags: ',
+  mod_review_new_ride_wechat:       'New Ride-with WeChat: ',
+  mod_review_bags_unit:             '',
+  mod_review_confirm_title:         'Confirm',
+  mod_review_request_status_pending:  'Pending',
+  mod_review_request_status_assigned: 'Assigned',
+  mod_review_request_status_published:'Published',
   home_mod_review:                  'Pending Reviews',
 
   // Driver list enhancement

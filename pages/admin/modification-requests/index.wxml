@@ -24,12 +24,12 @@
         <view class="info-line">{{item.flight_no}} | {{item.arrival_date}}</view>
         <view class="info-line">{{i18n.mod_review_status_label}}：{{item.statusLabel}}</view>
         <view class="new-details">
-          <view class="new-details-title">申请修改内容</view>
-          <view class="new-detail-line">新航班号：{{item.new_flight_number || '--'}}</view>
-          <view class="new-detail-line">新落地时间：{{item.formattedNewArrival || '--'}}</view>
-          <view class="new-detail-line">新托运行李：{{item.new_checked_bags}} 件</view>
-          <view class="new-detail-line">新随身行李：{{item.new_carry_on_bags}} 件</view>
-          <view wx:if="{{item.new_ride_with_wechat}}" class="new-detail-line">新同乘微信：{{item.new_ride_with_wechat}}</view>
+          <view class="new-details-title">{{i18n.mod_review_new_details_title}}</view>
+          <view class="new-detail-line">{{i18n.mod_review_new_flight}}{{item.new_flight_number || '--'}}</view>
+          <view class="new-detail-line">{{i18n.mod_review_new_arrival}}{{item.formattedNewArrival || '--'}}</view>
+          <view class="new-detail-line">{{i18n.mod_review_new_checked_bags}}{{item.new_checked_bags}}{{i18n.mod_review_bags_unit}}</view>
+          <view class="new-detail-line">{{i18n.mod_review_new_carry_on_bags}}{{item.new_carry_on_bags}}{{i18n.mod_review_bags_unit}}</view>
+          <view wx:if="{{item.new_ride_with_wechat}}" class="new-detail-line">{{i18n.mod_review_new_ride_wechat}}{{item.new_ride_with_wechat}}</view>
           <view wx:if="{{item.reason}}" class="new-detail-line">{{i18n.mod_review_reason_label}}：{{item.reason}}</view>
         </view>
         <view class="info-line time">{{i18n.mod_review_time_label}}：{{item.formattedTime}}</view>

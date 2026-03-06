@@ -371,6 +371,17 @@ module.exports = {
   mod_review_op_success:            '操作成功',
   mod_review_op_fail:               '操作失败',
   mod_review_empty:                 '暂无修改申请',
+  mod_review_new_details_title:     '申请修改内容',
+  mod_review_new_flight:            '新航班号：',
+  mod_review_new_arrival:           '新落地时间：',
+  mod_review_new_checked_bags:      '新托运行李：',
+  mod_review_new_carry_on_bags:     '新随身行李：',
+  mod_review_new_ride_wechat:       '新同乘微信：',
+  mod_review_bags_unit:             ' 件',
+  mod_review_confirm_title:         '确认',
+  mod_review_request_status_pending:  '待分配',
+  mod_review_request_status_assigned: '已分配',
+  mod_review_request_status_published:'已发布',
   home_mod_review:                  '待审批申请',
 
   // 司机列表增强
