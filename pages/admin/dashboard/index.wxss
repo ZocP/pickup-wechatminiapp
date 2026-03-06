@@ -161,8 +161,8 @@
   border-radius: 8rpx;
 }
 .filter-action-btn {
-  flex-shrink: 1;
-  min-width: 0;
+  flex-shrink: 0;
+  min-width: 80rpx;
   padding: 0 16rpx;
   height: 56rpx;
   line-height: 56rpx;

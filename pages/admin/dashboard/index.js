@@ -223,7 +223,13 @@ Page({
 
   onLoad() {
     wx.setNavigationBarTitle({ title: t('dashboard_nav_title') });
-    this.setData({ i18n: buildI18n(), filterDateLabel: t('all'), todayDate: this._formatDate(new Date()) });
+    const today = this._formatDate(new Date());
+    this.setData({
+      i18n: buildI18n(),
+      filterDate: today,
+      filterDateLabel: today,
+      todayDate: today,
+    });
   },
 
   async onPullDownRefresh() {
@@ -851,7 +857,7 @@ Page({
   },
 
   filterReset() {
-    this.setData({ filterDate: null, filterDateLabel: t('all') });
+    this.setData({ filterDate: null, filterDateLabel: '-' });
     this.loadAll();
   },
 
