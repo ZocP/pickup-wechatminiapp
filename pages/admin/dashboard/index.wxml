@@ -139,7 +139,7 @@
     />
   </van-popup>
 
-  <van-popup show="{{showDatePicker}}" position="bottom" bind:close="onCancelDatePicker">
+  <van-popup show="{{showDatePicker}}" position="bottom" z-index="2000" root-portal bind:close="onCancelDatePicker">
     <van-datetime-picker
       type="date"
       title="{{i18n.dashboard_field_date}}"
@@ -151,7 +151,7 @@
     />
   </van-popup>
 
-  <van-popup show="{{showTimePicker}}" position="bottom" bind:close="onCancelTimePicker">
+  <van-popup show="{{showTimePicker}}" position="bottom" z-index="2000" root-portal bind:close="onCancelTimePicker">
     <van-datetime-picker
       type="time"
       title="{{i18n.dashboard_field_time}}"

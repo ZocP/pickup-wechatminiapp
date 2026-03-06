@@ -1,15 +1,15 @@
 {
   "usingComponents": {
-    "van-field": "@vant/weapp/field/index",
-    "van-cell-group": "@vant/weapp/cell-group/index",
-    "van-button": "@vant/weapp/button/index",
-    "van-stepper": "@vant/weapp/stepper/index",
-    "van-tag": "@vant/weapp/tag/index",
-    "van-loading": "@vant/weapp/loading/index",
-    "van-calendar": "@vant/weapp/calendar/index",
-    "van-popup": "@vant/weapp/popup/index",
-    "van-datetime-picker": "@vant/weapp/datetime-picker/index",
-    "van-action-sheet": "@vant/weapp/action-sheet/index"
+    "van-field": "/miniprogram_npm/@vant/weapp/field/index",
+    "van-cell-group": "/miniprogram_npm/@vant/weapp/cell-group/index",
+    "van-button": "/miniprogram_npm/@vant/weapp/button/index",
+    "van-stepper": "/miniprogram_npm/@vant/weapp/stepper/index",
+    "van-tag": "/miniprogram_npm/@vant/weapp/tag/index",
+    "van-loading": "/miniprogram_npm/@vant/weapp/loading/index",
+    "van-calendar": "/miniprogram_npm/@vant/weapp/calendar/index",
+    "van-popup": "/miniprogram_npm/@vant/weapp/popup/index",
+    "van-datetime-picker": "/miniprogram_npm/@vant/weapp/datetime-picker/index",
+    "van-action-sheet": "/miniprogram_npm/@vant/weapp/action-sheet/index"
   },
   "navigationBarTitleText": "修改申请"
 }
