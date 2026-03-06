@@ -1,3 +1,9 @@
+/* page 根节点约束 — 防止微信 button 默认 width:100% 造成 overflow */
+page {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 .dashboard-page {
   padding: 20rpx;
   padding-bottom: 140rpx;
@@ -170,6 +176,7 @@
   margin: 0;
 }
 .filter-action-btn {
+  width: auto !important;  /* 覆盖微信 button 默认 width: 100% */
   flex: 0 0 auto;
   padding: 8rpx 16rpx;
   height: auto;
