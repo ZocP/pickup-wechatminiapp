@@ -37,10 +37,6 @@
     <button class="filter-action-btn{{!filterDate ? ' active' : ''}}" bindtap="filterToday">{{i18n.today}}</button>
     <button class="filter-action-btn{{!filterDate ? ' active' : ''}}" bindtap="filterReset">{{i18n.all}}</button>
   </view>
-    <button class="filter-nav-btn" bindtap="filterNextDay">›</button>
-    <button class="filter-action-btn" bindtap="filterToday">今天</button>
-    <button class="filter-action-btn {{!filterDate ? 'active' : ''}}" bindtap="filterReset">全部</button>
-  </view>
 
   <view class="shift-list">
     <view wx:if="{{loading}}" class="card">
