@@ -53,30 +53,39 @@ else
 fi
 
 # ============================================================
-# 2. 前端编译检查
+# 2. 前端编译检查（通过 preview 触发完整编译）
 # ============================================================
 print_header "2/4 前端编译检查"
 
-# 自动检测 DevTools 端口
-IDE_FILE=$(find ~/Library/Application\ Support/微信开发者工具 -name ".ide" 2>/dev/null | head -1)
-if [ -n "$IDE_FILE" ]; then
-  PORT=$(cat "$IDE_FILE" | tr -d '[:space:]')
-  ENCODED_PATH=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$PROJECT_DIR")
-  
+PORT=$(cat ~/Library/Application\ Support/微信开发者工具/*/Default/.ide 2>/dev/null | head -1 | tr -d '[:space:]')
+PROJ="$PROJECT_DIR"
+
+if [ -z "$PORT" ]; then
+  echo -e "  ${YELLOW}⚠️  DevTools 端口未找到，跳过编译检查${NC}"
+  RESULTS+=("SKIP | 前端编译检查 (DevTools)")
+else
+  ENCODED=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$PROJ")
   echo "  DevTools 端口: $PORT"
-  COMPILE_RESULT=$(curl -s --max-time 30 "http://127.0.0.1:${PORT}/v2/open?project=${ENCODED_PATH}" 2>&1)
-  COMPILE_STATUS=$?
-  
-  if [ $COMPILE_STATUS -eq 0 ]; then
-    echo "  编译检查响应: $COMPILE_RESULT"
+  COMPILE_OUTPUT=$(curl -s --max-time 60 "http://127.0.0.1:${PORT}/v2/preview?project=${ENCODED}&qr-format=terminal" 2>&1)
+
+  # 检查是否有编译错误
+  if echo "$COMPILE_OUTPUT" | python3 -c "
+import json, sys
+try:
+    r = json.load(sys.stdin)
+    if 'error' in str(r).lower() or r.get('code', 0) != 0:
+        print('COMPILE FAIL:', json.dumps(r, indent=2))
+        sys.exit(1)
+    else:
+        print('COMPILE OK')
+except:
+    print('COMPILE FAIL: non-JSON response')
+    sys.exit(1)
+" 2>&1; then
     record_result "前端编译检查 (DevTools)" 0
   else
-    echo "  编译检查失败: $COMPILE_RESULT"
     record_result "前端编译检查 (DevTools)" 1
   fi
-else
-  echo -e "  ${YELLOW}⚠️  未找到 DevTools .ide 文件，跳过编译检查${NC}"
-  RESULTS+=("SKIP | 前端编译检查 (DevTools)")
 fi
 
 # ============================================================
