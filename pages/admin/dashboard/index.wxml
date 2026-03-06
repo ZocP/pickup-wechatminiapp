@@ -34,7 +34,7 @@
       <text>{{filterDateLabel}}</text>
     </view>
     <button class="filter-nav-btn" bindtap="filterNextDay">›</button>
-    <button class="filter-action-btn{{!filterDate ? ' active' : ''}}" bindtap="filterToday">{{i18n.today}}</button>
+    <button class="filter-action-btn{{filterDate == todayDate ? ' active' : ''}}" bindtap="filterToday">{{i18n.today}}</button>
     <button class="filter-action-btn{{!filterDate ? ' active' : ''}}" bindtap="filterReset">{{i18n.all}}</button>
   </view>
 

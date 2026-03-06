@@ -55,6 +55,9 @@ Page({
     savingEdit: false,
     formattedArrivalTime: '',
     editForm: {},
+    _editDateMode: false,
+    _editTimeMode: false,
+    _editTerminalMode: false,
   },
 
   onLoad() {
@@ -604,6 +607,9 @@ Page({
 
   goToModification() {
     const req = this.data.latestRequest;
+    // 前端校验：仅 pending 状态可进入修改流程
+    const status = (req && req.status || '').toLowerCase();
+    if (status !== 'pending') return;
     // 前端校验：修改次数限制
     if (req.modification_count >= 3) {
       wx.showToast({ title: t('mod_limit_exceeded'), icon: 'none' });

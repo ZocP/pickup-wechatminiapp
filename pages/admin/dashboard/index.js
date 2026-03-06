@@ -127,6 +127,7 @@ Page({
     pendingRequests: [],
 
     filterDate: null,
+    todayDate: '',
     filterDateLabel: '',
     showCalendar: false,
     calendarDefaultDate: null,
@@ -211,7 +212,7 @@ Page({
     const fresh = lastLoadAt && ttlMs > 0 && (Date.now() - lastLoadAt) < ttlMs;
 
     wx.setNavigationBarTitle({ title: t('dashboard_nav_title') });
-    this.setData({ i18n: buildI18n() });
+    this.setData({ i18n: buildI18n(), todayDate: this._formatDate(new Date()) });
 
     if (!app.globalData.dashboardNeedsRefresh && fresh) {
       return;
@@ -222,7 +223,7 @@ Page({
 
   onLoad() {
     wx.setNavigationBarTitle({ title: t('dashboard_nav_title') });
-    this.setData({ i18n: buildI18n(), filterDateLabel: t('all') });
+    this.setData({ i18n: buildI18n(), filterDateLabel: t('all'), todayDate: this._formatDate(new Date()) });
   },
 
   async onPullDownRefresh() {
