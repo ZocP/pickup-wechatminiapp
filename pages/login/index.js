@@ -73,6 +73,13 @@ Page({
       }
 
       const role = (mergedUser && mergedUser.role) || 'student';
+
+      // 学生需要验证注册码
+      if (role === 'student' && mergedUser.token_verified === false) {
+        wx.reLaunch({ url: '/pages/token/index' });
+        return;
+      }
+
       if (role === 'admin' || role === 'staff') {
         wx.switchTab({ url: '/pages/admin/dashboard/index' });
       } else {

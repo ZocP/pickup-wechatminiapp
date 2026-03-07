@@ -32,6 +32,16 @@ App({
 
     if (!token) {
       this.toLogin();
+    } else {
+      // 已登录用户，检查 token 验证状态
+      this.checkTokenVerification();
+    }
+  },
+
+  onShow() {
+    const token = wx.getStorageSync('token');
+    if (token) {
+      this.checkTokenVerification();
     }
   },
 
@@ -110,6 +120,24 @@ App({
     if (tabBar && typeof tabBar.refreshTabs === 'function') {
       tabBar.refreshTabs();
     }
+  },
+
+  checkTokenVerification() {
+    const userInfo = this.globalData.userInfo || {};
+    const role = userInfo.role || 'student';
+
+    // 仅拦截未验证的 student
+    if (role !== 'student') return;
+    if (userInfo.token_verified !== false) return;
+
+    // 防止循环重定向
+    const pages = getCurrentPages();
+    const current = pages.length ? pages[pages.length - 1] : null;
+    const currentRoute = current ? `/${current.route}` : '';
+    if (currentRoute === '/pages/token/index') return;
+    if (currentRoute === '/pages/login/index') return;
+
+    wx.reLaunch({ url: '/pages/token/index' });
   },
 
   toLogin() {
