@@ -120,8 +120,17 @@ function handleStatusCode(statusCode, data) {
     return;
   }
 
-  // 403 with token_required: student not verified, redirect to token page
+  // 403 with token_required: student not verified, sync state and redirect
   if (statusCode === 403 && data && data.error === 'token_required') {
+    // 同步本地状态
+    const userInfo = wx.getStorageSync('userInfo') || {};
+    userInfo.token_verified = false;
+    wx.setStorageSync('userInfo', userInfo);
+    const app = getApp && getApp();
+    if (app && app.globalData) {
+      app.globalData.userInfo = { ...app.globalData.userInfo, token_verified: false };
+    }
+
     const pages = getCurrentPages();
     const current = pages.length ? pages[pages.length - 1] : null;
     const currentRoute = current ? `/${current.route}` : '';
