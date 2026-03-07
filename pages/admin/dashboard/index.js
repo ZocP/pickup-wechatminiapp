@@ -752,44 +752,40 @@ Page({
     if (!roleOption) return;
 
     const app = getApp();
-    const targetRole = roleOption.value;
-
-    if (targetRole === 'admin') {
-      const success = app.setViewAsUser ? app.setViewAsUser(false) : false;
-      if (success) {
-        wx.showToast({ title: t('dashboard_switch_admin'), icon: 'success' });
-        this.setData({
-          isViewingAsUser: false,
-          currentEffectiveRole: 'admin',
-          showRoleSimulator: false,
-        });
-        this.refreshView();
-      }
-    } else {
-      const success = app.setViewAsUser ? app.setViewAsUser(true) : false;
-      if (success) {
-        wx.showToast({ title: `已切换为${roleOption.label}`, icon: 'success' });
-        this.setData({
-          isViewingAsUser: true,
-          currentEffectiveRole: targetRole,
-          showRoleSimulator: false,
-        });
-        this.refreshView();
-      }
+    if (app && typeof app.setViewAsRole === 'function') {
+      app.setViewAsRole(roleOption.value);
     }
+
+    const currentEffectiveRole = app.getEffectiveRole ? app.getEffectiveRole() : roleOption.value;
+    const viewAsRole = app.getViewAsRole ? app.getViewAsRole() : '';
+
+    const toastTitle = roleOption.value === 'admin'
+      ? t('dashboard_switch_admin')
+      : `已切换为${roleOption.label}`;
+    wx.showToast({ title: toastTitle, icon: 'success' });
+
+    this.setData({
+      isViewingAsUser: !!viewAsRole,
+      currentEffectiveRole,
+      showRoleSimulator: false,
+    });
+    this.refreshView();
   },
 
   onExitRoleSimulation() {
     const app = getApp();
-    const success = app.setViewAsUser ? app.setViewAsUser(false) : false;
-    if (success) {
-      wx.showToast({ title: t('dashboard_exit_simulation'), icon: 'success' });
-      this.setData({
-        isViewingAsUser: false,
-        currentEffectiveRole: 'admin',
-      });
-      this.refreshView();
+    if (app && typeof app.resetViewAsRole === 'function') {
+      app.resetViewAsRole();
+    } else if (app && typeof app.setViewAsRole === 'function') {
+      app.setViewAsRole('admin');
     }
+
+    wx.showToast({ title: t('dashboard_exit_simulation'), icon: 'success' });
+    this.setData({
+      isViewingAsUser: false,
+      currentEffectiveRole: 'admin',
+    });
+    this.refreshView();
   },
 
   refreshView() {
