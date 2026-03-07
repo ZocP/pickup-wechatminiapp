@@ -147,7 +147,11 @@ Page({
     wx.navigateTo({ url: '/pages/admin/staff/index' });
   },
 
-  goModificationReview() {
+  goTokenManage() {
+    wx.navigateTo({ url: '/pages/staff/tokens/index' });
+  },
+
+    goModificationReview() {
     wx.navigateTo({ url: '/pages/admin/modification-requests/index' });
   },
 });

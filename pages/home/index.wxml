@@ -22,7 +22,8 @@
       <van-cell title="{{i18n.home_admin_dispatch}}" is-link bind:click="goDashboard" />
       <van-cell title="{{i18n.home_driver_manage}}" is-link bind:click="goDriverManage" />
       <van-cell wx:if="{{canManageStaff}}" title="{{i18n.home_staff_manage}}" is-link bind:click="goStaffManage" />
-      <van-cell title="{{i18n.home_mod_review}}" is-link bind:click="goModificationReview">
+      <van-cell title="注册码管理" is-link bind:click="goTokenManage" />
+            <van-cell title="{{i18n.home_mod_review}}" is-link bind:click="goModificationReview">
         <van-tag wx:if="{{pendingModCount > 0}}" type="danger" round slot="right-icon">{{pendingModCount}}</van-tag>
       </van-cell>
     </van-cell-group>
