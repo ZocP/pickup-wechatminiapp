@@ -1,0 +1,84 @@
+<view class="page tokens-page">
+  <!-- 生成按钮 -->
+  <view class="top-bar">
+    <van-button type="primary" icon="plus" size="small" bind:tap="onShowForm">生成注册码</van-button>
+  </view>
+
+  <!-- Token 列表 -->
+  <view wx:if="{{ !loading && list.length === 0 }}" class="empty-wrap">
+    <van-empty description="暂无注册码" />
+  </view>
+
+  <view wx:for="{{ list }}" wx:key="id" class="card token-card">
+    <view class="token-code-row">
+      <text class="token-code" bindtap="onCopy" data-code="{{ item.code }}">{{ item.code }}</text>
+      <van-tag
+        type="{{ item.status === 'unused' ? 'primary' : (item.status === 'used' ? 'success' : (item.status === 'revoked' ? 'default' : 'danger')) }}"
+        plain
+      >{{ item.status === 'unused' ? '未使用' : (item.status === 'used' ? '已使用' : (item.status === 'revoked' ? '已作废' : '已过期')) }}</van-tag>
+    </view>
+
+    <view class="token-meta">
+      <text>{{ item.name }}</text>
+      <text class="meta-sep">|</text>
+      <text>¥{{ item.amount }}</text>
+      <text class="meta-sep">|</text>
+      <text>{{ item.payment_method }}</text>
+    </view>
+
+    <view wx:if="{{ item.status === 'used' && item.used_by_name }}" class="token-used-by">
+      使用者：{{ item.used_by_name }}
+    </view>
+
+    <view class="token-time">{{ item.created_at_text }}</view>
+
+    <view wx:if="{{ item.status === 'unused' }}" class="token-actions">
+      <van-button size="mini" type="danger" plain bind:tap="onRevoke" data-id="{{ item.id }}">作废</van-button>
+    </view>
+  </view>
+
+  <!-- 生成表单弹窗 -->
+  <van-popup show="{{ showForm }}" position="bottom" round closeable bind:close="onHideForm" custom-style="padding: 32rpx; padding-top: 48rpx;">
+    <view class="form-title">生成注册码</view>
+
+    <van-cell-group inset>
+      <van-field
+        value="{{ formName }}"
+        label="姓名"
+        placeholder="请输入姓名"
+        required
+        bind:change="onFormName"
+      />
+      <van-cell title="付款方式" is-link value="{{ formPayment || '请选择' }}" bind:click="onShowPaymentPicker" required />
+      <van-field
+        value="{{ formAmount }}"
+        label="金额"
+        type="digit"
+        placeholder="请输入金额"
+        required
+        bind:change="onFormAmount"
+      />
+    </van-cell-group>
+
+    <van-button
+      type="primary"
+      block
+      loading="{{ submitting }}"
+      custom-style="margin-top: 32rpx;"
+      bind:tap="onGenerate"
+    >确认生成</van-button>
+  </van-popup>
+
+  <!-- 付款方式选择器 -->
+  <van-popup show="{{ showPaymentPicker }}" position="bottom" round bind:close="onHidePaymentPicker">
+    <van-picker
+      columns="{{ paymentMethods }}"
+      show-toolbar
+      title="选择付款方式"
+      bind:confirm="onPaymentConfirm"
+      bind:cancel="onHidePaymentPicker"
+    />
+  </van-popup>
+
+  <van-dialog id="van-dialog" />
+</view>
