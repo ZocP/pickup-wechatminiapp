@@ -7,15 +7,12 @@ Page({
     i18n: {},
     loading: false,
     shifts: [],
-    currentShift: null,
+    selectedShiftId: null,
+    selectedShift: null,
     passengers: [],
     showScanModal: false,
     scanResult: null,
     scanning: false,
-    currentShiftDepartureTimeFmt: '',
-    shiftCapacity: '',
-    shiftAssignedCount: 0,
-    shiftDriverName: '',
   },
 
   onLoad() {
@@ -75,81 +72,109 @@ Page({
     this.setData({ loading: true });
     try {
       const shiftsRes = await api.getDriverShifts();
-      const shifts = Array.isArray(shiftsRes) ? shiftsRes : (shiftsRes.data || shiftsRes.shifts || []);
-      
-      const currentShift = shifts.find(shift => 
-        shift.status === 'published'
-      ) || (shifts.length > 0 ? shifts[0] : null);
-      
-      let passengers = [];
-      if (currentShift && currentShift.id) {
-        try {
-          const passengersRes = await api.getShiftPassengers(currentShift.id);
-          passengers = Array.isArray(passengersRes) ? passengersRes : (passengersRes.data || passengersRes.passengers || []);
-          
-          passengers = passengers.map(passenger => ({
-            ...passenger,
-            status: passenger.status || passenger.boarding_status || 'assigned',
-            name: passenger.name || passenger.user_name || passenger.student_name || passenger.passenger_name || `${t('common_student_prefix')}${passenger.id}`,
-            student_id: passenger.student_id || passenger.student_id_number || passenger.user_id || '',
-          }));
-        } catch (passengerError) {
-          console.warn('Failed to load passengers:', passengerError);
-          wx.showToast({
-            title: t('driver_passengers_load_failed'),
-            icon: 'none',
-          });
-        }
+      const rawShifts = Array.isArray(shiftsRes) ? shiftsRes : (shiftsRes.data || shiftsRes.shifts || []);
+
+      const now = new Date();
+      // Enrich each shift with display fields
+      const shifts = rawShifts.map(shift => {
+        const depTime = shift.departure_time ? new Date(shift.departure_time) : null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const isToday = depTime && depTime >= today && depTime < tomorrow;
+        const boardedCount = (shift.requests || []).filter(r => r.boarded_at).length;
+        const capacity = (shift.driver && shift.driver.max_seats) || '';
+        const statusLabel = shift.status === 'published' ? '已发布' : '未发布';
+
+        return {
+          ...shift,
+          departureTimeFmt: this.formatTime(shift.departure_time),
+          isToday: isToday,
+          boardedCount: boardedCount,
+          capacity: capacity,
+          statusLabel: statusLabel,
+          driverName: (shift.driver && shift.driver.name) || '',
+        };
+      });
+
+      // Auto-select: nearest future shift, or first one
+      let autoSelectId = this.data.selectedShiftId;
+      const prevSelected = autoSelectId ? shifts.find(s => s.id === autoSelectId) : null;
+
+      if (!prevSelected) {
+        const futureShift = shifts.find(s => {
+          const dep = s.departure_time ? new Date(s.departure_time) : null;
+          return dep && dep > now;
+        });
+        autoSelectId = futureShift ? futureShift.id : (shifts.length > 0 ? shifts[0].id : null);
       }
 
-      // Fix #3 & #4: preprocess fields in JS instead of calling functions in WXML
-      const departureTimeFmt = this.formatTime(currentShift ? currentShift.departure_time : '');
-      const driverName = (currentShift && currentShift.driver && currentShift.driver.name) || '';
-      const capacity = (currentShift && currentShift.driver && currentShift.driver.max_seats) || '';
-      const assignedCount = passengers.length;
+      const selectedShift = autoSelectId ? shifts.find(s => s.id === autoSelectId) || null : null;
+
+      // Load passengers for selected shift
+      let passengers = [];
+      if (selectedShift && selectedShift.id) {
+        passengers = await this._loadPassengers(selectedShift.id);
+      }
 
       this.setData({
         shifts: shifts,
-        currentShift: currentShift,
+        selectedShiftId: autoSelectId,
+        selectedShift: selectedShift,
         passengers: passengers,
-        currentShiftDepartureTimeFmt: departureTimeFmt,
-        shiftDriverName: driverName,
-        shiftCapacity: capacity,
-        shiftAssignedCount: assignedCount,
       });
-      
-      if (!currentShift) {
-        wx.showToast({
-          title: t('driver_no_shift'),
-          icon: 'none',
-        });
+
+      if (shifts.length === 0) {
+        wx.showToast({ title: t('driver_no_shift'), icon: 'none' });
       }
     } catch (error) {
       console.error('Failed to load shifts:', error);
-      wx.showToast({
-        title: error.message || t('driver_load_failed'),
-        icon: 'none',
-      });
-      
+      wx.showToast({ title: error.message || t('driver_load_failed'), icon: 'none' });
       this.setData({
         shifts: [],
-        currentShift: null,
+        selectedShiftId: null,
+        selectedShift: null,
         passengers: [],
-        currentShiftDepartureTimeFmt: '',
-        shiftDriverName: '',
-        shiftCapacity: '',
-        shiftAssignedCount: 0,
       });
     } finally {
       this.setData({ loading: false });
     }
   },
 
+  async _loadPassengers(shiftId) {
+    try {
+      const passengersRes = await api.getShiftPassengers(shiftId);
+      let passengers = Array.isArray(passengersRes) ? passengersRes : (passengersRes.data || passengersRes.passengers || []);
+      return passengers.map(passenger => ({
+        ...passenger,
+        status: passenger.status || passenger.boarding_status || 'assigned',
+        name: passenger.name || passenger.user_name || passenger.student_name || passenger.passenger_name || `${t('common_student_prefix')}${passenger.id}`,
+        student_id: passenger.student_id || passenger.student_id_number || passenger.user_id || '',
+      }));
+    } catch (err) {
+      console.warn('Failed to load passengers:', err);
+      wx.showToast({ title: t('driver_passengers_load_failed'), icon: 'none' });
+      return [];
+    }
+  },
+
+  async selectShift(e) {
+    const id = e.currentTarget.dataset.id;
+    if (id === this.data.selectedShiftId) return;
+
+    const selectedShift = this.data.shifts.find(s => s.id === id) || null;
+    this.setData({ selectedShiftId: id, selectedShift: selectedShift, passengers: [] });
+
+    if (selectedShift) {
+      const passengers = await this._loadPassengers(selectedShift.id);
+      this.setData({ passengers: passengers });
+    }
+  },
+
   openScanModal() {
-    this.setData({
-      showScanModal: true,
-      scanResult: null,
-    });
+    this.setData({ showScanModal: true, scanResult: null });
   },
 
   closeScanModal() {
@@ -158,23 +183,15 @@ Page({
 
   async startScan() {
     if (this.data.scanning) return;
-    
     this.setData({ scanning: true });
     try {
-      const res = await wx.scanCode({
-        onlyFromCamera: true,
-        scanType: ['qrCode']
-      });
-      
+      const res = await wx.scanCode({ onlyFromCamera: true, scanType: ['qrCode'] });
       if (res && res.result) {
         await this.verifyBoarding(res.result);
       }
     } catch (error) {
       if (error.errMsg !== 'scanCode:fail cancel') {
-        wx.showToast({
-          title: t('driver_scan_failed'),
-          icon: 'none',
-        });
+        wx.showToast({ title: t('driver_scan_failed'), icon: 'none' });
       }
     } finally {
       this.setData({ scanning: false });
@@ -183,11 +200,7 @@ Page({
 
   async verifyBoarding(qrCode) {
     try {
-      // Fix #2: HTTP 200 means success — request.js rejects on non-2xx
       const result = await api.verifyBoarding(qrCode);
-
-      // Fix #6: detect already-boarded via response message (idempotent 200)
-      const message = result.message || '';
       const studentName = (result.request && result.request.user && result.request.user.name) || '';
       const alreadyBoarded = result.request && result.request.boarded_at;
 
@@ -195,19 +208,11 @@ Page({
 
       if (alreadyBoarded) {
         this.setData({
-          scanResult: {
-            success: true,
-            message: t('driver_already_boarded_msg'),
-            studentName: studentName,
-          }
+          scanResult: { success: true, message: t('driver_already_boarded_msg'), studentName: studentName },
         });
       } else {
         this.setData({
-          scanResult: {
-            success: true,
-            message: `✅ ${t('driver_board_success')} — ${studentName || t('common_student_prefix')}`,
-            studentName: studentName,
-          }
+          scanResult: { success: true, message: `✅ ${t('driver_board_success')} — ${studentName || t('common_student_prefix')}`, studentName: studentName },
         });
       }
 
@@ -216,12 +221,8 @@ Page({
       const errMsg = error.message || t('driver_board_failed');
       const isDuplicate = errMsg.includes('已登车') || errMsg.includes('already boarded') ||
           errMsg.includes('重复') || errMsg.includes('duplicate');
-
       this.setData({
-        scanResult: {
-          success: false,
-          message: isDuplicate ? t('driver_already_boarded_msg') : errMsg,
-        }
+        scanResult: { success: false, message: isDuplicate ? t('driver_already_boarded_msg') : errMsg },
       });
     }
   },
