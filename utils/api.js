@@ -181,4 +181,21 @@ module.exports = {
   rejectModification(id, adminNote) {
     return request.post(`/admin/modification-requests/${id}/reject`, { admin_note: adminNote || '' });
   },
+
+  // Token 相关 API
+  generateToken(data) {
+    return request.post('/staff/tokens', data);
+  },
+
+  getTokenList(params) {
+    return request.get('/staff/tokens', params);
+  },
+
+  revokeToken(id) {
+    return request.post(`/staff/tokens/${id}/revoke`, {});
+  },
+
+  verifyToken(code) {
+    return request.post('/auth/verify-token', { code });
+  },
 };
