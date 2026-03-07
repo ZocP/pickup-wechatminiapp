@@ -33,7 +33,7 @@ Page({
     const role = app.getEffectiveRole ? app.getEffectiveRole() : 'student';
     if (role !== 'admin' && role !== 'staff') {
       wx.showToast({ title: '权限不足', icon: 'none' });
-      wx.navigateBack();
+      wx.navigateBack({ delta: 1, fail: () => { wx.reLaunch({ url: '/pages/home/index' }); } });
     }
   },
 
@@ -55,19 +55,20 @@ Page({
     this.setData({ loading: true });
 
     try {
-      const res = await api.getTokenList({ page: this.data.page, per_page: 20 });
-      const items = Array.isArray(res) ? res : (res && res.data ? res.data : []);
+      const res = await api.getTokenList({ page: this.data.page, page_size: 20 });
+      const items = Array.isArray(res) ? res : (res && Array.isArray(res.tokens) ? res.tokens : []);
 
       const formatted = items.map((item) => ({
         ...item,
         created_at_text: formatTime(item.created_at),
-        used_by_name: item.used_by ? (item.used_by.name || '用户#' + item.used_by.id) : '',
+        expires_at_text: item.status === 'unused' && item.expires_at ? formatTime(item.expires_at) : '',
+        used_by_name: item.used_by_user ? (item.used_by_user.name || '用户#' + item.used_by_user.id) : '',
       }));
 
       this.setData({
         list: reset ? formatted : this.data.list.concat(formatted),
         page: this.data.page + 1,
-        hasMore: items.length >= 20,
+        hasMore: (res && res.total != null) ? (this.data.page * 20 < res.total) : items.length >= 20,
       });
     } catch (err) {
       wx.showToast({ title: '加载失败', icon: 'none' });
