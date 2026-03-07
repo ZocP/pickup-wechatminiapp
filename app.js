@@ -95,6 +95,7 @@ App({
 
   onTokenExpired() {
     wx.removeStorageSync('token');
+    wx.removeStorageSync('refresh_token');
     wx.removeStorageSync('userInfo');
     this.globalData.userInfo = { id: 0, name: '', role: 'student', phone: '', wechat_id: '' };
     this.globalData.viewAsRole = '';

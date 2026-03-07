@@ -62,6 +62,7 @@ Page({
       const mergedUser = { ...(result.user || {}), ...(me || {}) };
       wx.setStorageSync('userInfo', mergedUser);
       getApp().setUserInfo(mergedUser);
+      getApp().resetViewAsRole();
 
       wx.showToast({ title: t('login_success'), icon: 'success' });
 
