@@ -5,59 +5,73 @@
   </view>
 
   <!-- 无班次提示 -->
-  <view wx:if="{{!loading && !currentShift}}" class="empty-container">
+  <view wx:if="{{!loading && shifts.length === 0}}" class="empty-container">
     <van-empty description="{{i18n.driver_no_shift}}" />
     <view class="empty-tips">{{i18n.driver_contact_admin}}</view>
   </view>
 
-  <!-- 班次信息 -->
-  <view wx:if="{{currentShift}}" class="shift-container">
-    <van-cell-group>
-      <van-cell title="{{i18n.driver_current_shift}}" value="{{currentShiftDepartureTimeFmt}}" />
-      <van-cell title="{{i18n.driver_driver_label}}" value="{{shiftDriverName || i18n.driver_unassigned}}" />
-      <van-cell title="{{i18n.driver_capacity_label}}" value="{{shiftCapacity}}{{i18n.driver_capacity_unit}}" />
-      <van-cell title="{{i18n.driver_assigned_label}}" value="{{shiftAssignedCount}}{{i18n.driver_assigned_unit}}" />
-      <van-cell title="{{i18n.driver_status_label}}" value="{{currentShift.status === 'published' ? i18n.driver_status_published : i18n.driver_status_unpublished}}" />
-    </van-cell-group>
-
-    <!-- 扫码登车按钮 -->
-    <view class="scan-button-container">
-      <van-button 
-        type="primary" 
-        size="large" 
-        bindtap="openScanModal"
-        loading="{{scanning}}"
+  <!-- 班次卡片列表 -->
+  <view wx:if="{{shifts.length > 0}}" class="shift-container">
+    <view class="shift-list">
+      <view
+        wx:for="{{shifts}}"
+        wx:key="id"
+        class="shift-card {{selectedShiftId === item.id ? 'shift-card--active' : ''}}"
+        bindtap="selectShift"
+        data-id="{{item.id}}"
       >
-        {{i18n.driver_scan_btn}}
-      </van-button>
+        <view class="shift-card__header">
+          <text class="shift-card__time">{{item.departureTimeFmt}}</text>
+          <text wx:if="{{item.isToday}}" class="shift-card__badge">今天</text>
+        </view>
+        <view class="shift-card__info">
+          <text>{{item.boardedCount}}/{{item.capacity}} 人已上车</text>
+          <text class="shift-card__status">{{item.statusLabel}}</text>
+        </view>
+      </view>
     </view>
 
-    <!-- 乘客列表 -->
-    <view class="passengers-section">
-      <view class="section-title">{{i18n.driver_passengers_title}} ({{passengers.length}}/{{shiftCapacity}})</view>
-      <van-cell-group wx:if="{{passengers.length > 0}}">
-        <van-cell 
-          wx:for="{{passengers}}" 
-          wx:key="id"
-          title="{{item.name}}"
-          value="{{item.status === 'boarded' ? i18n.driver_boarded : i18n.driver_waiting}}"
+    <!-- 选中班次的详情和操作 -->
+    <view wx:if="{{selectedShift}}" class="shift-detail">
+      <!-- 扫码登车按钮 -->
+      <view class="scan-button-container">
+        <van-button
+          type="primary"
+          size="large"
+          bindtap="openScanModal"
+          loading="{{scanning}}"
         >
-          <view slot="label">
-            <text>{{i18n.driver_student_id}}{{item.student_id}}</text>
-            <text wx:if="{{item.ride_with_wechat}}" class="ride-with-wechat">{{i18n.driver_ride_with_wechat}}{{item.ride_with_wechat}}</text>
-          </view>
-        </van-cell>
-      </van-cell-group>
-      <view wx:else class="empty-passengers">
-        <van-empty description="{{i18n.driver_no_passengers}}" mode="list" />
+          {{i18n.driver_scan_btn}}
+        </van-button>
+      </view>
+
+      <!-- 乘客列表 -->
+      <view class="passengers-section">
+        <view class="section-title">{{i18n.driver_passengers_title}} ({{passengers.length}}/{{selectedShift.capacity}})</view>
+        <van-cell-group wx:if="{{passengers.length > 0}}">
+          <van-cell
+            wx:for="{{passengers}}"
+            wx:key="id"
+            title="{{item.name}}"
+            value="{{item.status === 'boarded' ? i18n.driver_boarded : i18n.driver_waiting}}"
+          >
+            <view slot="label">
+              <text>{{i18n.driver_student_id}}{{item.student_id}}</text>
+              <text wx:if="{{item.ride_with_wechat}}" class="ride-with-wechat">{{i18n.driver_ride_with_wechat}}{{item.ride_with_wechat}}</text>
+            </view>
+          </van-cell>
+        </van-cell-group>
+        <view wx:else class="empty-passengers">
+          <van-empty description="{{i18n.driver_no_passengers}}" mode="list" />
+        </view>
       </view>
     </view>
   </view>
 
   <!-- 扫码模态框 -->
-  <van-popup 
-    show="{{showScanModal}}" 
-    position="bottom" 
+  <van-popup
+    show="{{showScanModal}}"
+    position="bottom"
     round
     bind:close="closeScanModal"
   >
@@ -66,21 +80,21 @@
         <text class="modal-title">{{i18n.driver_scan_title}}</text>
         <van-icon name="cross" size="18px" bindtap="closeScanModal" />
       </view>
-      
+
       <view class="scan-content">
         <!-- 扫码结果展示 -->
         <view wx:if="{{scanResult}}" class="scan-result">
-          <van-icon 
-            wx:if="{{scanResult.success}}" 
-            name="checked" 
-            color="#07c160" 
-            size="48px" 
+          <van-icon
+            wx:if="{{scanResult.success}}"
+            name="checked"
+            color="#07c160"
+            size="48px"
           />
-          <van-icon 
-            wx:else 
-            name="clear" 
-            color="#ee0a24" 
-            size="48px" 
+          <van-icon
+            wx:else
+            name="clear"
+            color="#ee0a24"
+            size="48px"
           />
           <view class="result-message">{{scanResult.message}}</view>
           <view class="scan-continue-hint">{{i18n.driver_scan_continue_hint}}</view>
