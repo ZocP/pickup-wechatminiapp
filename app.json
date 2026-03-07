@@ -13,7 +13,9 @@
     "pages/student/request/index",
     "pages/student/modification/index",
     "pages/login/index",
-    "pages/driver/index"
+    "pages/token/index",
+    "pages/driver/index",
+    "pages/staff/tokens/index"
   ],
   "window": {
     "navigationBarTitleText": "UIUC 接机调度",
