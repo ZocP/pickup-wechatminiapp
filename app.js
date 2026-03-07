@@ -128,7 +128,7 @@ App({
 
     // 仅拦截未验证的 student
     if (role !== 'student') return;
-    if (userInfo.token_verified !== false) return;
+    if (userInfo.token_verified === true) return;
 
     // 防止循环重定向
     const pages = getCurrentPages();
