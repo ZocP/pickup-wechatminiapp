@@ -530,6 +530,20 @@ Page({
     const requestId = event.currentTarget.dataset.id
     if (!requestId) return
 
+    const boarded = event.currentTarget.dataset.boarded
+    if (boarded) {
+      const res = await new Promise((resolve) => {
+        wx.showModal({
+          title: t('shift_detail_remove_confirm_title') || '确认移除',
+          content: t('shift_detail_remove_boarded_confirm') || '该乘客已经登车，确定移除？',
+          confirmColor: '#ee0a24',
+          success: resolve,
+          fail: () => resolve({ confirm: false })
+        })
+      })
+      if (!res.confirm) return
+    }
+
     await this.runWithActionLock(async () => {
       this.setData({ actingRequestId: requestId })
       try {

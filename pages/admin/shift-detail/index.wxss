@@ -185,6 +185,14 @@
   line-height: 54rpx !important;
 }
 
+/* 已登车乘客移出按钮灰色样式 */
+.action-btn-disabled {
+  opacity: 0.5 !important;
+  color: #969799 !important;
+  border-color: #dcdee0 !important;
+  background-color: #f7f8fa !important;
+}
+
 .bottom-bar {
   position: fixed;
   left: 0;

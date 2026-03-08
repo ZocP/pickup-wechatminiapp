@@ -75,9 +75,10 @@
                     size="small"
                     round
                     plain
-                    custom-class="action-btn"
+                    custom-class="action-btn {{passenger.boarded_at ? 'action-btn-disabled' : ''}}"
                     loading="{{actingRequestId === passenger.id}}"
                     data-id="{{passenger.id}}"
+                    data-boarded="{{passenger.boarded_at}}"
                     bind:tap="onRemovePassenger"
                   >{{i18n.shift_detail_remove}}</van-button>
                 </view>
