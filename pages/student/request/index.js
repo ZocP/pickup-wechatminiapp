@@ -3,6 +3,7 @@ const { requestStatusText } = require('../../../utils/status');
 const { formatDateOnly } = require('../../../utils/formatters');
 const { QRCodeModel, QRErrorCorrectLevel, getTypeNumber } = require('../../../utils/qrcode');
 const { t } = require('../../../utils/i18n');
+const { logError, logWarn } = require('../../../utils/logger');
 
 const WECHAT_ID_REGEXP = /^[a-zA-Z0-9_]{6,20}$/;
 
@@ -366,7 +367,7 @@ Page({
           const result = await api.getBoardingToken(latest.id);
           boardingToken = result && result.token ? result.token : null;
         } catch (tokenErr) {
-          console.warn('获取登车 token 失败:', tokenErr);
+          logWarn('获取登车 token 失败:', tokenErr);
         }
       }
 
@@ -432,7 +433,7 @@ Page({
       this.setData({ qrCodePath: qrCodePath, qrCodeError: '' });
     } catch (error) {
       const msg = (error && (error.errMsg || error.message)) || t('student_request_qr_failed');
-      console.error('生成二维码失败:', error);
+      logError('生成二维码失败:', error);
       this.setData({ qrCodePath: null, qrCodeError: msg });
       wx.showToast({ title: msg, icon: 'none' });
     } finally {

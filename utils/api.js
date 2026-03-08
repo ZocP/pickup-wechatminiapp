@@ -1,9 +1,8 @@
 const request = require('./request');
 
 module.exports = {
-  health() {
-    return request.get('/health');
-  },
+  // health() — 保留注释：用于后端健康检查，当前前端未调用
+  // health() { return request.get('/health'); },
 
   authLogin(code) {
     return request.post('/auth/login', { code });
@@ -13,13 +12,7 @@ module.exports = {
     return request.post('/auth/refresh', { refresh_token: refreshToken });
   },
 
-  bindPhone(phoneCode) {
-    return request.post('/auth/bind-phone', { phone_code: phoneCode });
-  },
-
-  bindWechatID(wechatID) {
-    return request.post('/auth/bind-wechat-id', { wechat_id: wechatID });
-  },
+  // bindPhone / bindWechatID — 已被 bindProfile 替代，删除
 
   bindProfile(payload) {
     return request.post('/auth/bind-profile', payload);
@@ -102,13 +95,7 @@ module.exports = {
     return request.post(`/admin/shifts/${shiftId}/remove-student`, { request_id: requestId });
   },
 
-  assignStaff(shiftId, staffId) {
-    return request.post(`/admin/shifts/${shiftId}/assign-staff`, { staff_id: staffId });
-  },
-
-  removeStaff(shiftId, staffId) {
-    return request.post(`/admin/shifts/${shiftId}/remove-staff`, { staff_id: staffId });
-  },
+  // assignStaff / removeStaff — 已废弃，删除
 
   createStudentRequest(payload) {
     return request.post('/student/requests', payload);

@@ -1,6 +1,7 @@
 const api = require('../../utils/api');
 const { formatDateTime } = require('../../utils/formatters');
 const { t } = require('../../utils/i18n');
+const { logError, logWarn } = require('../../utils/logger');
 
 Page({
   data: {
@@ -130,7 +131,7 @@ Page({
         wx.showToast({ title: t('driver_no_shift'), icon: 'none' });
       }
     } catch (error) {
-      console.error('Failed to load shifts:', error);
+      logError('Failed to load shifts:', error);
       wx.showToast({ title: error.message || t('driver_load_failed'), icon: 'none' });
       this.setData({
         shifts: [],
@@ -154,7 +155,7 @@ Page({
         student_id: passenger.student_id || passenger.student_id_number || passenger.user_id || '',
       }));
     } catch (err) {
-      console.warn('Failed to load passengers:', err);
+      logWarn('Failed to load passengers:', err);
       wx.showToast({ title: t('driver_passengers_load_failed'), icon: 'none' });
       return [];
     }
