@@ -225,6 +225,8 @@ function buildI18n() {
     shift_detail_recommended:        t('shift_detail_recommended'),
     shift_detail_late:               t('shift_detail_late'),
     shift_detail_add:                t('shift_detail_add'),
+    shift_detail_passenger_boarded:  t('shift_detail_passenger_boarded'),
+    shift_detail_passenger_unboarded:t('shift_detail_passenger_unboarded'),
   }
 }
 

@@ -158,6 +158,10 @@ module.exports = {
   shift_detail_withdraw_success:    'Withdrawn',
   shift_detail_publish_success:     'Published',
   shift_detail_op_failed:           'Operation failed',
+  shift_detail_remove_confirm_title:  'Confirm Remove',
+  shift_detail_remove_boarded_confirm:'This passenger has already boarded. Are you sure you want to remove them?',
+  shift_detail_passenger_boarded:   'Boarded',
+  shift_detail_passenger_unboarded: 'Not Boarded',
 
   // ─── Home ─────────────────────────────────────────────────────────────
   home_nav_title:                   'Home',

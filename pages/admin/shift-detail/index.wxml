@@ -58,7 +58,7 @@
           <view wx:for="{{onboardGroups}}" wx:key="key" class="group-block">
             <view class="group-header">{{item.label}}（{{item.count}}）</view>
             <view class="list-wrap">
-              <view wx:for="{{item.items}}" wx:for-item="passenger" wx:key="id" class="passenger-item list-item-container">
+              <view wx:for="{{item.items}}" wx:for-item="passenger" wx:key="id" class="passenger-item list-item-container {{passenger.boarded_at ? 'passenger-boarded' : 'passenger-unboarded'}}">
                 <view class="passenger-left">
                   <view class="passenger-top">
                     <text class="passenger-name">{{passenger.name}}</text>
@@ -68,6 +68,10 @@
                   <view class="passenger-sub">{{i18n.shift_detail_luggage_label}}{{passenger.checked_luggage_count || 0}}{{i18n.shift_detail_luggage_checked}} {{passenger.carryon_luggage_count || 0}}{{i18n.shift_detail_luggage_carry_on}}</view>
                   <view wx:if="{{passenger.ride_with_note}}" class="passenger-sub">{{i18n.shift_detail_ride_with_note}}{{passenger.ride_with_note}}</view>
                   <view wx:if="{{passenger.ride_with_wechat}}" class="passenger-sub">{{i18n.shift_detail_wechat}}{{passenger.ride_with_wechat}}</view>
+                  <view class="passenger-boarding-status">
+                    <van-tag wx:if="{{passenger.boarded_at}}" type="success">{{i18n.shift_detail_passenger_boarded}}</van-tag>
+                    <van-tag wx:else type="default">{{i18n.shift_detail_passenger_unboarded}}</van-tag>
+                  </view>
                 </view>
                 <view class="passenger-right">
                   <van-button

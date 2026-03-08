@@ -158,6 +158,10 @@ module.exports = {
   shift_detail_withdraw_success:    '已撤回发布',
   shift_detail_publish_success:     '发布成功',
   shift_detail_op_failed:           '操作失败',
+  shift_detail_remove_confirm_title:  '确认移出',
+  shift_detail_remove_boarded_confirm:'该乘客已经登车，确定要将其移出班次？',
+  shift_detail_passenger_boarded:   '已登车',
+  shift_detail_passenger_unboarded: '未登车',
   // ─── Home ─────────────────────────────────────────────────────────────
   home_nav_title:                   '首页',
   home_welcome:                     '欢迎使用 UIUC 接机调度',

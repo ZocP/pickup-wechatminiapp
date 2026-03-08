@@ -233,3 +233,13 @@
   background: #ebf5ff;
   color: #1989fa;
 }
+
+/* 乘客登车状态视觉区分 */
+.passenger-boarded {
+  background-color: #f0fff4;
+  border-left: 6rpx solid #07c160;
+}
+
+.passenger-boarding-status {
+  margin-top: 8rpx;
+}
