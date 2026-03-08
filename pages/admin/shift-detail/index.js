@@ -384,7 +384,7 @@ Page({
     } catch (error) {
       wx.showToast({ title: (error && error.message) || t('shift_detail_load_failed'), icon: 'none' })
     } finally {
-      wx.hideLoading()
+      if (!silent) wx.hideLoading()
     }
   },
 
