@@ -153,10 +153,7 @@ Page({
 
   onShow() {
     const app = getApp();
-    if (app.isWechatBound && !app.isWechatBound()) {
-      wx.reLaunch({ url: '/pages/bind/index' });
-      return;
-    }
+    if (!app.ensureWechatBound()) return;
     const role = app.getEffectiveRole ? app.getEffectiveRole() : ((app.globalData.userInfo && app.globalData.userInfo.role) || 'student');
 
     const tabBar = this.getTabBar && this.getTabBar();
@@ -184,7 +181,7 @@ Page({
     wx.setNavigationBarTitle({ title: t('dashboard_nav_title') });
     this.setData({ i18n: buildI18n(), todayDate: this._formatDate(new Date()) });
 
-    if (!app.globalData.dashboardNeedsRefresh && fresh) {
+    if (!app.isDashboardDirty() && fresh) {
       return;
     }
 
@@ -298,7 +295,7 @@ Page({
       lastLoadAt: Date.now(),
       ttlMs: Number(cache.ttlMs) || 45 * 1000,
     };
-    app.globalData.dashboardNeedsRefresh = false;
+    app.clearDashboardDirty();
   },
 
   openPendingPool() {

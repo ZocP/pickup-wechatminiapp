@@ -4,10 +4,9 @@
   padding-bottom: 140rpx;
 }
 
+/* .card 已在 app.wxss 中定义，此处只补充页面特有样式 */
 .card {
-  background: #fff;
   margin: 20rpx;
-  border-radius: 16rpx;
   padding: 20rpx;
 }
 

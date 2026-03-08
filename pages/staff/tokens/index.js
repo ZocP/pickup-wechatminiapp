@@ -1,12 +1,7 @@
 const api = require('../../../utils/api');
+const { formatDateTime } = require('../../../utils/formatters');
+const { t } = require('../../../utils/i18n');
 const Dialog = require('../../../miniprogram_npm/@vant/weapp/dialog/dialog').default;
-
-function formatTime(dateStr) {
-  if (!dateStr) return '--';
-  const d = new Date(dateStr);
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
 
 Page({
   data: {
@@ -24,7 +19,7 @@ Page({
   },
 
   onLoad() {
-    wx.setNavigationBarTitle({ title: 'Token 管理' });
+    wx.setNavigationBarTitle({ title: t('tokens_nav_title') });
     this.loadList(true);
   },
 
@@ -32,7 +27,7 @@ Page({
     const app = getApp();
     const role = app.getEffectiveRole ? app.getEffectiveRole() : 'student';
     if (role !== 'admin' && role !== 'staff') {
-      wx.showToast({ title: '权限不足', icon: 'none' });
+      wx.showToast({ title: t('tokens_no_permission'), icon: 'none' });
       wx.navigateBack({ delta: 1, fail: () => { wx.reLaunch({ url: '/pages/home/index' }); } });
     }
   },
@@ -60,9 +55,9 @@ Page({
 
       const formatted = items.map((item) => ({
         ...item,
-        created_at_text: formatTime(item.created_at),
-        expires_at_text: item.status === 'unused' && item.expires_at ? formatTime(item.expires_at) : '',
-        used_by_name: item.used_by_user ? (item.used_by_user.name || '用户#' + item.used_by_user.id) : '',
+        created_at_text: formatDateTime(item.created_at),
+        expires_at_text: item.status === 'unused' && item.expires_at ? formatDateTime(item.expires_at) : '',
+        used_by_name: item.used_by_user ? (item.used_by_user.name || t('tokens_user_prefix') + item.used_by_user.id) : '',
       }));
 
       this.setData({
@@ -71,7 +66,7 @@ Page({
         hasMore: (res && res.total != null) ? (this.data.page * 20 < res.total) : items.length >= 20,
       });
     } catch (err) {
-      wx.showToast({ title: '加载失败', icon: 'none' });
+      wx.showToast({ title: t('tokens_load_failed'), icon: 'none' });
     } finally {
       this.setData({ loading: false });
     }
@@ -110,15 +105,15 @@ Page({
     const { formName, formPayment, formAmount } = this.data;
 
     if (!formName.trim()) {
-      wx.showToast({ title: '请输入姓名', icon: 'none' });
+      wx.showToast({ title: t('tokens_name_required'), icon: 'none' });
       return;
     }
     if (!formPayment) {
-      wx.showToast({ title: '请选择付款方式', icon: 'none' });
+      wx.showToast({ title: t('tokens_payment_required'), icon: 'none' });
       return;
     }
     if (!formAmount || Number(formAmount) <= 0) {
-      wx.showToast({ title: '请输入有效金额', icon: 'none' });
+      wx.showToast({ title: t('tokens_amount_invalid'), icon: 'none' });
       return;
     }
 
@@ -131,11 +126,11 @@ Page({
         amount: Number(formAmount),
       });
 
-      wx.showToast({ title: '生成成功', icon: 'success' });
+      wx.showToast({ title: t('tokens_generate_success'), icon: 'success' });
       this.setData({ showForm: false });
       this.loadList(true);
     } catch (err) {
-      wx.showToast({ title: '生成失败', icon: 'none' });
+      wx.showToast({ title: t('tokens_generate_failed'), icon: 'none' });
     } finally {
       this.setData({ submitting: false });
     }
@@ -144,8 +139,8 @@ Page({
   onRevoke(e) {
     const id = e.currentTarget.dataset.id;
     Dialog.confirm({
-      title: '确认作废',
-      message: '作废后该注册码将无法使用，是否继续？',
+      title: t('tokens_revoke_title'),
+      message: t('tokens_revoke_confirm'),
     }).then(() => {
       this.doRevoke(id);
     }).catch(() => {});
@@ -154,10 +149,10 @@ Page({
   async doRevoke(id) {
     try {
       await api.revokeToken(id);
-      wx.showToast({ title: '已作废', icon: 'success' });
+      wx.showToast({ title: t('tokens_revoke_success'), icon: 'success' });
       this.loadList(true);
     } catch (err) {
-      wx.showToast({ title: '操作失败', icon: 'none' });
+      wx.showToast({ title: t('tokens_op_failed'), icon: 'none' });
     }
   },
 
@@ -166,7 +161,7 @@ Page({
     if (!code) return;
     wx.setClipboardData({
       data: code,
-      success: () => wx.showToast({ title: '已复制', icon: 'success' }),
+      success: () => wx.showToast({ title: t('tokens_copied'), icon: 'success' }),
     });
   },
 });

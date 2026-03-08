@@ -33,7 +33,7 @@ Page({
   onLoad(options) {
     const requestId = options.requestId ? Number(options.requestId) : null;
     if (!requestId) {
-      wx.showToast({ title: '参数错误', icon: 'none' });
+      wx.showToast({ title: t('modification_param_error'), icon: 'none' });
       wx.navigateBack();
       return;
     }
@@ -78,7 +78,7 @@ Page({
       const req = list.find(r => r.id === this.data.requestId);
 
       if (!req) {
-        wx.showToast({ title: '未找到申请记录', icon: 'none' });
+        wx.showToast({ title: t('modification_not_found'), icon: 'none' });
         wx.navigateBack();
         return;
       }
@@ -120,7 +120,7 @@ Page({
         // 没有修改申请，正常
       }
     } catch (error) {
-      wx.showToast({ title: (error && error.message) || '加载失败', icon: 'none' });
+      wx.showToast({ title: (error && error.message) || t('modification_load_failed'), icon: 'none' });
     } finally {
       this.setData({ loading: false });
     }
@@ -227,7 +227,7 @@ Page({
   async onWithdraw() {
     const confirmed = await new Promise((resolve) => {
       wx.showModal({
-        title: '确认',
+        title: t('modification_confirm_title'),
         content: t('modification_withdraw_confirm'),
         success: (res) => resolve(res.confirm),
         fail: () => resolve(false),
@@ -241,7 +241,7 @@ Page({
       wx.showToast({ title: t('modification_withdraw_success'), icon: 'success' });
       this.setData({ hasPendingMod: false, pendingMod: null });
     } catch (error) {
-      wx.showToast({ title: (error && error.message) || '撤回失败', icon: 'none' });
+      wx.showToast({ title: (error && error.message) || t('modification_withdraw_failed'), icon: 'none' });
     }
   },
 });

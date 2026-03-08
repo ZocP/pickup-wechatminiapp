@@ -450,6 +450,38 @@ module.exports = {
   today:                            'Today',
   all:                              'All',
 
+  // ─── Token Verification ───────────────────────────────────────────────
+  token_nav_title:                  'Registration Verification',
+  token_verify_success:             'Verified',
+  token_verify_failed:              'Verification failed, please retry',
+  token_err_not_found:              'Invalid registration code',
+  token_err_used:                   'Registration code already used',
+  token_err_expired:                'Registration code expired',
+  token_err_revoked:                'Registration code revoked',
+
+  // ─── Token Management (staff) ─────────────────────────────────────────
+  tokens_nav_title:                 'Token Management',
+  tokens_no_permission:             'Permission denied',
+  tokens_load_failed:               'Load failed',
+  tokens_user_prefix:               'User#',
+  tokens_name_required:             'Please enter name',
+  tokens_payment_required:          'Please select payment method',
+  tokens_amount_invalid:            'Please enter valid amount',
+  tokens_generate_success:          'Generated',
+  tokens_generate_failed:           'Generation failed',
+  tokens_revoke_title:              'Confirm Revoke',
+  tokens_revoke_confirm:            'Revoked codes cannot be used. Continue?',
+  tokens_revoke_success:            'Revoked',
+  tokens_op_failed:                 'Operation failed',
+  tokens_copied:                    'Copied',
+
+  // ─── Modification Extras ──────────────────────────────────────────────
+  modification_param_error:         'Invalid parameters',
+  modification_not_found:           'Request not found',
+  modification_load_failed:         'Load failed',
+  modification_confirm_title:       'Confirm',
+  modification_withdraw_failed:     'Withdraw failed',
+
   // ─── Home Driver ──────────────────────────────────────────────────────
   home_driver_section:              'Driver',
   home_driver_my_shifts:            'My Shifts',

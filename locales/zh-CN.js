@@ -449,6 +449,38 @@ module.exports = {
   today:                            '今天',
   all:                              '全部',
 
+  // ─── Token 验证页 ─────────────────────────────────────────────────────
+  token_nav_title:                  '注册验证',
+  token_verify_success:             '验证成功',
+  token_verify_failed:              '验证失败，请重试',
+  token_err_not_found:              '注册码无效',
+  token_err_used:                   '注册码已被使用',
+  token_err_expired:                '注册码已过期',
+  token_err_revoked:                '注册码已作废',
+
+  // ─── Token 管理页 (staff) ─────────────────────────────────────────────
+  tokens_nav_title:                 'Token 管理',
+  tokens_no_permission:             '权限不足',
+  tokens_load_failed:               '加载失败',
+  tokens_user_prefix:               '用户#',
+  tokens_name_required:             '请输入姓名',
+  tokens_payment_required:          '请选择付款方式',
+  tokens_amount_invalid:            '请输入有效金额',
+  tokens_generate_success:          '生成成功',
+  tokens_generate_failed:           '生成失败',
+  tokens_revoke_title:              '确认作废',
+  tokens_revoke_confirm:            '作废后该注册码将无法使用，是否继续？',
+  tokens_revoke_success:            '已作废',
+  tokens_op_failed:                 '操作失败',
+  tokens_copied:                    '已复制',
+
+  // ─── Modification 补充 ────────────────────────────────────────────────
+  modification_param_error:         '参数错误',
+  modification_not_found:           '未找到申请记录',
+  modification_load_failed:         '加载失败',
+  modification_confirm_title:       '确认',
+  modification_withdraw_failed:     '撤回失败',
+
   // ─── Home Driver ──────────────────────────────────────────────────────
   home_driver_section:              '司机功能',
   home_driver_my_shifts:            '我的班次',

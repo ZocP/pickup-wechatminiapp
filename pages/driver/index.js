@@ -53,10 +53,7 @@ Page({
 
   onShow() {
     const app = getApp();
-    if (app.isWechatBound && !app.isWechatBound()) {
-      wx.reLaunch({ url: '/pages/bind/index' });
-      return;
-    }
+    if (!app.ensureWechatBound()) return;
     wx.setNavigationBarTitle({ title: t('driver_nav_title') });
     this.loadDriverShifts();
   },
@@ -217,7 +214,7 @@ Page({
         });
       }
 
-      getApp().globalData.dashboardNeedsRefresh = true;
+      getApp().markDashboardDirty();
       await this.loadDriverShifts();
     } catch (error) {
       const errMsg = error.message || t('driver_board_failed');

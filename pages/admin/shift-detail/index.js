@@ -180,8 +180,8 @@ function usageOf(used, max) {
 
 function markDashboardDirty() {
   const root = getApp()
-  if (root && root.globalData) {
-    root.globalData.dashboardNeedsRefresh = true
+  if (root && typeof root.markDashboardDirty === 'function') {
+    root.markDashboardDirty()
   }
 }
 
@@ -256,10 +256,7 @@ Page({
     wx.setNavigationBarTitle({ title: t('shift_detail_nav_title') })
     this.setData({ i18n: buildI18n() })
 
-    if (app.isWechatBound && !app.isWechatBound()) {
-      wx.reLaunch({ url: '/pages/bind/index' });
-      return;
-    }
+    if (!app.ensureWechatBound()) return;
     const shiftId = query && query.id ? String(query.id) : ''
     if (!shiftId) {
       wx.showToast({ title: t('shift_detail_missing_id'), icon: 'none' })
@@ -274,7 +271,6 @@ Page({
 
   onShow() {
     wx.setNavigationBarTitle({ title: t('shift_detail_nav_title') })
-    this.setData({ i18n: buildI18n() })
     const now = Date.now()
     if (this.data.shiftId && now - this._lastLoadTime > 2000) {
       this._lastLoadTime = now

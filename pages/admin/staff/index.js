@@ -37,10 +37,7 @@ Page({
 
   onShow() {
     const app = getApp();
-    if (app.isWechatBound && !app.isWechatBound()) {
-      wx.reLaunch({ url: '/pages/bind/index' });
-      return;
-    }
+    if (!app.ensureWechatBound()) return;
 
     const role = app.getEffectiveRole ? app.getEffectiveRole() : ((app.globalData.userInfo && app.globalData.userInfo.role) || 'student');
     if (role !== 'admin') {
@@ -50,7 +47,6 @@ Page({
     }
 
     wx.setNavigationBarTitle({ title: t('staff_nav_title') });
-    this.setData({ i18n: buildI18n() });
     this.loadAll();
   },
 

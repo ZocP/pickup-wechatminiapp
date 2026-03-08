@@ -17,3 +17,21 @@ page {
   padding: 24rpx;
   box-shadow: 0 8rpx 22rpx rgba(0, 0, 0, 0.05);
 }
+
+/* 工具类 */
+.text-secondary {
+  color: #969799;
+  font-size: 24rpx;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

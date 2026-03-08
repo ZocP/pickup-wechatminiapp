@@ -49,7 +49,6 @@ Page({
 
   onShow() {
     wx.setNavigationBarTitle({ title: t('assign_nav_title') });
-    this.setData({ i18n: buildI18n() });
     this.loadRequests();
   },
 
@@ -150,8 +149,8 @@ Page({
       }
       this.setData({ showShiftPopup: false, selectedRequest: null });
       const app = getApp();
-      if (app && app.globalData) {
-        app.globalData.dashboardNeedsRefresh = true;
+      if (app && typeof app.markDashboardDirty === 'function') {
+        app.markDashboardDirty();
       }
       await this.loadRequests();
     } catch (err) {

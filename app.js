@@ -63,6 +63,33 @@ App({
     return !!String(userInfo.wechat_id || '').trim();
   },
 
+  /**
+   * 检查微信绑定状态，未绑定则跳转绑定页
+   * @returns {boolean} true=已绑定，false=未绑定（已跳转）
+   */
+  ensureWechatBound() {
+    if (!this.isWechatBound()) {
+      wx.reLaunch({ url: '/pages/bind/index' });
+      return false;
+    }
+    return true;
+  },
+
+  /**
+   * 标记 dashboard 需要刷新
+   */
+  markDashboardDirty() {
+    this.globalData.dashboardNeedsRefresh = true;
+  },
+
+  isDashboardDirty() {
+    return this.globalData.dashboardNeedsRefresh;
+  },
+
+  clearDashboardDirty() {
+    this.globalData.dashboardNeedsRefresh = false;
+  },
+
   getEffectiveRole() {
     const realRole = this.getRealRole();
     if (realRole === 'admin' && this.globalData.viewAsRole) {
