@@ -5,46 +5,22 @@ const { resolveRequestName, buildRideWithText, runWithActionLock } = require('..
 const { normalizeShiftStatus } = require('../../../utils/status');
 const { setTabBarHidden } = require('../../../utils/ui');
 
-function unwrapPayload(payload) {
-  if (!payload || typeof payload !== 'object') return payload;
-  if (Array.isArray(payload)) return payload;
-  return payload.data || payload.result || payload.payload || payload;
-}
-
+// 简化后的数据提取 — 后端已统一返回格式，保留最小兜底
 function extractArray(payload, candidates) {
-  const root = unwrapPayload(payload);
-  if (Array.isArray(root)) return root;
-  if (!root || typeof root !== 'object') return [];
-
+  if (Array.isArray(payload)) return payload;
+  if (!payload || typeof payload !== 'object') return [];
   for (let i = 0; i < candidates.length; i += 1) {
-    const key = candidates[i];
-    if (Array.isArray(root[key])) return root[key];
+    if (Array.isArray(payload[candidates[i]])) return payload[candidates[i]];
   }
-
-  const nested = unwrapPayload(root.data);
-  if (nested && nested !== root) {
-    if (Array.isArray(nested)) return nested;
-    for (let i = 0; i < candidates.length; i += 1) {
-      const key = candidates[i];
-      if (Array.isArray(nested[key])) return nested[key];
-    }
-  }
-
+  if (payload.data && Array.isArray(payload.data)) return payload.data;
   return [];
 }
 
 function pickNumber(payload, keys) {
-  const level1 = unwrapPayload(payload);
-  const level2 = level1 && level1.data ? unwrapPayload(level1.data) : null;
-  const roots = [payload, level1, level2].filter(Boolean);
-  for (let i = 0; i < roots.length; i += 1) {
-    const root = roots[i];
-    if (!root || typeof root !== 'object' || Array.isArray(root)) continue;
-    for (let j = 0; j < keys.length; j += 1) {
-      const value = root[keys[j]];
-      const num = Number(value);
-      if (Number.isFinite(num)) return num;
-    }
+  if (!payload || typeof payload !== 'object') return null;
+  for (let j = 0; j < keys.length; j += 1) {
+    const num = Number(payload[keys[j]]);
+    if (Number.isFinite(num)) return num;
   }
   return null;
 }

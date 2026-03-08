@@ -71,6 +71,10 @@ module.exports = {
     return request.del(`/admin/drivers/${id}`);
   },
 
+  getShift(id) {
+    return request.get(`/admin/shifts/${id}`);
+  },
+
   createShift(payload) {
     return request.post('/admin/shifts', payload);
   },
@@ -103,6 +107,10 @@ module.exports = {
 
   getMyStudentRequests() {
     return request.get('/student/requests/my');
+  },
+
+  getStudentRequest(id) {
+    return request.get(`/student/requests/${id}`);
   },
 
   updateStudentRequest(id, payload) {

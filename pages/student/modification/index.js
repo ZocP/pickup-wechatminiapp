@@ -73,11 +73,9 @@ Page({
     this.setData({ loading: true });
     try {
       // 加载当前 request 数据预填表单
-      const requests = await api.getMyStudentRequests();
-      const list = Array.isArray(requests) ? requests : [];
-      const req = list.find(r => r.id === this.data.requestId);
+      const req = await api.getStudentRequest(this.data.requestId);
 
-      if (!req) {
+      if (!req || !req.id) {
         wx.showToast({ title: t('modification_not_found'), icon: 'none' });
         wx.navigateBack();
         return;

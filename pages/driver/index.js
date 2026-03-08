@@ -70,7 +70,7 @@ Page({
     this.setData({ loading: true });
     try {
       const shiftsRes = await api.getDriverShifts();
-      const rawShifts = Array.isArray(shiftsRes) ? shiftsRes : (shiftsRes.data || shiftsRes.shifts || []);
+      const rawShifts = Array.isArray(shiftsRes) ? shiftsRes : (shiftsRes && shiftsRes.data || []);
 
       const now = new Date();
       // Enrich each shift with display fields
@@ -144,7 +144,7 @@ Page({
   async _loadPassengers(shiftId) {
     try {
       const passengersRes = await api.getShiftPassengers(shiftId);
-      let passengers = Array.isArray(passengersRes) ? passengersRes : (passengersRes.data || passengersRes.passengers || []);
+      let passengers = Array.isArray(passengersRes) ? passengersRes : (passengersRes && passengersRes.data || []);
       return passengers.map(passenger => ({
         ...passenger,
         status: passenger.status || passenger.boarding_status || 'assigned',

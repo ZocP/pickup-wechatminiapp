@@ -1,5 +1,6 @@
 const app = getApp()
-const { getDashboard, getPendingRequests, assignStudent, removeStudent, publishShift, updateShift, unpublishShift } = require('../../../utils/api')
+const api = require('../../../utils/api')
+const { getDashboard, getPendingRequests, assignStudent, removeStudent, publishShift, updateShift, unpublishShift } = api
 const { t } = require('../../../utils/i18n')
 const { pad2, normalizeDateTime, formatDateTime, formatMonthDay, formatHourMinute } = require('../../../utils/formatters')
 const { resolveRequestName, runWithActionLock: runWithActionLockHelper } = require('../../../utils/helpers')
@@ -315,29 +316,25 @@ Page({
     this._lastLoadTime = Date.now()
     if (!silent) wx.showLoading({ title: t('shift_detail_loading') })
     try {
-      const [dashboard, pending] = await Promise.all([
-        getDashboard(),
+      const [shiftRes, pending] = await Promise.all([
+        api.getShift(this.data.shiftId),
         getPendingRequests()
       ])
 
-      const dashboardRows = Array.isArray(dashboard)
-        ? dashboard
-        : (dashboard && Array.isArray(dashboard.shifts) ? dashboard.shifts : [])
+      const rawShift = shiftRes || {}
+      const shift = {
+        ...rawShift,
+        id: rawShift.id || rawShift.ID || rawShift.shift_id || 0,
+        status: normalizeShiftStatus(rawShift.status || rawShift.Status),
+        departure_time: rawShift.departure_time || rawShift.DepartureTime || '',
+        requests: Array.isArray(rawShift.requests)
+          ? rawShift.requests
+          : (Array.isArray(rawShift.Requests)
+            ? rawShift.Requests
+            : (Array.isArray(rawShift.passengers) ? rawShift.passengers : []))
+      }
 
-      const shifts = dashboardRows.map((item) => ({
-        ...item,
-        id: item.id || item.ID || item.shift_id || 0,
-        status: normalizeShiftStatus(item.status || item.Status),
-        departure_time: item.departure_time || item.DepartureTime || '',
-        requests: Array.isArray(item.requests)
-          ? item.requests
-          : (Array.isArray(item.Requests)
-            ? item.Requests
-            : (Array.isArray(item.passengers) ? item.passengers : []))
-      }))
-
-      const shift = shifts.find((item) => String(item.id) === String(this.data.shiftId))
-      if (!shift) {
+      if (!shift.id) {
         wx.showToast({ title: t('shift_detail_not_found'), icon: 'none' })
         return
       }
