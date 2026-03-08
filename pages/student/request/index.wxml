@@ -196,6 +196,12 @@
         <view class="line">{{i18n.student_request_meetpoint_label}}{{latestRequest.terminal || '--'}}</view>
         <view class="line">{{i18n.student_request_depart_label}}{{assignedShift.departure_time || '--'}}</view>
         
+        <!-- 登车状态 -->
+        <view class="line boarding-status-line">
+          <text wx:if="{{latestRequest.boarded_at}}" class="boarding-tag boarded">✅ {{i18n.student_request_boarded || '已登车'}}</text>
+          <text wx:else class="boarding-tag waiting">⏳ {{i18n.student_request_waiting_board || '待登车'}}</text>
+        </view>
+        
         <!-- 登车二维码 -->
         <view class="qr-code-section">
           <view class="inner-title">{{i18n.student_request_qr_title}}</view>

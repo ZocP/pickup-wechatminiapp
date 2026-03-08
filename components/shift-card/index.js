@@ -75,7 +75,7 @@ Component({
       const hasDelayWarning = requests.some((item) => !!item.is_delayed);
       
       const boardedCount = requests.filter(item => 
-        item.status === 'boarded' || item.boarded === true || item.boarding_status === 'boarded'
+        item.boarded_at != null
       ).length;
       const unboardedCount = usedSeats - boardedCount;
 

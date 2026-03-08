@@ -174,3 +174,26 @@
 .edit-actions {
   margin-top: 8rpx;
 }
+
+/* 登车状态 */
+.boarding-status-line {
+  margin-top: 8rpx;
+}
+
+.boarding-tag {
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.boarding-tag.boarded {
+  color: #07c160;
+  background-color: rgba(7, 193, 96, 0.1);
+}
+
+.boarding-tag.waiting {
+  color: #ff976a;
+  background-color: rgba(255, 151, 106, 0.1);
+}

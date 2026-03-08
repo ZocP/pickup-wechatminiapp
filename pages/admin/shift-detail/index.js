@@ -284,6 +284,7 @@ Page({
   },
 
   _lastLoadTime: 0,
+  _pollTimer: null,
 
   onShow() {
     wx.setNavigationBarTitle({ title: t('shift_detail_nav_title') })
@@ -292,6 +293,31 @@ Page({
     if (this.data.shiftId && now - this._lastLoadTime > 2000) {
       this._lastLoadTime = now
       this.loadData()
+    }
+    this._startPolling()
+  },
+
+  onHide() {
+    this._stopPolling()
+  },
+
+  onUnload() {
+    this._stopPolling()
+  },
+
+  _startPolling() {
+    this._stopPolling()
+    this._pollTimer = setInterval(() => {
+      if (this.data.shiftId) {
+        this.loadData(true)
+      }
+    }, 15000)
+  },
+
+  _stopPolling() {
+    if (this._pollTimer) {
+      clearInterval(this._pollTimer)
+      this._pollTimer = null
     }
   },
 
@@ -303,9 +329,9 @@ Page({
     }
   },
 
-  async loadData() {
+  async loadData(silent) {
     this._lastLoadTime = Date.now()
-    wx.showLoading({ title: t('shift_detail_loading') })
+    if (!silent) wx.showLoading({ title: t('shift_detail_loading') })
     try {
       const [dashboard, pending] = await Promise.all([
         getDashboard(),

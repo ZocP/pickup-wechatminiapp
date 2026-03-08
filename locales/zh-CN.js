@@ -264,6 +264,8 @@ module.exports = {
   student_request_car_label:        '车型：',
   student_request_meetpoint_label:  '集合点：Terminal ',
   student_request_depart_label:     '出发时间：',
+  student_request_boarded:          '已登车',
+  student_request_waiting_board:    '待登车',
   student_request_qr_title:         '登车二维码',
   student_request_qr_tips:          '请向司机出示此二维码进行登车核销',
   student_request_qr_generating:    '生成二维码中...',

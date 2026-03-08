@@ -265,6 +265,8 @@ module.exports = {
   student_request_car_label:        'Car: ',
   student_request_meetpoint_label:  'Meeting Point: Terminal ',
   student_request_depart_label:     'Departure: ',
+  student_request_boarded:          'Boarded',
+  student_request_waiting_board:    'Waiting to Board',
   student_request_qr_title:         'Boarding QR Code',
   student_request_qr_tips:          'Show this QR code to driver for boarding verification',
   student_request_qr_generating:    'Generating QR code...',
