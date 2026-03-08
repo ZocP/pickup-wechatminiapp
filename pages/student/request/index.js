@@ -4,6 +4,7 @@ const { formatDateOnly } = require('../../../utils/formatters');
 const { QRCodeModel, QRErrorCorrectLevel, getTypeNumber } = require('../../../utils/qrcode');
 const { t } = require('../../../utils/i18n');
 const { logError, logWarn } = require('../../../utils/logger');
+const { setTabBarHidden } = require('../../../utils/ui');
 
 const WECHAT_ID_REGEXP = /^[a-zA-Z0-9_]{6,20}$/;
 
@@ -724,9 +725,6 @@ Page({
   },
 
   setTabBarHidden(hidden) {
-    const tabBar = this.getTabBar && this.getTabBar();
-    if (tabBar && typeof tabBar.setHidden === 'function') {
-      tabBar.setHidden(!!hidden);
-    }
+    setTabBarHidden(this, hidden);
   },
 });

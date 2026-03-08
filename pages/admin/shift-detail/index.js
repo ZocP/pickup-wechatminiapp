@@ -2,6 +2,8 @@ const app = getApp()
 const { getDashboard, getPendingRequests, assignStudent, removeStudent, publishShift, updateShift, unpublishShift } = require('../../../utils/api')
 const { t } = require('../../../utils/i18n')
 const { pad2, normalizeDateTime, formatDateTime, formatMonthDay, formatHourMinute } = require('../../../utils/formatters')
+const { resolveRequestName, runWithActionLock: runWithActionLockHelper } = require('../../../utils/helpers')
+const { normalizeShiftStatus } = require('../../../utils/status')
 
 function terminalOf(req) {
   return req.terminal || req.arrival_terminal || req.flight_terminal || req.arrival_gate || ''
@@ -125,21 +127,9 @@ function groupByTwentyMinutes(items, getTs) {
 function toPassengerFromRequest(request) {
   const pickupRaw = pickupTimeOf(request)
   const pickupDate = normalizeDateTime(pickupRaw)
-  const user = request && request.user ? request.user : {}
-  const resolvedName = user.name
-    || user.real_name
-    || user.user_name
-    || user.nickname
-    || request.real_name
-    || request.passenger_name
-    || request.user_name
-    || request.student_name
-    || request.nickname
-    || request.name
-    || ''
   return {
     id: request.id,
-    name: String(resolvedName).trim() || `${t('common_student_prefix')}${request.user_id || request.id}`,
+    name: resolveRequestName(request),
     flight_no: request.flight_no || request.flightNumber || '--',
     calc_pickup_time: pickupRaw,
     pickup_time_text: formatDateTime(pickupRaw),
@@ -186,12 +176,6 @@ function usageOf(used, max) {
     percent,
     color
   }
-}
-
-function normalizeShiftStatus(status) {
-  const value = String(status || '').toLowerCase()
-  if (value === 'draft') return 'unpublished'
-  return value || 'unpublished'
 }
 
 function markDashboardDirty() {
@@ -586,16 +570,6 @@ Page({
   },
 
   async runWithActionLock(task) {
-    if (this.data.actionBusy) {
-      wx.showToast({ title: t('common_op_in_progress'), icon: 'none' })
-      return
-    }
-
-    this.setData({ actionBusy: true })
-    try {
-      await task()
-    } finally {
-      this.setData({ actionBusy: false })
-    }
+    return runWithActionLockHelper(this, task)
   }
 })

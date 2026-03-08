@@ -5,6 +5,11 @@ module.exports = {
   tab_dispatch:                     '调度',
   tab_profile:                      '我的',
 
+  // ─── Status ────────────────────────────────────────────────────────────
+  status_pending:                   '待分配',
+  status_assigned:                  '已分配待发布',
+  status_published:                 '已发布',
+
   // ─── Common ───────────────────────────────────────────────────────────
   common_admin_only:                '仅管理员可访问',
   common_load_failed:               '加载失败，请下拉重试',

@@ -5,6 +5,11 @@ module.exports = {
   tab_dispatch:                     'Dispatch',
   tab_profile:                      'Profile',
 
+  // ─── Status ────────────────────────────────────────────────────────────
+  status_pending:                   'Pending',
+  status_assigned:                  'Assigned (Unpublished)',
+  status_published:                 'Published',
+
   // ─── Common ───────────────────────────────────────────────────────────
   common_admin_only:                'Admin access only',
   common_load_failed:               'Load failed, pull to retry',

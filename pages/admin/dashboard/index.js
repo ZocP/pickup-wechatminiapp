@@ -1,33 +1,9 @@
 const api = require('../../../utils/api');
 const { t } = require('../../../utils/i18n');
 const { pad2, formatDateOnly } = require('../../../utils/formatters');
-
-function resolveRequestName(request) {
-  const user = (request && request.user) || {};
-  const name = user.name
-    || user.real_name
-    || user.user_name
-    || user.nickname
-    || request.real_name
-    || request.passenger_name
-    || request.user_name
-    || request.student_name
-    || request.nickname
-    || request.name
-    || '';
-  const normalized = String(name || '').trim();
-  if (normalized) return normalized;
-  return `${t('common_student_prefix')}${request.user_id || request.id || '--'}`;
-}
-
-function buildRideWithText(request) {
-  const note = String((request && request.ride_with_note) || '').trim();
-  const wxid = String((request && request.ride_with_wechat) || '').trim();
-  if (!note && !wxid) return '';
-  if (note && wxid) return `${t('common_ride_with_prefix')}${note} | ${t('common_wechat_prefix')}${wxid}`;
-  if (note) return `${t('common_ride_with_prefix')}${note}`;
-  return `${t('common_wechat_prefix')}${wxid}`;
-}
+const { resolveRequestName, buildRideWithText, runWithActionLock } = require('../../../utils/helpers');
+const { normalizeShiftStatus } = require('../../../utils/status');
+const { setTabBarHidden } = require('../../../utils/ui');
 
 function unwrapPayload(payload) {
   if (!payload || typeof payload !== 'object') return payload;
@@ -81,12 +57,6 @@ function normalizeDateKey(source) {
   const date = new Date(raw.includes('T') ? raw : raw.replace(' ', 'T'));
   if (Number.isNaN(date.getTime())) return '';
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
-}
-
-function normalizeShiftStatus(status) {
-  const value = String(status || '').toLowerCase();
-  if (value === 'draft') return 'unpublished';
-  return value || 'unpublished';
 }
 
 function shiftStatusText(status) {
@@ -510,16 +480,7 @@ Page({
   },
 
   async runWithActionLock(task) {
-    if (this.data.actionBusy) {
-      wx.showToast({ title: t('common_op_in_progress'), icon: 'none' });
-      return;
-    }
-    this.setData({ actionBusy: true });
-    try {
-      await task();
-    } finally {
-      this.setData({ actionBusy: false });
-    }
+    return runWithActionLock(this, task);
   },
 
   getSelectedAction(e, actions) {
@@ -550,10 +511,7 @@ Page({
   },
 
   setTabBarHidden(hidden) {
-    const tabBar = this.getTabBar && this.getTabBar();
-    if (tabBar && typeof tabBar.setHidden === 'function') {
-      tabBar.setHidden(!!hidden);
-    }
+    setTabBarHidden(this, hidden);
   },
 
   async onShowCreatePopup() {

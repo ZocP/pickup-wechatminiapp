@@ -1,4 +1,5 @@
 const { t, getLocale, setLocale } = require('../../utils/i18n');
+const { setTabBarHidden } = require('../../utils/ui');
 
 Page({
   data: {
@@ -168,9 +169,6 @@ Page({
   },
 
   setTabBarHidden(hidden) {
-    const tabBar = this.getTabBar && this.getTabBar();
-    if (tabBar && typeof tabBar.setHidden === 'function') {
-      tabBar.setHidden(!!hidden);
-    }
+    setTabBarHidden(this, hidden);
   },
 });

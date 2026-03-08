@@ -1,45 +1,9 @@
 const api = require('../../../utils/api');
 const { t } = require('../../../utils/i18n');
-const { pad2 } = require('../../../utils/formatters');
+const { formatDateTime, formatDateOnly } = require('../../../utils/formatters');
+const { resolveRequestName, buildRideWithText } = require('../../../utils/helpers');
 
-function resolveUserName(request) {
-  const user = (request && request.user) || {};
-  const name = user.name
-    || user.real_name
-    || user.user_name
-    || user.nickname
-    || request.real_name
-    || request.passenger_name
-    || request.name
-    || '';
-  const normalized = String(name || '').trim();
-  if (normalized) return normalized;
-  return `${t('common_student_prefix')}${request.user_id || request.id || '--'}`;
-}
-
-function buildRideWithText(request) {
-  const note = String((request && request.ride_with_note) || '').trim();
-  const wxid = String((request && request.ride_with_wechat) || '').trim();
-  if (!note && !wxid) return '';
-  if (note && wxid) return `${t('common_ride_with_prefix')}${note} | ${t('common_wechat_prefix')}${wxid}`;
-  if (note) return `${t('common_ride_with_prefix')}${note}`;
-  return `${t('common_wechat_prefix')}${wxid}`;
-}
-
-function formatDateTime(raw) {
-  if (!raw) return '--';
-  const str = String(raw);
-  if (str.includes('T')) {
-    return str.replace('T', ' ').replace('Z', '').slice(0, 16);
-  }
-  return str.slice(0, 16);
-}
-
-function formatDateOnly(raw) {
-  if (!raw) return '--';
-  return String(raw).slice(0, 10);
-}
-
+// 简单时间提取函数
 function formatTimeOnly(raw) {
   if (!raw) return '--';
   const str = String(raw);
@@ -101,7 +65,7 @@ Page({
       const list = Array.isArray(res) ? res : (res && res.data ? res.data : []);
       const requests = list.map((item) => ({
         ...item,
-        userName: resolveUserName(item),
+        userName: resolveRequestName(item),
         arrivalDateText: formatDateOnly(item.arrival_date),
         arrivalTimeText: formatTimeOnly(item.arrival_time_api),
         rideWithText: buildRideWithText(item),

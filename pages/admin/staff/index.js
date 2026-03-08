@@ -1,5 +1,6 @@
 const api = require('../../../utils/api');
 const { t } = require('../../../utils/i18n');
+const { setTabBarHidden } = require('../../../utils/ui');
 
 function buildI18n() {
   return {
@@ -211,9 +212,6 @@ Page({
   },
 
   setTabBarHidden(hidden) {
-    const tabBar = this.getTabBar && this.getTabBar();
-    if (tabBar && typeof tabBar.setHidden === 'function') {
-      tabBar.setHidden(!!hidden);
-    }
+    setTabBarHidden(this, hidden);
   },
 });
