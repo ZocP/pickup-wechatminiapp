@@ -45,11 +45,11 @@ print_header "1/4 后端 Go 测试"
 
 if [ -d "$BACKEND_DIR" ]; then
   cd "$BACKEND_DIR"
-  go test ./internal/service/... ./internal/handler/... -v -count=1 2>&1 | tail -20
-  record_result "Go 单元测试 (service + handler)" $?
+  go test ./internal/scheduler/... ./internal/handler/... -v -count=1 2>&1 | tail -20
+  record_result "Go 单元测试 (scheduler + handler)" $?
 else
   echo -e "  ${YELLOW}⚠️  后端目录不存在: $BACKEND_DIR${NC}"
-  record_result "Go 单元测试 (service + handler)" 1
+  record_result "Go 单元测试 (scheduler + handler)" 1
 fi
 
 # ============================================================

@@ -7,7 +7,7 @@
  * - 管理员 dashboard 能打开，filterDate 为有效日期
  * - modification-requests 页面能打开，列表已初始化
  * - 个人资料页 (profile) 能打开
- * - 司机页 (driver) 能打开，currentShift 字段存在
+ * - 司机页 (driver) 能打开，selectedShift 字段存在
  * - 每个页面截图存档
  */
 
@@ -132,7 +132,7 @@ const smokeSuite = {
       },
     },
     {
-      name: '司机页 (driver) 能打开且 currentShift 字段存在',
+      name: '司机页 (driver) 能打开且 selectedShift 字段存在',
       fn: async (fw) => {
         await fw.reLaunch('/pages/driver/index');
         const page = await fw.getCurrentPage();
@@ -140,10 +140,10 @@ const smokeSuite = {
         const data = await fw.getData();
         fw.assertNotNull('driver page data', data);
 
-        // currentShift 字段应该存在（可为 null 表示无当前班次）
+        // selectedShift 字段应该存在（可为 null 表示无当前班次）
         fw.assertTrue(
-          'driver data has currentShift field',
-          data.hasOwnProperty('currentShift') || data.hasOwnProperty('shift')
+          'driver data has selectedShift field',
+          data.hasOwnProperty('selectedShift') || data.hasOwnProperty('shift')
         );
 
         // 检查 DOM 渲染
