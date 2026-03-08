@@ -220,9 +220,11 @@ Page({
   openTimePicker() {
     this.setTabBarHidden(true);
     if (!this.data._pickerTarget) this.setData({ _pickerTarget: 'form' });
+    const target = this.data._pickerTarget || 'form';
+    const currentTime = this.data[target].arrival_time;
     this.setData({
       showTimePicker: true,
-      timePickerValue: this.data.form.arrival_time || this.data.timePickerValue,
+      timePickerValue: currentTime || this.data.timePickerValue,
     });
   },
 
@@ -381,7 +383,7 @@ Page({
 
       // Format arrival time for display
       let formattedArrivalTime = '--';
-      const rawTime = latest.arrival_time_api || latest.expected_arrival_time;
+      const rawTime = latest.arrival_time || latest.expected_arrival_time;
       if (rawTime) {
         const d = new Date(rawTime);
         if (!isNaN(d.getTime())) {
@@ -609,7 +611,7 @@ Page({
       return;
     }
     // 前端校验：落地时间前 24 小时
-    const rawTime = req.arrival_time_api || req.expected_arrival_time;
+    const rawTime = req.arrival_time || req.expected_arrival_time;
     if (rawTime) {
       const arrivalMs = new Date(rawTime).getTime();
       if (arrivalMs - Date.now() < 24 * 60 * 60 * 1000) {
@@ -625,10 +627,10 @@ Page({
   // === Pending 状态直接编辑 ===
   editRequest() {
     const req = this.data.latestRequest;
-    // 解析 arrival_time_api 为 date + time
+    // 解析 arrival_time 为 date + time
     let arrivalDate = '';
     let arrivalTime = '';
-    const rawTime = req.arrival_time_api || req.expected_arrival_time;
+    const rawTime = req.arrival_time || req.expected_arrival_time;
     if (rawTime) {
       const d = new Date(rawTime);
       if (!isNaN(d.getTime())) {

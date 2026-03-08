@@ -244,8 +244,8 @@ Page({
       return {
         name: `${resolveRequestName(r)} | ${(r.flight_no || '--')}`,
         subname: rideWith
-          ? `${rideWith} | ${t('assign_arrival_time')}${r.arrival_time_api || r.arrival_date || '--'}`
-          : `${t('assign_arrival_time')}${r.arrival_time_api || r.arrival_date || '--'}`,
+          ? `${rideWith} | ${t('assign_arrival_time')}${r.arrival_time || r.arrival_date || '--'}`
+          : `${t('assign_arrival_time')}${r.arrival_time || r.arrival_date || '--'}`,
         request: r,
       };
     });

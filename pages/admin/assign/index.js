@@ -66,7 +66,7 @@ Page({
         ...item,
         userName: resolveRequestName(item),
         arrivalDateText: formatDateOnly(item.arrival_date),
-        arrivalTimeText: formatTimeOnly(item.arrival_time_api),
+        arrivalTimeText: formatTimeOnly(item.arrival_time),
         rideWithText: buildRideWithText(item),
       }));
       this.setData({ requests, loading: false });
@@ -89,7 +89,7 @@ Page({
   },
 
   async loadAvailableShifts(request) {
-    const arrivalTime = request.arrival_time_api || request.calc_pickup_time || '';
+    const arrivalTime = request.arrival_time || request.calc_pickup_time || '';
     if (!arrivalTime) {
       wx.showToast({ title: t('assign_no_arrival_time'), icon: 'none' });
       this.setData({ loadingShifts: false });

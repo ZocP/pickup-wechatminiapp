@@ -105,7 +105,7 @@ Component({
         id: item.id,
         name: resolveRequestName(item),
         flightNo: item.flight_no || '--',
-        arrivalTime: formatDateTime(item.arrival_time_api || item.expected_arrival_time),
+        arrivalTime: formatDateTime(item.arrival_time || item.expected_arrival_time),
         pickupTime: formatDateTime(item.calc_pickup_time),
         checkedBags: this.toNumber(item.checked_bags),
         carryOnBags: this.toNumber(item.carry_on_bags),

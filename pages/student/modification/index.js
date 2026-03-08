@@ -84,8 +84,8 @@ Page({
       // 解析现有到达时间
       let arrivalDate = '';
       let arrivalTime = '';
-      if (req.arrival_time_api) {
-        const dt = new Date(req.arrival_time_api);
+      if (req.arrival_time) {
+        const dt = new Date(req.arrival_time);
         const pad = (n) => String(n).padStart(2, '0');
         arrivalDate = dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate());
         arrivalTime = pad(dt.getHours()) + ':' + pad(dt.getMinutes());
