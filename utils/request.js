@@ -120,26 +120,6 @@ function handleStatusCode(statusCode, data) {
     return;
   }
 
-  // 403 with token_required: student not verified, sync state and redirect
-  if (statusCode === 403 && data && data.error === 'token_required') {
-    // 同步本地状态
-    const userInfo = wx.getStorageSync('userInfo') || {};
-    userInfo.token_verified = false;
-    wx.setStorageSync('userInfo', userInfo);
-    const app = getApp && getApp();
-    if (app && app.globalData) {
-      app.globalData.userInfo = { ...app.globalData.userInfo, token_verified: false };
-    }
-
-    const pages = getCurrentPages();
-    const current = pages.length ? pages[pages.length - 1] : null;
-    const currentRoute = current ? `/${current.route}` : '';
-    if (currentRoute !== '/pages/token/index') {
-      wx.reLaunch({ url: '/pages/token/index' });
-    }
-    return;
-  }
-
   // 401 with TOKEN_VERSION_MISMATCH: role changed, force re-login
   if (statusCode === 401 && data && data.code === 'TOKEN_VERSION_MISMATCH') {
     clearTokenAndRedirect('权限已变更，请重新登录');
@@ -299,6 +279,29 @@ function request(options = {}) {
             });
           });
         }
+      }
+
+      // Always handle token_required regardless of showError
+      if (statusCode === 403 && resData && resData.error === 'token_required') {
+        // 同步本地状态
+        const userInfo = wx.getStorageSync('userInfo') || {};
+        userInfo.token_verified = false;
+        wx.setStorageSync('userInfo', userInfo);
+        const app = getApp && getApp();
+        if (app && app.globalData) {
+          app.globalData.userInfo = { ...app.globalData.userInfo, token_verified: false };
+        }
+        const pages = getCurrentPages();
+        const current = pages.length ? pages[pages.length - 1] : null;
+        const currentRoute = current ? `/${current.route}` : '';
+        if (currentRoute !== '/pages/token/index') {
+          wx.reLaunch({ url: '/pages/token/index' });
+        }
+        return Promise.reject({
+          statusCode,
+          data: resData,
+          message: resData.error || 'token_required',
+        });
       }
 
       if (showError) handleStatusCode(statusCode, resData);
