@@ -283,9 +283,16 @@ Page({
     await this.loadData()
   },
 
+  _lastLoadTime: 0,
+
   onShow() {
     wx.setNavigationBarTitle({ title: t('shift_detail_nav_title') })
     this.setData({ i18n: buildI18n() })
+    const now = Date.now()
+    if (this.data.shiftId && now - this._lastLoadTime > 2000) {
+      this._lastLoadTime = now
+      this.loadData()
+    }
   },
 
   async onPullDownRefresh() {
@@ -297,6 +304,7 @@ Page({
   },
 
   async loadData() {
+    this._lastLoadTime = Date.now()
     wx.showLoading({ title: t('shift_detail_loading') })
     try {
       const [dashboard, pending] = await Promise.all([

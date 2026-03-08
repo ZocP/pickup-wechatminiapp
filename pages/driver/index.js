@@ -216,6 +216,7 @@ Page({
         });
       }
 
+      getApp().globalData.dashboardNeedsRefresh = true;
       await this.loadDriverShifts();
     } catch (error) {
       const errMsg = error.message || t('driver_board_failed');
