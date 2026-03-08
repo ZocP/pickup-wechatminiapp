@@ -66,22 +66,11 @@ if [ -z "$PORT" ]; then
 else
   ENCODED=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$PROJ")
   echo "  DevTools 端口: $PORT"
-  COMPILE_OUTPUT=$(curl -s --max-time 60 "http://127.0.0.1:${PORT}/v2/preview?project=${ENCODED}&qr-format=terminal" 2>&1)
+  HTTP_STATUS=$(curl -s --max-time 60 -o /tmp/preview-qr.jpg -w "%{http_code}" "http://127.0.0.1:${PORT}/v2/preview?project=${ENCODED}")
 
-  # 检查是否有编译错误
-  if echo "$COMPILE_OUTPUT" | python3 -c "
-import json, sys
-try:
-    r = json.load(sys.stdin)
-    if 'error' in str(r).lower() or r.get('code', 0) != 0:
-        print('COMPILE FAIL:', json.dumps(r, indent=2))
-        sys.exit(1)
-    else:
-        print('COMPILE OK')
-except:
-    print('COMPILE FAIL: non-JSON response')
-    sys.exit(1)
-" 2>&1; then
+  # 检查 HTTP 状态码
+  if [ "$HTTP_STATUS" = "200" ]; then
+    echo "COMPILE OK (HTTP 200, QR saved to /tmp/preview-qr.jpg)"
     record_result "前端编译检查 (DevTools)" 0
   else
     record_result "前端编译检查 (DevTools)" 1

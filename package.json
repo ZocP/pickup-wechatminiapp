@@ -5,5 +5,8 @@
   "description": "WeChat Mini Program for UIUC Pickup Scheduler",
   "dependencies": {
     "@vant/weapp": "^1.11.7"
+  },
+  "devDependencies": {
+    "miniprogram-automator": "^0.12.1"
   }
 }
