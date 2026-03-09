@@ -42,18 +42,25 @@
     <button class="filter-action-btn{{!filterDate ? ' active' : ''}}" bindtap="filterReset">{{i18n.all}}</button>
   </view>
 
+  <!-- 状态筛选标签 -->
+  <view class="status-filter-bar">
+    <button class="status-tag{{filterStatus == '' ? ' active' : ''}}" bindtap="filterStatusAll">{{i18n.all}} ({{shifts.length}})</button>
+    <button class="status-tag{{filterStatus == 'published' ? ' active' : ''}}" bindtap="filterStatusPublished">{{i18n.common_published}} ({{publishedCount}})</button>
+    <button class="status-tag{{filterStatus == 'draft' ? ' active' : ''}}" bindtap="filterStatusDraft">{{i18n.common_unpublished}} ({{unpublishedCount}})</button>
+  </view>
+
   <view class="shift-list">
     <view wx:if="{{loading}}" class="card">
       <van-skeleton title row="3" />
       <van-skeleton title row="3" custom-style="margin-top: 16rpx;" />
     </view>
 
-    <view wx:if="{{!loading && shifts.length === 0}}" class="card">
+    <view wx:if="{{!loading && filteredShifts.length === 0}}" class="card">
       <van-empty description="{{i18n.dashboard_no_shifts}}" />
     </view>
 
     <shift-card
-      wx:for="{{!loading ? shifts : []}}"
+      wx:for="{{!loading ? filteredShifts : []}}"
       wx:key="id"
       shift="{{item}}"
       bind:manageshift="onManageShift"

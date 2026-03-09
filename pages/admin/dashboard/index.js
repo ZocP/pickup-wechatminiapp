@@ -61,6 +61,8 @@ function buildI18n() {
     dashboard_confirm_create:         t('dashboard_confirm_create'),
     today:                            t('today'),
     all:                              t('all'),
+    common_published:                 t('common_published'),
+    common_unpublished:               t('common_unpublished'),
     dashboard_mod_requests:           t('dashboard_mod_requests'),
     dashboard_pending_show_all:       t('dashboard_pending_show_all'),
     dashboard_pending_today_only:     t('dashboard_pending_today_only'),
@@ -75,6 +77,9 @@ Page({
   data: {
     loading: false,
     shifts: [],
+    filteredShifts: [],
+    filterStatus: '',
+    unpublishedCount: 0,
     pendingRequests: [],
 
     filterDate: null,
@@ -277,8 +282,11 @@ Page({
     const activePendingActions = useTodayFilter ? todayPendingActions : allPendingActions;
     const overflow = Math.max(0, pendingRequests.length - allPendingActions.length);
 
+    const unpublishedCount = shifts.filter(s => s.status === 'draft').length;
+
     this.setData({
       shifts,
+      unpublishedCount,
       pendingRequests,
       pendingCount,
       todayPendingCount: todayPendingRequests.length,
@@ -293,6 +301,8 @@ Page({
         : '',
       loading: false,
     });
+
+    this.applyStatusFilter();
 
     const cache = app.globalData.dashboardCache || {};
     app.globalData.dashboardCache = {
@@ -878,6 +888,27 @@ Page({
 
   filterReset() {
     wx.navigateTo({ url: '/pages/admin/all-shifts/index' });
+  },
+
+  filterStatusAll() {
+    this.setData({ filterStatus: '' });
+    this.applyStatusFilter();
+  },
+
+  filterStatusPublished() {
+    this.setData({ filterStatus: 'published' });
+    this.applyStatusFilter();
+  },
+
+  filterStatusDraft() {
+    this.setData({ filterStatus: 'draft' });
+    this.applyStatusFilter();
+  },
+
+  applyStatusFilter() {
+    const { shifts, filterStatus } = this.data;
+    const filtered = filterStatus ? shifts.filter(s => s.status === filterStatus) : shifts;
+    this.setData({ filteredShifts: filtered });
   },
 
   _formatDate(d) {
