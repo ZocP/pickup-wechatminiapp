@@ -65,6 +65,7 @@ function buildI18n() {
     dashboard_pending_show_all:       t('dashboard_pending_show_all'),
     dashboard_pending_today_only:     t('dashboard_pending_today_only'),
     dashboard_pending_search_placeholder: t('dashboard_pending_search_placeholder'),
+    assign_no_requests:               t('assign_no_requests'),
   };
 }
 
