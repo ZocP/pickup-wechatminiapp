@@ -598,7 +598,7 @@ Page({
     const val = this.data.vehicleInputValue.trim()
     const count = val ? parseInt(val, 10) : null
 
-    if (val && (!Number.isFinite(count) || count < 0)) {
+    if (val && (!Number.isFinite(count) || count < 1)) {
       wx.showToast({ title: t('shift_detail_vehicle_save_failed'), icon: 'none' })
       return
     }
