@@ -67,7 +67,7 @@ Page({
   },
 
   onReachBottom() {
-    if (this.data.hasMore && !this.data.loadingMore) {
+    if (this.data.hasMore && !this.data.loadingMore && !this.data.loading) {
       this.loadShifts(this.data.page + 1);
     }
   },
