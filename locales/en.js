@@ -86,6 +86,8 @@ module.exports = {
   staff_unset_driver_failed:        'Failed to remove driver',
   staff_action_set_staff:           'Set as Staff',
   staff_action_unset_staff:         'Remove Staff',
+  staff_search_placeholder:          'Search by name or WeChat ID',
+  staff_search_result_count:         'Results: ',
   staff_action_set_driver:          'Set as Driver',
   staff_action_unset_driver:        'Remove Driver',
 

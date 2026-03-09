@@ -86,6 +86,8 @@ module.exports = {
   staff_unset_driver_failed:        '取消司机失败',
   staff_action_set_staff:           '设为Staff',
   staff_action_unset_staff:         '取消Staff',
+  staff_search_placeholder:          '搜索姓名或微信号',
+  staff_search_result_count:         '搜索结果：',
   staff_action_set_driver:          '设为司机',
   staff_action_unset_driver:        '取消司机',
 
