@@ -186,6 +186,15 @@ module.exports = {
     return request.post(`/admin/modification-requests/${id}/reject`, { admin_note: adminNote || '' });
   },
 
+  // 智能推荐相关接口
+  suggestShifts(windowHours = 2, topN = 5) {
+    return request.get(`/admin/shifts/suggest?window_hours=${windowHours}&top_n=${topN}`);
+  },
+
+  batchCreateShifts(suggestions) {
+    return request.post('/admin/shifts/batch', { suggestions });
+  },
+
   // Token 相关 API
   generateToken(data) {
     return request.post('/staff/tokens', data);

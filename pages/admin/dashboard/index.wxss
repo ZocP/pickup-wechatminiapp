@@ -315,3 +315,133 @@ page {
 .pending-empty-tip {
   padding: 40rpx 0;
 }
+
+/* 创建方式选择 */
+.create-choice-btns {
+  padding: 12rpx 0;
+}
+
+/* 智能推荐弹窗 */
+.suggest-popup {
+  padding: 24rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+}
+
+.suggest-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  text-align: center;
+  padding-bottom: 16rpx;
+}
+
+.suggest-loading {
+  padding: 60rpx 0;
+  text-align: center;
+}
+
+.suggest-empty {
+  padding: 40rpx 0;
+}
+
+.suggest-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8rpx 0 16rpx;
+}
+
+.suggest-toggle {
+  font-size: 26rpx;
+  color: #1989fa;
+}
+
+.suggest-scroll-list {
+  max-height: 50vh;
+}
+
+.suggest-card {
+  background: #f7f8fa;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  margin-bottom: 16rpx;
+  border: 2rpx solid transparent;
+  transition: border-color 0.2s;
+}
+
+.suggest-card.selected {
+  border-color: #1989fa;
+  background: #f0f7ff;
+}
+
+.suggest-card-header {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.suggest-checkbox {
+  flex: 0 0 auto;
+}
+
+.suggest-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.suggest-window-time {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #323233;
+}
+
+.suggest-student-count {
+  font-size: 24rpx;
+  color: #ff976a;
+  font-weight: 500;
+  margin-top: 4rpx;
+}
+
+.suggest-expand-btn {
+  text-align: right;
+  padding: 8rpx 0 0;
+}
+
+.suggest-expand-btn text {
+  font-size: 24rpx;
+  color: #1989fa;
+}
+
+.suggest-students {
+  margin-top: 12rpx;
+  padding-top: 12rpx;
+  border-top: 1rpx solid #ebedf0;
+}
+
+.suggest-student-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 6rpx 0;
+  font-size: 24rpx;
+  color: #646566;
+}
+
+.stu-name {
+  flex: 0 0 auto;
+  font-weight: 500;
+  color: #323233;
+}
+
+.stu-flight {
+  flex: 0 0 auto;
+  color: #969799;
+}
+
+.stu-time {
+  flex: 1;
+  text-align: right;
+  color: #969799;
+}
+
+.suggest-footer {
+  padding-top: 16rpx;
+}

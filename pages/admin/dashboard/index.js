@@ -68,6 +68,21 @@ function buildI18n() {
     dashboard_pending_today_only:     t('dashboard_pending_today_only'),
     dashboard_pending_search_placeholder: t('dashboard_pending_search_placeholder'),
     assign_no_requests:               t('assign_no_requests'),
+    suggest_title:                    t('suggest_title'),
+    suggest_loading:                  t('suggest_loading'),
+    suggest_empty:                    t('suggest_empty'),
+    suggest_empty_desc:               t('suggest_empty_desc'),
+    suggest_window_label:             t('suggest_window_label'),
+    suggest_window_hours:             t('suggest_window_hours'),
+    suggest_select_all:               t('suggest_select_all'),
+    suggest_deselect_all:             t('suggest_deselect_all'),
+    suggest_create_btn:               t('suggest_create_btn'),
+    suggest_none_selected:            t('suggest_none_selected'),
+    suggest_expand:                   t('suggest_expand'),
+    suggest_collapse:                 t('suggest_collapse'),
+    suggest_manual_create:            t('suggest_manual_create'),
+    suggest_smart_create:             t('suggest_smart_create'),
+    dashboard_smart_suggest:          t('dashboard_smart_suggest'),
   };
 }
 
@@ -128,6 +143,15 @@ Page({
     selectedDateTs: new Date().getTime(),
     minDateTs: new Date().getTime(),
     formattedTime: '',
+
+    // 智能推荐相关
+    showCreateChoicePopup: false,
+    showSuggestPopup: false,
+    suggestLoading: false,
+    suggestions: [],
+    allSuggestionsSelected: false,
+    selectedSuggestionCount: 0,
+    suggestCreateBtnText: '',
 
     // 角色模拟相关
     showRoleSimulator: false,
@@ -590,15 +614,138 @@ Page({
     setTabBarHidden(this, hidden);
   },
 
-  async onShowCreatePopup() {
-    const now = Date.now();
+  onShowCreatePopup() {
     this.setTabBarHidden(true);
+    this.setData({ showCreateChoicePopup: true });
+  },
+
+  onCloseCreateChoice() {
+    this.setTabBarHidden(false);
+    this.setData({ showCreateChoicePopup: false });
+  },
+
+  async onChooseManualCreate() {
+    const now = Date.now();
     this.setData({
+      showCreateChoicePopup: false,
       showCreatePopup: true,
       selectedDateTs: this.data.selectedDateTs || now,
       minDateTs: now,
     });
     await this.fetchDrivers();
+  },
+
+  async onChooseSmartSuggest() {
+    this.setData({
+      showCreateChoicePopup: false,
+      showSuggestPopup: true,
+      suggestLoading: true,
+      suggestions: [],
+    });
+    try {
+      const raw = await api.suggestShifts(2, 5);
+      const list = Array.isArray(raw) ? raw : [];
+      const suggestions = list.map((item) => {
+        const startDate = new Date(item.window_start);
+        const endDate = new Date(item.window_end);
+        return {
+          ...item,
+          selected: true,
+          expanded: false,
+          windowStartText: this._formatDateTime(startDate),
+          windowEndText: this._formatDateTime(endDate),
+          studentCountText: t('suggest_student_count').replace('{0}', item.student_count || 0),
+          departureTime: this._formatDepartureTime(endDate),
+        };
+      });
+      const selectedCount = suggestions.length;
+      this.setData({
+        suggestions,
+        suggestLoading: false,
+        allSuggestionsSelected: selectedCount > 0,
+        selectedSuggestionCount: selectedCount,
+        suggestCreateBtnText: t('suggest_create_count').replace('{0}', selectedCount),
+      });
+    } catch (err) {
+      wx.showToast({ title: t('suggest_load_failed'), icon: 'none' });
+      this.setData({ suggestLoading: false });
+    }
+  },
+
+  onCloseSuggestPopup() {
+    this.setTabBarHidden(false);
+    this.setData({ showSuggestPopup: false });
+  },
+
+  onToggleSuggestion(e) {
+    const index = e.currentTarget.dataset.index;
+    const key = `suggestions[${index}].selected`;
+    const newVal = !this.data.suggestions[index].selected;
+    this.setData({ [key]: newVal });
+    this._updateSuggestionSelection();
+  },
+
+  onToggleSuggestionExpand(e) {
+    const index = e.currentTarget.dataset.index;
+    const key = `suggestions[${index}].expanded`;
+    this.setData({ [key]: !this.data.suggestions[index].expanded });
+  },
+
+  onToggleSelectAll() {
+    const newVal = !this.data.allSuggestionsSelected;
+    const updates = {};
+    this.data.suggestions.forEach((_, i) => {
+      updates[`suggestions[${i}].selected`] = newVal;
+    });
+    this.setData(updates);
+    this._updateSuggestionSelection();
+  },
+
+  _updateSuggestionSelection() {
+    const suggestions = this.data.suggestions;
+    const selectedCount = suggestions.filter(s => s.selected).length;
+    this.setData({
+      selectedSuggestionCount: selectedCount,
+      allSuggestionsSelected: selectedCount === suggestions.length && suggestions.length > 0,
+      suggestCreateBtnText: t('suggest_create_count').replace('{0}', selectedCount),
+    });
+  },
+
+  async onBatchCreateFromSuggestions() {
+    const selected = this.data.suggestions.filter(s => s.selected);
+    if (!selected.length) {
+      wx.showToast({ title: t('suggest_none_selected'), icon: 'none' });
+      return;
+    }
+
+    await this.runWithActionLock(async () => {
+      try {
+        const payload = selected.map(s => ({
+          departure_time: s.departureTime,
+          driver_id: null,
+        }));
+        await api.batchCreateShifts(payload);
+        wx.showToast({
+          title: t('suggest_create_success').replace('{0}', selected.length),
+          icon: 'success',
+        });
+        this.setData({ showSuggestPopup: false });
+        this.setTabBarHidden(false);
+        await this.loadAll();
+      } catch (err) {
+        wx.showToast({ title: t('suggest_create_failed'), icon: 'none' });
+      }
+    });
+  },
+
+  _formatDateTime(d) {
+    if (!(d instanceof Date) || isNaN(d.getTime())) return '--';
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  },
+
+  _formatDepartureTime(d) {
+    if (!(d instanceof Date) || isNaN(d.getTime())) return '';
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:00`;
   },
 
   onCloseCreatePopup() {

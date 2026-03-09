@@ -512,6 +512,28 @@ module.exports = {
   dashboard_pending_today_only:     '仅今天',
   dashboard_pending_overflow:       '仅展示前{0}条，请缩小范围',
 
+  // ─── Smart Suggest ─────────────────────────────────────────────────────
+  suggest_title:                    '智能推荐班次',
+  suggest_loading:                  '正在分析待分配请求...',
+  suggest_empty:                    '暂无可推荐的班次',
+  suggest_empty_desc:               '没有待分配的学生请求，或所有请求缺少落地时间',
+  suggest_window_label:             '时间窗口',
+  suggest_window_hours:             '小时',
+  suggest_student_count:            '{0}人',
+  suggest_select_all:               '全选',
+  suggest_deselect_all:             '取消全选',
+  suggest_create_btn:               '一键创建选中班次',
+  suggest_create_count:             '创建 {0} 个班次',
+  suggest_none_selected:            '请至少选择一个推荐班次',
+  suggest_create_success:           '成功创建 {0} 个班次',
+  suggest_create_failed:            '批量创建失败',
+  suggest_load_failed:              '加载推荐失败',
+  suggest_expand:                   '展开学生列表',
+  suggest_collapse:                 '收起',
+  dashboard_smart_suggest:          '🤖 智能推荐',
+  suggest_manual_create:            '手动创建',
+  suggest_smart_create:             '智能推荐',
+
   // ─── Home Driver ──────────────────────────────────────────────────────
   home_driver_section:              '司机功能',
   home_driver_my_shifts:            '我的班次',

@@ -513,6 +513,28 @@ module.exports = {
   dashboard_pending_today_only:     'Today Only',
   dashboard_pending_overflow:       'Showing first {0} items, please narrow down',
 
+  // ─── Smart Suggest ─────────────────────────────────────────────────────
+  suggest_title:                    'Smart Shift Suggestions',
+  suggest_loading:                  'Analyzing pending requests...',
+  suggest_empty:                    'No suggestions available',
+  suggest_empty_desc:               'No pending student requests, or all requests are missing arrival times',
+  suggest_window_label:             'Time Window',
+  suggest_window_hours:             'hours',
+  suggest_student_count:            '{0} students',
+  suggest_select_all:               'Select All',
+  suggest_deselect_all:             'Deselect All',
+  suggest_create_btn:               'Create Selected Shifts',
+  suggest_create_count:             'Create {0} shifts',
+  suggest_none_selected:            'Please select at least one suggestion',
+  suggest_create_success:           'Successfully created {0} shifts',
+  suggest_create_failed:            'Batch creation failed',
+  suggest_load_failed:              'Failed to load suggestions',
+  suggest_expand:                   'Show students',
+  suggest_collapse:                 'Collapse',
+  dashboard_smart_suggest:          '🤖 Smart Suggest',
+  suggest_manual_create:            'Manual Create',
+  suggest_smart_create:             'Smart Suggest',
+
   // ─── Home Driver ──────────────────────────────────────────────────────
   home_driver_section:              'Driver',
   home_driver_my_shifts:            'My Shifts',

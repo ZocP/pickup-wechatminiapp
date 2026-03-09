@@ -124,6 +124,17 @@
     bind:close="onCloseRemoveSheet"
   />
 
+  <!-- 创建方式选择弹窗 -->
+  <van-popup show="{{showCreateChoicePopup}}" position="bottom" round bind:close="onCloseCreateChoice">
+    <view class="create-popup">
+      <view class="create-title">{{i18n.dashboard_create_shift_title}}</view>
+      <view class="create-choice-btns">
+        <van-button type="info" block custom-style="margin-bottom: 16rpx;" bind:tap="onChooseManualCreate">{{i18n.suggest_manual_create}}</van-button>
+        <van-button type="warning" block bind:tap="onChooseSmartSuggest">{{i18n.suggest_smart_create}}</van-button>
+      </view>
+    </view>
+  </van-popup>
+
   <van-popup show="{{showCreatePopup}}" position="bottom" round bind:close="onCloseCreatePopup">
     <view class="create-popup">
       <view class="create-title">{{i18n.dashboard_create_shift_title}}</view>
@@ -154,6 +165,73 @@
         />
       </van-cell-group>
       <van-button type="info" block custom-style="margin-top: 24rpx;" bind:tap="onSubmitShift">{{i18n.dashboard_confirm_create}}</van-button>
+    </view>
+  </van-popup>
+
+  <!-- 智能推荐弹窗 -->
+  <van-popup show="{{showSuggestPopup}}" position="bottom" round closeable bind:close="onCloseSuggestPopup" custom-style="max-height: 85vh;">
+    <view class="suggest-popup">
+      <view class="suggest-title">{{i18n.suggest_title}}</view>
+
+      <view wx:if="{{suggestLoading}}" class="suggest-loading">
+        <van-loading size="24px">{{i18n.suggest_loading}}</van-loading>
+      </view>
+
+      <view wx:elif="{{!suggestions.length}}" class="suggest-empty">
+        <van-empty description="{{i18n.suggest_empty_desc}}" />
+      </view>
+
+      <view wx:else>
+        <view class="suggest-toolbar">
+          <text class="suggest-toggle" bindtap="onToggleSelectAll">
+            {{allSuggestionsSelected ? i18n.suggest_deselect_all : i18n.suggest_select_all}}
+          </text>
+        </view>
+
+        <scroll-view scroll-y class="suggest-scroll-list">
+          <view
+            wx:for="{{suggestions}}"
+            wx:key="index"
+            class="suggest-card {{item.selected ? 'selected' : ''}}"
+            data-index="{{index}}"
+          >
+            <view class="suggest-card-header" data-index="{{index}}" bindtap="onToggleSuggestion">
+              <view class="suggest-checkbox">
+                <van-checkbox value="{{item.selected}}" shape="square" />
+              </view>
+              <view class="suggest-card-info">
+                <view class="suggest-window-time">
+                  {{item.windowStartText}} — {{item.windowEndText}}
+                </view>
+                <view class="suggest-student-count">
+                  {{item.studentCountText}}
+                </view>
+              </view>
+            </view>
+            <view class="suggest-expand-btn" data-index="{{index}}" bindtap="onToggleSuggestionExpand">
+              <text>{{item.expanded ? i18n.suggest_collapse : i18n.suggest_expand}}</text>
+            </view>
+            <view wx:if="{{item.expanded}}" class="suggest-students">
+              <view wx:for="{{item.students}}" wx:for-item="stu" wx:key="request_id" class="suggest-student-item">
+                <text class="stu-name">{{stu.name || '—'}}</text>
+                <text class="stu-flight">{{stu.flight_no}}</text>
+                <text class="stu-time">{{stu.arrival_time}}</text>
+              </view>
+            </view>
+          </view>
+        </scroll-view>
+
+        <view class="suggest-footer">
+          <van-button
+            type="warning"
+            block
+            disabled="{{!selectedSuggestionCount}}"
+            bind:tap="onBatchCreateFromSuggestions"
+          >
+            {{selectedSuggestionCount ? suggestCreateBtnText : i18n.suggest_none_selected}}
+          </van-button>
+        </view>
+      </view>
     </view>
   </van-popup>
 
