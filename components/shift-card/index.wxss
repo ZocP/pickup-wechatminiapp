@@ -17,17 +17,26 @@
   display: flex;
   flex-direction: column;
   gap: 8rpx;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .departure {
   font-size: 32rpx;
   font-weight: 600;
   color: #323233;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .flights {
   font-size: 24rpx;
   color: #646566;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .header-right {
@@ -35,6 +44,8 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 8rpx;
+  flex-shrink: 0;
+  max-width: 40%;
 }
 
 .warn-tag {
