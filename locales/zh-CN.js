@@ -495,6 +495,7 @@ module.exports = {
   // ─── Dashboard Pending Filter ────────────────────────────────────────
   dashboard_pending_show_all:       '显示全部',
   dashboard_pending_today_only:     '仅今天',
+  dashboard_pending_overflow:       '仅展示前{0}条，请缩小范围',
 
   // ─── Home Driver ──────────────────────────────────────────────────────
   home_driver_section:              '司机功能',

@@ -228,8 +228,8 @@ Page({
 
     const pendingRequests = extractArray(pendingRes, ['items', 'requests', 'list', 'rows']);
 
-    const today = new Date();
-    const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const todayDate = new Date();
+    const todayKey = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
 
     const todayShiftCountFromRows = shifts.filter((s) => normalizeDateKey(s.departure_time) === todayKey).length;
     const publishedCountFromRows = shifts.filter((s) => (s.status || '').toLowerCase() === 'published').length;
@@ -283,7 +283,7 @@ Page({
       pendingActions: activePendingActions,
       pendingActionOverflow: overflow,
       overflowTipText: overflow > 0
-        ? `${t('dashboard_pending_pool_label')}${t('common_op_in_progress').replace('操作进行中，请稍候', '')}仅展示前${allPendingActions.length}条，请缩小范围`
+        ? t('dashboard_pending_overflow').replace('{0}', allPendingActions.length)
         : '',
       loading: false,
     });
@@ -311,7 +311,7 @@ Page({
     });
 
     if (this.data.pendingActionOverflow > 0) {
-      wx.showToast({ title: `仅展示前${MAX_PENDING_ACTIONS}条，请缩小范围`, icon: 'none' });
+      wx.showToast({ title: t('dashboard_pending_overflow').replace('{0}', MAX_PENDING_ACTIONS), icon: 'none' });
     }
   },
 

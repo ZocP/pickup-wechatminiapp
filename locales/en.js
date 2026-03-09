@@ -496,6 +496,7 @@ module.exports = {
   // ─── Dashboard Pending Filter ────────────────────────────────────────
   dashboard_pending_show_all:       'Show All',
   dashboard_pending_today_only:     'Today Only',
+  dashboard_pending_overflow:       'Showing first {0} items, please narrow down',
 
   // ─── Home Driver ──────────────────────────────────────────────────────
   home_driver_section:              'Driver',
