@@ -1,0 +1,11 @@
+.all-shifts-page {
+  padding-bottom: 40rpx;
+}
+
+.sort-bar {
+  padding: 0 24rpx;
+}
+
+.shift-list {
+  padding: 16rpx 24rpx;
+}

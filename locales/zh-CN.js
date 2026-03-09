@@ -482,6 +482,20 @@ module.exports = {
   modification_confirm_title:       '确认',
   modification_withdraw_failed:     '撤回失败',
 
+  // ─── All Shifts ────────────────────────────────────────────────────────
+  allshifts_nav_title:              '全部班次',
+  allshifts_tab_all:                '全部',
+  allshifts_tab_published:          '已发布',
+  allshifts_tab_draft:              '未发布',
+  allshifts_empty:                  '暂无班次',
+  allshifts_sort_time:              '按时间',
+  allshifts_sort_seats:             '按空位',
+  allshifts_sort_status:            '按状态',
+
+  // ─── Dashboard Pending Filter ────────────────────────────────────────
+  dashboard_pending_show_all:       '显示全部',
+  dashboard_pending_today_only:     '仅今天',
+
   // ─── Home Driver ──────────────────────────────────────────────────────
   home_driver_section:              '司机功能',
   home_driver_my_shifts:            '我的班次',

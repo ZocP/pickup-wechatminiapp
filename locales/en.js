@@ -483,6 +483,20 @@ module.exports = {
   modification_confirm_title:       'Confirm',
   modification_withdraw_failed:     'Withdraw failed',
 
+  // ─── All Shifts ────────────────────────────────────────────────────────
+  allshifts_nav_title:              'All Shifts',
+  allshifts_tab_all:                'All',
+  allshifts_tab_published:          'Published',
+  allshifts_tab_draft:              'Unpublished',
+  allshifts_empty:                  'No shifts',
+  allshifts_sort_time:              'By Time',
+  allshifts_sort_seats:             'By Seats',
+  allshifts_sort_status:            'By Status',
+
+  // ─── Dashboard Pending Filter ────────────────────────────────────────
+  dashboard_pending_show_all:       'Show All',
+  dashboard_pending_today_only:     'Today Only',
+
   // ─── Home Driver ──────────────────────────────────────────────────────
   home_driver_section:              'Driver',
   home_driver_my_shifts:            'My Shifts',

@@ -1,0 +1,11 @@
+{
+  "usingComponents": {
+    "shift-card": "/components/shift-card/index",
+    "van-tab": "/miniprogram_npm/@vant/weapp/tab/index",
+    "van-tabs": "/miniprogram_npm/@vant/weapp/tabs/index",
+    "van-dropdown-menu": "/miniprogram_npm/@vant/weapp/dropdown-menu/index",
+    "van-dropdown-item": "/miniprogram_npm/@vant/weapp/dropdown-item/index",
+    "van-empty": "/miniprogram_npm/@vant/weapp/empty/index"
+  },
+  "navigationBarTitleText": "全部班次"
+}
