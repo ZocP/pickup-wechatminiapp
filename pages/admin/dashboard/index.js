@@ -784,7 +784,7 @@ Page({
   },
 
   filterReset() {
-    this.setData({ filterDate: null, filterDateLabel: '-' });
+    this.setData({ filterDate: 'all', filterDateLabel: this.data.i18n.all || '全部' });
     this.loadAll();
   },
 
