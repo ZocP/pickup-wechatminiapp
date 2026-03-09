@@ -3,6 +3,12 @@
   padding-bottom: 40rpx;
 }
 
+.search-result-count {
+  padding: 8rpx 32rpx;
+  font-size: 24rpx;
+  color: #969799;
+}
+
 .request-card {
   display: flex;
   justify-content: space-between;

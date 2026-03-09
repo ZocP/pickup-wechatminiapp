@@ -107,6 +107,8 @@ module.exports = {
   assign_no_arrival_time:           '该学生无落地时间',
   assign_load_shifts_failed:        '加载班次失败',
   assign_op_in_progress:            '操作进行中',
+  assign_search_placeholder:         '搜索姓名、航班号或微信号',
+  assign_search_result_count:        '搜索结果：',
   assign_success:                   '分配成功',
   assign_failed:                    '分配失败',
 
@@ -495,6 +497,7 @@ module.exports = {
   allshifts_sort_status:            '按状态',
 
   // ─── Dashboard Pending Filter ────────────────────────────────────────
+  dashboard_pending_search_placeholder: '搜索姓名、航班号或微信号',
   dashboard_pending_show_all:       '显示全部',
   dashboard_pending_today_only:     '仅今天',
   dashboard_pending_overflow:       '仅展示前{0}条，请缩小范围',

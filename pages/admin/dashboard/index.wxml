@@ -72,17 +72,41 @@
     <text style="font-size: 24rpx; color: #999;">{{overflowTipText}}</text>
   </view>
 
-  <van-action-sheet
+  <van-popup
     show="{{showPendingSheet}}"
-    title="{{i18n.dashboard_pending_students}}"
+    position="bottom"
+    round
+    closeable
     z-index="2000"
     root-portal
-    actions="{{pendingActions}}"
-    close-on-click-action="true"
-    bind:select="onSelectPendingRequest"
     bind:close="onClosePendingSheet"
-    bind:click-overlay="onClosePendingSheet"
-  />
+    custom-style="max-height: 80vh;"
+  >
+    <view class="pending-popup">
+      <view class="pending-popup-title">{{i18n.dashboard_pending_students}}</view>
+      <van-search
+        value="{{pendingSearchKeyword}}"
+        placeholder="{{i18n.dashboard_pending_search_placeholder}}"
+        bind:change="onPendingSearchChange"
+        bind:clear="onPendingSearchClear"
+      />
+      <scroll-view scroll-y class="pending-scroll-list">
+        <view wx:if="{{!visiblePendingActions.length}}" class="pending-empty-tip">
+          <van-empty description="{{i18n.assign_no_requests}}" />
+        </view>
+        <view
+          wx:for="{{visiblePendingActions}}"
+          wx:key="index"
+          class="pending-list-item"
+          data-index="{{index}}"
+          bind:tap="onTapPendingItem"
+        >
+          <view class="pending-item-name">{{item.name}}</view>
+          <view wx:if="{{item.subname}}" class="pending-item-sub">{{item.subname}}</view>
+        </view>
+      </scroll-view>
+    </view>
+  </van-popup>
 
   <van-action-sheet
     show="{{showShiftPicker}}"

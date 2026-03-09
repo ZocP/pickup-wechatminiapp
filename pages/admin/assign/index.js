@@ -27,6 +27,8 @@ function buildI18n() {
     assign_no_shifts:          t('assign_no_shifts'),
     assign_depart_time:        t('assign_depart_time'),
     assign_capacity_warning:   t('assign_capacity_warning'),
+    assign_search_placeholder: t('assign_search_placeholder'),
+    assign_search_result_count:t('assign_search_result_count'),
   };
 }
 
@@ -34,6 +36,8 @@ Page({
   data: {
     loading: false,
     requests: [],
+    filteredRequests: [],
+    searchKeyword: '',
     showShiftPopup: false,
     loadingShifts: false,
     selectedRequest: null,
@@ -70,10 +74,42 @@ Page({
         rideWithText: buildRideWithText(item),
       }));
       this.setData({ requests, loading: false });
+      this._applyFilter();
     } catch (err) {
       wx.showToast({ title: t('assign_load_failed'), icon: 'none' });
       this.setData({ loading: false });
     }
+  },
+
+  onSearchChange(e) {
+    const keyword = (e.detail || '').trim();
+    this.setData({ searchKeyword: keyword });
+    if (this._searchTimer) clearTimeout(this._searchTimer);
+    this._searchTimer = setTimeout(() => {
+      this._applyFilter();
+    }, 300);
+  },
+
+  onSearchClear() {
+    if (this._searchTimer) clearTimeout(this._searchTimer);
+    this.setData({ searchKeyword: '' });
+    this._applyFilter();
+  },
+
+  _applyFilter() {
+    const keyword = (this.data.searchKeyword || '').toLowerCase();
+    const requests = this.data.requests || [];
+    if (!keyword) {
+      this.setData({ filteredRequests: requests });
+      return;
+    }
+    const filtered = requests.filter((item) => {
+      const name = (item.userName || '').toLowerCase();
+      const flightNo = (item.flight_no || '').toLowerCase();
+      const wechatId = (item.wechat_id || '').toLowerCase();
+      return name.includes(keyword) || flightNo.includes(keyword) || wechatId.includes(keyword);
+    });
+    this.setData({ filteredRequests: filtered });
   },
 
   onAssign(e) {

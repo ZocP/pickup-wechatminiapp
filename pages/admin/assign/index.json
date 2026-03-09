@@ -8,6 +8,7 @@
     "van-popup": "/miniprogram_npm/@vant/weapp/popup/index",
     "van-loading": "/miniprogram_npm/@vant/weapp/loading/index",
     "van-icon": "/miniprogram_npm/@vant/weapp/icon/index",
-    "van-skeleton": "/miniprogram_npm/@vant/weapp/skeleton/index"
+    "van-skeleton": "/miniprogram_npm/@vant/weapp/skeleton/index",
+    "van-search": "/miniprogram_npm/@vant/weapp/search/index"
   }
 }

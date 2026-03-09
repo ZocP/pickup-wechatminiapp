@@ -218,4 +218,42 @@ page {
   color: #fff;
 }
 
+/* Pending popup styles */
+.pending-popup {
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+}
 
+.pending-popup-title {
+  text-align: center;
+  font-size: 32rpx;
+  font-weight: 600;
+  padding: 24rpx 0 8rpx;
+}
+
+.pending-scroll-list {
+  max-height: 55vh;
+}
+
+.pending-list-item {
+  padding: 20rpx 32rpx;
+  border-bottom: 1rpx solid #ebedf0;
+}
+
+.pending-list-item:active {
+  background: #f2f3f5;
+}
+
+.pending-item-name {
+  font-size: 28rpx;
+  color: #323233;
+}
+
+.pending-item-sub {
+  font-size: 24rpx;
+  color: #969799;
+  margin-top: 4rpx;
+}
+
+.pending-empty-tip {
+  padding: 40rpx 0;
+}

@@ -64,6 +64,7 @@ function buildI18n() {
     dashboard_mod_requests:           t('dashboard_mod_requests'),
     dashboard_pending_show_all:       t('dashboard_pending_show_all'),
     dashboard_pending_today_only:     t('dashboard_pending_today_only'),
+    dashboard_pending_search_placeholder: t('dashboard_pending_search_placeholder'),
   };
 }
 
@@ -95,6 +96,8 @@ Page({
 
     showPendingSheet: false,
     pendingActions: [],
+    visiblePendingActions: [],
+    pendingSearchKeyword: '',
     selectedPendingRequest: null,
 
     showShiftPicker: false,
@@ -310,6 +313,8 @@ Page({
     this.setData({
       showPendingSheet: true,
       currentShiftIdForAdd: 0,
+      pendingSearchKeyword: '',
+      visiblePendingActions: this.data.pendingActions,
     });
 
     if (this.data.pendingActionOverflow > 0) {
@@ -323,7 +328,52 @@ Page({
     this.setData({
       pendingFilterToday: newVal,
       pendingActions: actions,
+      pendingSearchKeyword: '',
+      visiblePendingActions: actions,
     });
+  },
+
+  onPendingSearchChange(e) {
+    const keyword = (e.detail || '').trim();
+    this.setData({ pendingSearchKeyword: keyword });
+    if (this._pendingSearchTimer) clearTimeout(this._pendingSearchTimer);
+    this._pendingSearchTimer = setTimeout(() => {
+      this._applyPendingFilter();
+    }, 300);
+  },
+
+  onPendingSearchClear() {
+    if (this._pendingSearchTimer) clearTimeout(this._pendingSearchTimer);
+    this.setData({ pendingSearchKeyword: '' });
+    this._applyPendingFilter();
+  },
+
+  _applyPendingFilter() {
+    const keyword = (this.data.pendingSearchKeyword || '').toLowerCase();
+    const actions = this.data.pendingActions || [];
+    if (!keyword) {
+      this.setData({ visiblePendingActions: actions });
+      return;
+    }
+    const filtered = actions.filter((item) => {
+      const name = (item.name || '').toLowerCase();
+      const subname = (item.subname || '').toLowerCase();
+      const req = item.request || {};
+      const wechatId = (req.wechat_id || '').toLowerCase();
+      return name.includes(keyword) || subname.includes(keyword) || wechatId.includes(keyword);
+    });
+    this.setData({ visiblePendingActions: filtered });
+  },
+
+  onTapPendingItem(e) {
+    const index = e.currentTarget.dataset.index;
+    const actions = this.data.visiblePendingActions || [];
+    const action = actions[index];
+    if (!action) return;
+    // Find the original index in pendingActions for consistency
+    const originalActions = this.data.pendingActions || [];
+    const originalIndex = originalActions.indexOf(action);
+    this.onSelectPendingRequest({ detail: { index: originalIndex >= 0 ? originalIndex : index } });
   },
 
   onAddPassenger(e) {
@@ -341,6 +391,8 @@ Page({
     this.setData({
       showPendingSheet: true,
       currentShiftIdForAdd: shiftId,
+      pendingSearchKeyword: '',
+      visiblePendingActions: this.data.pendingActions,
     });
     this.setTabBarHidden(true);
   },

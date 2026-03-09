@@ -107,6 +107,8 @@ module.exports = {
   assign_no_arrival_time:           'No arrival time for this student',
   assign_load_shifts_failed:        'Failed to load shifts',
   assign_op_in_progress:            'In progress',
+  assign_search_placeholder:         'Search name, flight, or WeChat ID',
+  assign_search_result_count:        'Results: ',
   assign_success:                   'Assigned',
   assign_failed:                    'Assignment failed',
 
@@ -496,6 +498,7 @@ module.exports = {
   allshifts_sort_status:            'By Status',
 
   // ─── Dashboard Pending Filter ────────────────────────────────────────
+  dashboard_pending_search_placeholder: 'Search name, flight, or WeChat ID',
   dashboard_pending_show_all:       'Show All',
   dashboard_pending_today_only:     'Today Only',
   dashboard_pending_overflow:       'Showing first {0} items, please narrow down',
