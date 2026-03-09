@@ -14,14 +14,29 @@ function buildI18n() {
   };
 }
 
+// Map tab index to backend status filter
+const TAB_STATUS_MAP = {
+  0: '',           // all
+  1: 'published',
+  2: 'draft',
+};
+
 Page({
   data: {
     loading: false,
-    allShifts: [],       // raw from API
-    filteredShifts: [],  // after tab filter + sort
+    loadingMore: false,
+    allShifts: [],       // accumulated across pages
+    filteredShifts: [],  // after client-side sort
     activeTab: 0,
     sortBy: 'time',
 
+    // Pagination
+    page: 1,
+    pageSize: 20,
+    total: 0,
+    hasMore: true,
+
+    // Counts (fetched from total per tab)
     allCount: 0,
     publishedCount: 0,
     draftCount: 0,
@@ -41,21 +56,37 @@ Page({
       ],
     });
     wx.setNavigationBarTitle({ title: t('allshifts_nav_title') });
-    this.loadAll();
+    this._loadTabCounts();
+    this.loadShifts(1);
   },
 
   async onPullDownRefresh() {
-    await this.loadAll();
+    this._loadTabCounts();
+    await this.loadShifts(1);
     wx.stopPullDownRefresh();
   },
 
-  async loadAll() {
-    this.setData({ loading: true });
-    try {
-      const res = await api.getDashboard('all');
-      const raw = Array.isArray(res) ? res : (res && Array.isArray(res.shifts) ? res.shifts : (res && Array.isArray(res.items) ? res.items : (res && Array.isArray(res.list) ? res.list : (res && Array.isArray(res.rows) ? res.rows : (res && Array.isArray(res.data) ? res.data : [])))));
+  onReachBottom() {
+    if (this.data.hasMore && !this.data.loadingMore) {
+      this.loadShifts(this.data.page + 1);
+    }
+  },
 
-      const shifts = raw.map((item) => ({
+  async loadShifts(page) {
+    if (page > 1) {
+      this.setData({ loadingMore: true });
+    } else {
+      this.setData({ loading: true, allShifts: [], filteredShifts: [] });
+    }
+
+    const status = TAB_STATUS_MAP[this.data.activeTab] || '';
+
+    try {
+      const res = await api.getDashboard('all', page, this.data.pageSize, status);
+      const raw = (res && Array.isArray(res.shifts)) ? res.shifts : (Array.isArray(res) ? res : []);
+      const total = (res && typeof res.total === 'number') ? res.total : raw.length;
+
+      const newShifts = raw.map((item) => ({
         ...item,
         id: item.id || item.ID || item.shift_id || 0,
         status: normalizeShiftStatus(item.status || item.Status),
@@ -67,53 +98,62 @@ Page({
             : (Array.isArray(item.passengers) ? item.passengers : [])),
       }));
 
-      const publishedCount = shifts.filter((s) => s.status === 'published').length;
-      const draftCount = shifts.filter((s) => s.status !== 'published').length;
+      const allShifts = page === 1 ? newShifts : [...this.data.allShifts, ...newShifts];
 
       this.setData({
-        allShifts: shifts,
-        allCount: shifts.length,
-        publishedCount,
-        draftCount,
-        loading: false,
+        allShifts,
+        page,
+        total,
+        hasMore: allShifts.length < total,
       });
-      this.applyFilterAndSort();
+
+      this.applySort();
     } catch (err) {
       wx.showToast({ title: t('common_load_failed'), icon: 'none' });
-      this.setData({ loading: false });
+    } finally {
+      this.setData({ loading: false, loadingMore: false });
+    }
+  },
+
+  /** Load counts for each tab (fire-and-forget, lightweight) */
+  async _loadTabCounts() {
+    try {
+      const [allRes, pubRes, draftRes] = await Promise.all([
+        api.getDashboard('all', 1, 1, ''),
+        api.getDashboard('all', 1, 1, 'published'),
+        api.getDashboard('all', 1, 1, 'draft'),
+      ]);
+      this.setData({
+        allCount: (allRes && typeof allRes.total === 'number') ? allRes.total : 0,
+        publishedCount: (pubRes && typeof pubRes.total === 'number') ? pubRes.total : 0,
+        draftCount: (draftRes && typeof draftRes.total === 'number') ? draftRes.total : 0,
+      });
+    } catch (_) {
+      // non-critical, counts will show 0
     }
   },
 
   onTabChange(e) {
     this.setData({ activeTab: e.detail.index });
-    this.applyFilterAndSort();
+    // Server-side filter: reload from page 1
+    this.loadShifts(1);
+    this._loadTabCounts();
   },
 
   onSortChange(e) {
     this.setData({ sortBy: e.detail });
-    this.applyFilterAndSort();
+    this.applySort();
   },
 
-  applyFilterAndSort() {
-    const { allShifts, activeTab, sortBy } = this.data;
+  /** Client-side sort on loaded data */
+  applySort() {
+    const { allShifts, sortBy } = this.data;
     let list = allShifts.slice();
 
-    // Tab filter
-    if (activeTab === 1) {
-      list = list.filter((s) => s.status === 'published');
-    } else if (activeTab === 2) {
-      list = list.filter((s) => s.status !== 'published');
-    }
-
-    // Sort
     if (sortBy === 'time') {
       list.sort((a, b) => (a.departure_time || '').localeCompare(b.departure_time || ''));
     } else if (sortBy === 'seats') {
-      list.sort((a, b) => {
-        const seatsA = this._unfilledSeats(a);
-        const seatsB = this._unfilledSeats(b);
-        return seatsA - seatsB;
-      });
+      list.sort((a, b) => this._unfilledSeats(a) - this._unfilledSeats(b));
     } else if (sortBy === 'status') {
       list.sort((a, b) => {
         if (a.status === 'published' && b.status !== 'published') return -1;

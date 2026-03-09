@@ -22,8 +22,13 @@ module.exports = {
     return request.get('/auth/me');
   },
 
-  getDashboard(date) {
-    const url = date ? `/admin/shifts/dashboard?date=${date}` : '/admin/shifts/dashboard';
+  getDashboard(date, page, pageSize, status) {
+    const params = [];
+    if (date) params.push(`date=${date}`);
+    if (page) params.push(`page=${page}`);
+    if (pageSize) params.push(`page_size=${pageSize}`);
+    if (status) params.push(`status=${status}`);
+    const url = params.length ? `/admin/shifts/dashboard?${params.join('&')}` : '/admin/shifts/dashboard';
     return request.get(url);
   },
 
