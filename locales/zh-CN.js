@@ -65,6 +65,7 @@ module.exports = {
   dashboard_exit_simulation:        '已退出角色模拟',
   dashboard_shift_data:             '班次数据',
   dashboard_pending_data:           '待分配数据',
+  dashboard_mod_requests:           '修改申请审批',
 
   // ─── Staff ────────────────────────────────────────────────────────────
   staff_nav_title:                  'Staff 管理',

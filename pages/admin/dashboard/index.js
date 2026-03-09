@@ -61,6 +61,7 @@ function buildI18n() {
     dashboard_confirm_create:         t('dashboard_confirm_create'),
     today:                            t('today'),
     all:                              t('all'),
+    dashboard_mod_requests:           t('dashboard_mod_requests'),
   };
 }
 

@@ -26,7 +26,7 @@
     <van-button type="info" block bind:tap="onShowCreatePopup">{{i18n.dashboard_add_shift}}</van-button>
     <van-button type="warning" block custom-style="margin-top: 16rpx;" bind:tap="onQuickAssign">{{i18n.dashboard_quick_assign}}</van-button>
     <van-button type="default" plain block custom-style="margin-top: 16rpx;" bind:tap="onGoModificationRequests">
-      {{i18n.dashboard_mod_requests || '修改申请审批'}}
+      {{i18n.dashboard_mod_requests}}
       <van-tag wx:if="{{pendingModCount > 0}}" type="danger" round custom-style="margin-left: 8rpx;">{{pendingModCount}}</van-tag>
     </van-button>
   </view>

@@ -65,6 +65,7 @@ module.exports = {
   dashboard_exit_simulation:        'Exited role simulation',
   dashboard_shift_data:             'Shift data',
   dashboard_pending_data:           'Pending data',
+  dashboard_mod_requests:           'Modification Requests',
 
   // ─── Staff ────────────────────────────────────────────────────────────
   staff_nav_title:                  'Staff Management',
