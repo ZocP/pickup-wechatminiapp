@@ -76,15 +76,16 @@ page {
 
 .action-bar {
   display: flex;
-  gap: 16rpx;
+  gap: 12rpx;
   padding: 16rpx 24rpx;
   background: #fff;
   border-radius: 16rpx;
   margin: 16rpx 24rpx;
 }
 
-.action-btn {
-  flex: 1 !important;
+.action-item {
+  flex: 1;
+  min-width: 0;
 }
 
 .grid-number {

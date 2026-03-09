@@ -7,9 +7,15 @@
   </view>
 
   <view class="action-bar">
-    <van-button type="info" size="small" bind:tap="onShowCreatePopup" custom-class="action-btn">{{i18n.dashboard_add_shift}}</van-button>
-    <van-button type="warning" size="small" bind:tap="onQuickAssign" custom-class="action-btn">{{i18n.dashboard_quick_assign}}</van-button>
-    <van-button type="default" size="small" bind:tap="onGoModificationRequests" custom-class="action-btn">{{i18n.dashboard_mod_requests}}</van-button>
+    <view class="action-item">
+      <van-button type="info" size="small" block bind:tap="onShowCreatePopup">{{i18n.dashboard_add_shift}}</van-button>
+    </view>
+    <view class="action-item">
+      <van-button type="warning" size="small" block bind:tap="onQuickAssign">{{i18n.dashboard_quick_assign}}</van-button>
+    </view>
+    <view class="action-item">
+      <van-button type="default" size="small" block bind:tap="onGoModificationRequests">{{i18n.dashboard_mod_requests}}</van-button>
+    </view>
   </view>
 
   <!-- 日期筛选栏 -->
