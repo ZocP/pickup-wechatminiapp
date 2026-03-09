@@ -74,7 +74,7 @@ Page({
 
       const role = (mergedUser && mergedUser.role) || 'student';
 
-      // 学生需要验证注册码
+      // 学生需要验证邀请码
       if (role === 'student' && mergedUser.token_verified === false) {
         wx.reLaunch({ url: '/pages/token/index' });
         return;

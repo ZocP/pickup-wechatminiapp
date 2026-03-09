@@ -465,17 +465,17 @@ module.exports = {
   today:                            'Today',
   all:                              'All',
 
-  // ─── Token Verification ───────────────────────────────────────────────
-  token_nav_title:                  'Registration Verification',
+  // ─── Invite Code Verification ───────────────────────────────────────────
+  token_nav_title:                  'Invite Code Verification',
   token_verify_success:             'Verified',
   token_verify_failed:              'Verification failed, please retry',
-  token_err_not_found:              'Invalid registration code',
-  token_err_used:                   'Registration code already used',
-  token_err_expired:                'Registration code expired',
-  token_err_revoked:                'Registration code revoked',
+  token_err_not_found:              'Invalid invite code',
+  token_err_used:                   'Invite code already used',
+  token_err_expired:                'Invite code expired',
+  token_err_revoked:                'Invite code revoked',
 
-  // ─── Token Management (staff) ─────────────────────────────────────────
-  tokens_nav_title:                 'Token Management',
+  // ─── Invite Code Management (staff) ─────────────────────────────────────────
+  tokens_nav_title:                 'Invite Code Management',
   tokens_no_permission:             'Permission denied',
   tokens_load_failed:               'Load failed',
   tokens_user_prefix:               'User#',

@@ -464,17 +464,17 @@ module.exports = {
   today:                            '今天',
   all:                              '全部',
 
-  // ─── Token 验证页 ─────────────────────────────────────────────────────
-  token_nav_title:                  '注册验证',
+  // ─── 邀请码验证页 ───────────────────────────────────────────────────────
+  token_nav_title:                  '邀请码验证',
   token_verify_success:             '验证成功',
   token_verify_failed:              '验证失败，请重试',
-  token_err_not_found:              '注册码无效',
-  token_err_used:                   '注册码已被使用',
-  token_err_expired:                '注册码已过期',
-  token_err_revoked:                '注册码已作废',
+  token_err_not_found:              '邀请码无效',
+  token_err_used:                   '邀请码已被使用',
+  token_err_expired:                '邀请码已过期',
+  token_err_revoked:                '邀请码已作废',
 
-  // ─── Token 管理页 (staff) ─────────────────────────────────────────────
-  tokens_nav_title:                 'Token 管理',
+  // ─── 邀请码管理页 (staff) ─────────────────────────────────────────────
+  tokens_nav_title:                 '邀请码管理',
   tokens_no_permission:             '权限不足',
   tokens_load_failed:               '加载失败',
   tokens_user_prefix:               '用户#',
@@ -484,7 +484,7 @@ module.exports = {
   tokens_generate_success:          '生成成功',
   tokens_generate_failed:           '生成失败',
   tokens_revoke_title:              '确认作废',
-  tokens_revoke_confirm:            '作废后该注册码将无法使用，是否继续？',
+  tokens_revoke_confirm:            '作废后该邀请码将无法使用，是否继续？',
   tokens_revoke_success:            '已作废',
   tokens_op_failed:                 '操作失败',
   tokens_copied:                    '已复制',
