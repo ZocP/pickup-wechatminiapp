@@ -1,34 +1,15 @@
 <view class="page dashboard-page">
   <view class="summary card">
-    <van-grid column-num="3" border="false">
-      <van-grid-item use-slot>
-        <view class="summary-item">
-          <text class="summary-label">{{i18n.dashboard_pending_count_label}}</text>
-          <text class="grid-number danger">{{pendingCount}}</text>
-        </view>
-      </van-grid-item>
-      <van-grid-item use-slot>
-        <view class="summary-item">
-          <text class="summary-label">{{i18n.dashboard_today_shifts_label}}</text>
-          <text class="grid-number">{{todayShiftCount}}</text>
-        </view>
-      </van-grid-item>
-      <van-grid-item use-slot>
-        <view class="summary-item">
-          <text class="summary-label">{{i18n.dashboard_published_count_label}}</text>
-          <text class="grid-number success">{{publishedCount}}</text>
-        </view>
-      </van-grid-item>
-    </van-grid>
+    <view class="summary-item">
+      <text class="summary-label">{{i18n.dashboard_pending_count_label}}</text>
+      <text class="grid-number danger">{{pendingCount}}</text>
+    </view>
   </view>
 
-  <view class="create-entry card">
-    <van-button type="info" block bind:tap="onShowCreatePopup">{{i18n.dashboard_add_shift}}</van-button>
-    <van-button type="warning" block custom-style="margin-top: 16rpx;" bind:tap="onQuickAssign">{{i18n.dashboard_quick_assign}}</van-button>
-    <van-button type="default" plain block custom-style="margin-top: 16rpx;" bind:tap="onGoModificationRequests">
-      {{i18n.dashboard_mod_requests}}
-      <van-tag wx:if="{{pendingModCount > 0}}" type="danger" round custom-style="margin-left: 8rpx;">{{pendingModCount}}</van-tag>
-    </van-button>
+  <view class="action-bar">
+    <van-button type="info" size="small" bind:tap="onShowCreatePopup" custom-class="action-btn">{{i18n.dashboard_add_shift}}</van-button>
+    <van-button type="warning" size="small" bind:tap="onQuickAssign" custom-class="action-btn">{{i18n.dashboard_quick_assign}}</van-button>
+    <van-button type="default" size="small" bind:tap="onGoModificationRequests" custom-class="action-btn">{{i18n.dashboard_mod_requests}}</van-button>
   </view>
 
   <!-- 日期筛选栏 -->

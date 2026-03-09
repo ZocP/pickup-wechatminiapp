@@ -74,8 +74,17 @@ page {
   color: #969799;
 }
 
-.create-entry {
-  margin-bottom: 18rpx;
+.action-bar {
+  display: flex;
+  gap: 16rpx;
+  padding: 16rpx 24rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  margin: 16rpx 24rpx;
+}
+
+.action-btn {
+  flex: 1 !important;
 }
 
 .grid-number {
