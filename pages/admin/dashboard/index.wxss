@@ -79,7 +79,7 @@ page {
   gap: 8rpx;
   padding: 16rpx 24rpx;
   background: #fff;
-  border-radius: 16rpx;
+  border-radius: 12rpx;
   margin-bottom: 16rpx;
 }
 
@@ -88,10 +88,12 @@ page {
   min-width: 0;
 }
 
-/* Only override font size, let van-button handle centering */
+/* Override van-button to match unified pill style */
 .action-item .van-button {
   font-size: 24rpx !important;
   width: 100% !important;
+  border-radius: 32rpx !important;
+  height: 56rpx !important;
 }
 
 .action-item .van-button__text {
@@ -184,16 +186,16 @@ page {
   margin-bottom: 16rpx;
 }
 .filter-nav-btn {
-  flex: 0 0 60rpx;
-  width: 60rpx !important;
-  height: 60rpx !important;
-  min-width: 60rpx;
-  max-width: 60rpx;
+  flex: 0 0 56rpx;
+  width: 56rpx !important;
+  height: 56rpx !important;
+  min-width: 56rpx;
+  max-width: 56rpx;
   padding: 0;
   margin: 0;
   font-size: 24rpx;
   background: #f5f5f5;
-  border-radius: 8rpx;
+  border-radius: 32rpx;
   border: none;
   color: #333;
   display: flex;
@@ -206,32 +208,35 @@ page {
   flex: 1;
   min-width: 0;
   text-align: center;
-  font-size: 30rpx;
+  font-size: 28rpx;
   font-weight: 500;
   color: #333;
-  height: 60rpx;
-  line-height: 60rpx;
+  height: 56rpx;
+  line-height: 56rpx;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   background: #f5f5f5;
-  border-radius: 8rpx;
+  border-radius: 32rpx;
   padding: 0;
   margin: 0;
 }
 .filter-action-btn {
   width: auto !important;  /* 覆盖微信 button 默认 width: 100% */
   flex: 0 0 auto;
-  padding: 8rpx 16rpx;
-  height: auto;
-  font-size: 22rpx;
+  padding: 0 24rpx;
+  height: 56rpx;
+  font-size: 24rpx;
   background: #f5f5f5;
-  border-radius: 8rpx;
+  border-radius: 32rpx;
   border: none;
   color: #666;
   white-space: nowrap;
   margin: 0;
-  line-height: 1.4;
+  line-height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .filter-action-btn::after { border: none; }
 .filter-action-btn.active {
@@ -252,13 +257,14 @@ page {
 .status-tag {
   flex: 1;
   font-size: 24rpx;
-  padding: 8rpx 0;
-  border-radius: 24rpx;
+  padding: 0;
+  height: 56rpx;
+  line-height: 56rpx;
+  border-radius: 32rpx;
   background: #f5f5f5;
   color: #666;
   text-align: center;
   border: none;
-  line-height: 1.5;
 }
 
 .status-tag.active {
