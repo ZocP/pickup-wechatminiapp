@@ -81,6 +81,7 @@ Page({
     pendingCount: 0,
     todayShiftCount: 0,
     publishedCount: 0,
+    pendingModCount: 0,
     pendingActionOverflow: 0,
     overflowTipText: '',
     actionBusy: false,
@@ -272,6 +273,12 @@ Page({
       ttlMs: Number(cache.ttlMs) || 45 * 1000,
     };
     app.clearDashboardDirty();
+
+    // 异步加载待审核修改申请数量
+    api.getModificationRequests('pending').then((res) => {
+      const modList = Array.isArray(res) ? res : [];
+      this.setData({ pendingModCount: modList.length });
+    }).catch(() => {});
   },
 
   openPendingPool() {
@@ -797,6 +804,10 @@ Page({
 
   onQuickAssign() {
     wx.navigateTo({ url: '/pages/admin/assign/index' });
+  },
+
+  onGoModificationRequests() {
+    wx.navigateTo({ url: '/pages/admin/modification-requests/index' });
   },
 
   getRoleDisplayText() {
