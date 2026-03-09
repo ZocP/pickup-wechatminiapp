@@ -81,22 +81,17 @@ page {
   background: #fff;
   border-radius: 16rpx;
   margin: 16rpx 24rpx;
-  overflow: hidden;
 }
 
 .action-item {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
 }
 
-/* Override van-button internal styles for narrow screens */
+/* Only override font size, let van-button handle centering */
 .action-item .van-button {
   font-size: 24rpx !important;
-  padding: 0 8rpx !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
+  width: 100% !important;
 }
 
 .action-item .van-button__text {
