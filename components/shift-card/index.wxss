@@ -1,6 +1,6 @@
 .shift-card {
   background: #fff;
-  border-radius: 16rpx;
+  border-radius: 12rpx;
   padding: 24rpx;
   margin-bottom: 20rpx;
   box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.06);
