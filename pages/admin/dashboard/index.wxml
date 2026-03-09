@@ -60,8 +60,13 @@
     />
   </view>
 
-  <view class="pending-fab" bind:tap="openPendingPool">
-    <text>{{i18n.dashboard_pending_pool_label}} {{pendingCount}}</text>
+  <view class="pending-fab-area">
+    <view class="pending-filter-btn" bind:tap="togglePendingFilter">
+      <text>{{pendingFilterToday ? i18n.dashboard_pending_show_all : i18n.dashboard_pending_today_only}}</text>
+    </view>
+    <view class="pending-fab" bind:tap="openPendingPool">
+      <text>{{i18n.dashboard_pending_pool_label}} {{pendingFilterToday ? todayPendingCount : pendingCount}}</text>
+    </view>
   </view>
   <view wx:if="{{pendingActionOverflow > 0}}" class="card" style="margin-top: 16rpx;">
     <text style="font-size: 24rpx; color: #999;">{{overflowTipText}}</text>
@@ -70,7 +75,6 @@
   <van-action-sheet
     show="{{showPendingSheet}}"
     title="{{i18n.dashboard_pending_students}}"
-    description="{{pendingFilterToday ? i18n.dashboard_pending_show_all : i18n.dashboard_pending_today_only}}"
     z-index="2000"
     root-portal
     actions="{{pendingActions}}"
@@ -79,9 +83,6 @@
     bind:close="onClosePendingSheet"
     bind:click-overlay="onClosePendingSheet"
   />
-  <view wx:if="{{showPendingSheet}}" class="pending-filter-toggle" style="position:fixed;bottom:0;left:0;right:0;z-index:2001;text-align:center;padding:16rpx;background:#fff;" bind:tap="togglePendingFilter">
-    <text class="pending-filter-text">{{pendingFilterToday ? i18n.dashboard_pending_show_all : i18n.dashboard_pending_today_only}}</text>
-  </view>
 
   <van-action-sheet
     show="{{showShiftPicker}}"
