@@ -172,6 +172,14 @@ module.exports = {
   shift_detail_remove_boarded_confirm:'该乘客已经登车，确定要将其移出班次？',
   shift_detail_passenger_boarded:   '已登车',
   shift_detail_passenger_unboarded: '未登车',
+  shift_detail_vehicle_label:       '车辆',
+  shift_detail_vehicle_suggested:   '建议 {0} 辆',
+  shift_detail_vehicle_manual:      '{0} 辆 (手动)',
+  shift_detail_vehicle_override:    '手动设置车辆数',
+  shift_detail_vehicle_clear:       '清除',
+  shift_detail_vehicle_save:        '保存',
+  shift_detail_vehicle_save_success:'车辆数已更新',
+  shift_detail_vehicle_save_failed: '更新失败',
   // ─── Home ─────────────────────────────────────────────────────────────
   home_nav_title:                   '首页',
   home_welcome:                     '欢迎使用 UIUC 接机调度',
@@ -350,6 +358,8 @@ module.exports = {
   shiftcard_overload_prefix:        '超载 +',
   shiftcard_manage_btn:             '管理班次',
   shiftcard_student_prefix:         '学生#',
+  shiftcard_vehicle_suggested:      '建议 {0} 辆车',
+  shiftcard_vehicle_manual:         '{0} 辆车 (手动)',
 
 
   // 修改申请相关

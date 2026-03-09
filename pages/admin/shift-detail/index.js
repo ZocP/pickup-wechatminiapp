@@ -1,6 +1,6 @@
 const app = getApp()
 const api = require('../../../utils/api')
-const { getDashboard, getPendingRequests, assignStudent, removeStudent, publishShift, updateShift, unpublishShift } = api
+const { getDashboard, getPendingRequests, assignStudent, removeStudent, publishShift, updateShift, unpublishShift, updateShiftVehicles } = api
 const { t } = require('../../../utils/i18n')
 const { pad2, normalizeDateTime, formatDateTime, formatMonthDay, formatHourMinute } = require('../../../utils/formatters')
 const { resolveRequestName, runWithActionLock: runWithActionLockHelper } = require('../../../utils/helpers')
@@ -212,6 +212,10 @@ function buildI18n() {
     shift_detail_add:                t('shift_detail_add'),
     shift_detail_passenger_boarded:  t('shift_detail_passenger_boarded'),
     shift_detail_passenger_unboarded:t('shift_detail_passenger_unboarded'),
+    shift_detail_vehicle_label:      t('shift_detail_vehicle_label'),
+    shift_detail_vehicle_override:   t('shift_detail_vehicle_override'),
+    shift_detail_vehicle_clear:      t('shift_detail_vehicle_clear'),
+    shift_detail_vehicle_save:       t('shift_detail_vehicle_save'),
   }
 }
 
@@ -250,6 +254,12 @@ Page({
     onboardCount: 0,
     boardedCount: 0,
     unboardedCount: 0,
+    vehicleText: '',
+    suggestedVehicles: 0,
+    manualVehicleCount: null,
+    vehicleInputValue: '',
+    showVehicleEditor: false,
+    vehicleSaving: false,
     i18n: buildI18n(),
   },
 
@@ -385,6 +395,16 @@ Page({
     const statusText = shiftStatus === 'published' ? t('common_published') : t('common_unpublished')
     const statusTagType = shiftStatus === 'published' ? 'success' : 'primary'
 
+    // Vehicle recommendation
+    const manual = shift.manual_vehicle_count
+    const suggested = shift.suggested_vehicles || 0
+    let vehicleText = ''
+    if (manual != null && manual !== undefined) {
+      vehicleText = t('shift_detail_vehicle_manual').replace('{0}', manual)
+    } else if (suggested > 0) {
+      vehicleText = t('shift_detail_vehicle_suggested').replace('{0}', suggested)
+    }
+
     this.setData({
       headerTime: formatDateTime(shift.departure_time),
       headerTerminal: shiftTerminalOf(shift, onboard),
@@ -398,7 +418,11 @@ Page({
       checkedUsage: usageOf(checkedUsed, checkedMax),
       carryOnUsage: usageOf(carryOnUsed, carryOnMax),
       canPublish: shiftStatus === 'published' ? true : seatUsed > 0,
-      publishButtonText: shiftStatus === 'published' ? t('shift_detail_withdraw_btn') : t('shift_detail_publish_btn')
+      publishButtonText: shiftStatus === 'published' ? t('shift_detail_withdraw_btn') : t('shift_detail_publish_btn'),
+      vehicleText,
+      suggestedVehicles: suggested,
+      manualVehicleCount: manual != null ? manual : null,
+      vehicleInputValue: manual != null ? String(manual) : '',
     })
   },
 
@@ -558,6 +582,56 @@ Page({
         wx.showToast({ title: (error && error.message) || t('shift_detail_op_failed'), icon: 'none' })
       } finally {
         this.setData({ publishing: false })
+      }
+    })
+  },
+
+  onToggleVehicleEditor() {
+    this.setData({ showVehicleEditor: !this.data.showVehicleEditor })
+  },
+
+  onVehicleInput(event) {
+    this.setData({ vehicleInputValue: event.detail || '' })
+  },
+
+  async onSaveVehicleCount() {
+    const val = this.data.vehicleInputValue.trim()
+    const count = val ? parseInt(val, 10) : null
+
+    if (val && (!Number.isFinite(count) || count < 0)) {
+      wx.showToast({ title: t('shift_detail_vehicle_save_failed'), icon: 'none' })
+      return
+    }
+
+    await this.runWithActionLock(async () => {
+      this.setData({ vehicleSaving: true })
+      try {
+        await updateShiftVehicles(this.data.shiftId, count)
+        wx.showToast({ title: t('shift_detail_vehicle_save_success'), icon: 'success' })
+        this.setData({ showVehicleEditor: false })
+        await this.loadData()
+        markDashboardDirty()
+      } catch (error) {
+        wx.showToast({ title: (error && error.message) || t('shift_detail_vehicle_save_failed'), icon: 'none' })
+      } finally {
+        this.setData({ vehicleSaving: false })
+      }
+    })
+  },
+
+  async onClearVehicleCount() {
+    await this.runWithActionLock(async () => {
+      this.setData({ vehicleSaving: true })
+      try {
+        await updateShiftVehicles(this.data.shiftId, null)
+        wx.showToast({ title: t('shift_detail_vehicle_save_success'), icon: 'success' })
+        this.setData({ showVehicleEditor: false, vehicleInputValue: '' })
+        await this.loadData()
+        markDashboardDirty()
+      } catch (error) {
+        wx.showToast({ title: (error && error.message) || t('shift_detail_vehicle_save_failed'), icon: 'none' })
+      } finally {
+        this.setData({ vehicleSaving: false })
       }
     })
   },

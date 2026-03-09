@@ -16,6 +16,11 @@
       <text class="value">{{driverText}}</text>
     </view>
 
+    <!-- 车辆建议 -->
+    <view class="vehicle-info" wx:if="{{vehicleText}}">
+      <text class="vehicle-label">🚗 {{vehicleText}}</text>
+    </view>
+
     <!-- 登车状态 -->
     <view class="boarding-status" wx:if="{{boardedCount !== undefined && unboardedCount !== undefined}}">
       <view class="boarding-row">

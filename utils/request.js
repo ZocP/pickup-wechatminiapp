@@ -350,4 +350,11 @@ request.del = (url, data = {}, options = {}) => request({
   method: 'DELETE',
 });
 
+request.patch = (url, data = {}, options = {}) => request({
+  ...options,
+  url,
+  data,
+  method: 'PATCH',
+});
+
 module.exports = request;

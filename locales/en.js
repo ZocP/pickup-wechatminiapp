@@ -172,6 +172,14 @@ module.exports = {
   shift_detail_remove_boarded_confirm:'This passenger has already boarded. Are you sure you want to remove them?',
   shift_detail_passenger_boarded:   'Boarded',
   shift_detail_passenger_unboarded: 'Not Boarded',
+  shift_detail_vehicle_label:       'Vehicles',
+  shift_detail_vehicle_suggested:   'Suggested {0}',
+  shift_detail_vehicle_manual:      '{0} (manual)',
+  shift_detail_vehicle_override:    'Set vehicle count manually',
+  shift_detail_vehicle_clear:       'Clear',
+  shift_detail_vehicle_save:        'Save',
+  shift_detail_vehicle_save_success:'Vehicle count updated',
+  shift_detail_vehicle_save_failed: 'Update failed',
 
   // ─── Home ─────────────────────────────────────────────────────────────
   home_nav_title:                   'Home',
@@ -351,6 +359,8 @@ module.exports = {
   shiftcard_overload_prefix:        'Overload +',
   shiftcard_manage_btn:             'Manage Shift',
   shiftcard_student_prefix:         'Student#',
+  shiftcard_vehicle_suggested:      'Suggested {0} vehicles',
+  shiftcard_vehicle_manual:         '{0} vehicles (manual)',
 
 
   // Modification request

@@ -88,6 +88,10 @@ module.exports = {
     return request.put(`/admin/shifts/${id}`, payload);
   },
 
+  updateShiftVehicles(id, manualVehicleCount) {
+    return request.patch(`/admin/shifts/${id}/vehicles`, { manual_vehicle_count: manualVehicleCount });
+  },
+
   publishShift(shiftId) {
     return request.post(`/admin/shifts/${shiftId}/publish`, {});
   },

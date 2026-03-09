@@ -203,6 +203,66 @@
   z-index: 30;
 }
 
+/* 车辆建议样式 */
+.vehicle-line {
+  margin-top: 12rpx;
+  padding-top: 12rpx;
+  border-top: 2rpx solid #f0f0f0;
+}
+
+.vehicle-display {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.vehicle-text {
+  font-size: 24rpx;
+  color: #1989fa;
+  font-weight: 500;
+}
+
+.vehicle-edit-btn {
+  padding: 0 12rpx !important;
+  min-width: auto !important;
+  height: 44rpx !important;
+  line-height: 44rpx !important;
+  font-size: 20rpx !important;
+}
+
+.vehicle-editor {
+  margin-top: 12rpx;
+  padding: 16rpx;
+  background: #f7f8fa;
+  border-radius: 8rpx;
+}
+
+.vehicle-editor-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.vehicle-input {
+  flex: 1;
+  height: 56rpx;
+  padding: 0 16rpx;
+  border: 2rpx solid #ddd;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  background: #fff;
+}
+
+.vehicle-save-btn {
+  flex-shrink: 0;
+}
+
+.vehicle-clear-btn {
+  flex-shrink: 0;
+}
+
 /* 登车状态样式 */
 .boarding-status-line {
   margin-top: 12rpx;

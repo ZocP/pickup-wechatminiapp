@@ -74,6 +74,20 @@
   color: #323233;
 }
 
+/* 车辆建议样式 */
+.vehicle-info {
+  margin: 12rpx 0;
+  padding: 12rpx 16rpx;
+  background: #eef6ff;
+  border-radius: 8rpx;
+}
+
+.vehicle-label {
+  font-size: 24rpx;
+  color: #1989fa;
+  font-weight: 500;
+}
+
 /* 登车状态样式 */
 .boarding-status {
   margin: 16rpx 0;

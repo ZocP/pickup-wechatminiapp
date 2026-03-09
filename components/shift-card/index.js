@@ -26,6 +26,7 @@ Component({
     showRouteNotice: false,
     staffs: [],
     passengers: [],
+    vehicleText: '',
     seatUsage: null,
     checkedUsage: null,
     carryOnUsage: null,
@@ -76,6 +77,16 @@ Component({
       ).length;
       const unboardedCount = usedSeats - boardedCount;
 
+      // Vehicle recommendation text
+      const manual = shift.manual_vehicle_count;
+      const suggested = shift.suggested_vehicles || 0;
+      let vehicleText = '';
+      if (manual != null && manual !== undefined) {
+        vehicleText = t('shiftcard_vehicle_manual').replace('{0}', manual);
+      } else if (suggested > 0) {
+        vehicleText = t('shiftcard_vehicle_suggested').replace('{0}', suggested);
+      }
+
       this.setData({
         headerTime: formatDateTime(shift.departure_time || shift.DepartureTime),
         flightsText: this.collectFlightNos(requests),
@@ -92,6 +103,7 @@ Component({
         carryOnUsage: this.makeUsage(t('shiftcard_carryon_label'), usedCarryOn, maxCarryOn),
         boardedCount: boardedCount,
         unboardedCount: unboardedCount,
+        vehicleText: vehicleText,
       });
     },
 
