@@ -62,6 +62,8 @@ function buildI18n() {
     today:                            t('today'),
     all:                              t('all'),
     dashboard_mod_requests:           t('dashboard_mod_requests'),
+    dashboard_pending_show_all:       t('dashboard_pending_show_all'),
+    dashboard_pending_today_only:     t('dashboard_pending_today_only'),
   };
 }
 
@@ -79,6 +81,9 @@ Page({
     showCalendar: false,
     calendarDefaultDate: null,
 
+    pendingFilterToday: true,
+    allPendingActions: [],
+    todayPendingActions: [],
     pendingCount: 0,
     todayShiftCount: 0,
     publishedCount: 0,
@@ -241,7 +246,7 @@ Page({
     const publishedCountFromApi = pickNumber(shiftsRes, ['published_count', 'publishedCount']);
     const publishedCount = Number.isFinite(publishedCountFromApi) ? publishedCountFromApi : publishedCountFromRows;
 
-    const limitedPendingActions = pendingRequests.slice(0, MAX_PENDING_ACTIONS).map((r) => {
+    const mapPendingAction = (r) => {
       const rideWith = buildRideWithText(r);
       return {
         name: `${resolveRequestName(r)} | ${(r.flight_no || '--')}`,
@@ -250,19 +255,35 @@ Page({
           : `${t('assign_arrival_time')}${r.arrival_time || r.arrival_date || '--'}`,
         request: r,
       };
-    });
+    };
 
-    const overflow = Math.max(0, pendingRequests.length - limitedPendingActions.length);
+    const allPendingActions = pendingRequests.slice(0, MAX_PENDING_ACTIONS).map(mapPendingAction);
+
+    // Filter today's pending requests
+    const today = this._formatDate(new Date());
+    const todayPendingRequests = pendingRequests.filter((r) => {
+      const arrDate = r.arrival_date || '';
+      return arrDate.slice(0, 10) === today;
+    });
+    const todayPendingActions = todayPendingRequests.slice(0, MAX_PENDING_ACTIONS).map(mapPendingAction);
+
+    // Default to today's filter
+    const useTodayFilter = this.data.pendingFilterToday;
+    const activePendingActions = useTodayFilter ? todayPendingActions : allPendingActions;
+    const overflow = Math.max(0, pendingRequests.length - allPendingActions.length);
+
     this.setData({
       shifts,
       pendingRequests,
       pendingCount,
       todayShiftCount,
       publishedCount,
-      pendingActions: limitedPendingActions,
+      allPendingActions,
+      todayPendingActions,
+      pendingActions: activePendingActions,
       pendingActionOverflow: overflow,
       overflowTipText: overflow > 0
-        ? `${t('dashboard_pending_pool_label')}${t('common_op_in_progress').replace('操作进行中，请稍候', '')}仅展示前${limitedPendingActions.length}条，请缩小范围`
+        ? `${t('dashboard_pending_pool_label')}${t('common_op_in_progress').replace('操作进行中，请稍候', '')}仅展示前${allPendingActions.length}条，请缩小范围`
         : '',
       loading: false,
     });
@@ -292,6 +313,15 @@ Page({
     if (this.data.pendingActionOverflow > 0) {
       wx.showToast({ title: `仅展示前${MAX_PENDING_ACTIONS}条，请缩小范围`, icon: 'none' });
     }
+  },
+
+  togglePendingFilter() {
+    const newVal = !this.data.pendingFilterToday;
+    const actions = newVal ? this.data.todayPendingActions : this.data.allPendingActions;
+    this.setData({
+      pendingFilterToday: newVal,
+      pendingActions: actions,
+    });
   },
 
   onAddPassenger(e) {
@@ -792,8 +822,7 @@ Page({
   },
 
   filterReset() {
-    this.setData({ filterDate: 'all', filterDateLabel: this.data.i18n.all || '全部' });
-    this.loadAll();
+    wx.navigateTo({ url: '/pages/admin/all-shifts/index' });
   },
 
   _formatDate(d) {

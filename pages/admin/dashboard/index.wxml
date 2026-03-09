@@ -76,7 +76,11 @@
     close-on-click-action="true"
     bind:select="onSelectPendingRequest"
     bind:close="onClosePendingSheet"
-  />
+  >
+    <view slot="description" class="pending-filter-toggle" bind:tap="togglePendingFilter">
+      <text class="pending-filter-text">{{pendingFilterToday ? i18n.dashboard_pending_show_all : i18n.dashboard_pending_today_only}}</text>
+    </view>
+  </van-action-sheet>
 
   <van-action-sheet
     show="{{showShiftPicker}}"

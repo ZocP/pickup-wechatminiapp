@@ -194,3 +194,13 @@ page {
   background: #1989fa;
   color: #fff;
 }
+
+.pending-filter-toggle {
+  display: flex;
+  justify-content: center;
+  padding: 12rpx 0;
+}
+.pending-filter-text {
+  color: #1989fa;
+  font-size: 26rpx;
+}
