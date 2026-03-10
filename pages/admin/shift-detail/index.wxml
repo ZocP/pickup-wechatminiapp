@@ -1,10 +1,14 @@
 <view class="page shift-detail-page">
   <van-sticky>
     <view class="header-card">
-      <view class="header-row-base">
+      <view class="header-row-base" bind:tap="onToggleInfoCard">
         <view class="header-time">{{headerTime}}</view>
-        <van-tag type="{{statusTagType}}" plain>{{statusText}}</van-tag>
+        <view class="header-right">
+          <van-tag type="{{statusTagType}}" plain>{{statusText}}</van-tag>
+          <text class="collapse-icon">{{infoCardCollapsed ? '▼' : '▲'}}</text>
+        </view>
       </view>
+      <view class="header-card-body {{infoCardCollapsed ? 'header-card-body-collapsed' : 'header-card-body-expanded'}}">
       <view class="header-row-meta">
         <view class="header-driver">{{i18n.shift_detail_driver_prefix}}{{driverText}}</view>
         <van-tag plain type="primary" size="medium">{{terminalRoute || i18n.shift_detail_no_route}}</van-tag>
@@ -69,6 +73,7 @@
           </view>
         </view>
       </view>
+      </view>
     </view>
   </van-sticky>
 
@@ -123,6 +128,7 @@
         <van-dropdown-menu>
           <van-dropdown-item value="{{terminalFilter}}" options="{{terminalOptions}}" bind:change="onTerminalChange" />
           <van-dropdown-item value="{{dayFilter}}" options="{{dayOptions}}" bind:change="onDayChange" />
+          <van-dropdown-item value="{{sortOrder}}" options="{{sortOptions}}" bind:change="onSortChange" />
         </van-dropdown-menu>
 
         <view class="card pending-card">

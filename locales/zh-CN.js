@@ -180,6 +180,9 @@ module.exports = {
   shift_detail_vehicle_save:        '保存',
   shift_detail_vehicle_save_success:'车辆数已更新',
   shift_detail_vehicle_save_failed: '更新失败',
+  shift_detail_sort_arrival:        '按到达时间',
+  shift_detail_sort_name:           '按姓名',
+  shift_detail_sort_flight:         '按航班号',
   // ─── Home ─────────────────────────────────────────────────────────────
   home_nav_title:                   '首页',
   home_welcome:                     '欢迎使用 UIUC 接机调度',

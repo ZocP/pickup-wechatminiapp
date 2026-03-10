@@ -260,6 +260,13 @@ Page({
     vehicleInputValue: '',
     showVehicleEditor: false,
     vehicleSaving: false,
+    infoCardCollapsed: false,
+    sortOrder: 'arrival',
+    sortOptions: [
+      { text: t('shift_detail_sort_arrival'), value: 'arrival' },
+      { text: t('shift_detail_sort_name'), value: 'name' },
+      { text: t('shift_detail_sort_flight'), value: 'flight' },
+    ],
     i18n: buildI18n(),
   },
 
@@ -274,6 +281,7 @@ Page({
       return
     }
     this.setData({ shiftId })
+    this._dayFilterInitialized = false
     await this.loadData()
   },
 
@@ -471,12 +479,38 @@ Page({
     )
 
     const terminalFilter = terminalOptions.some((x) => x.value === this.data.terminalFilter) ? this.data.terminalFilter : 'all'
-    const dayFilter = dayOptions.some((x) => x.value === this.data.dayFilter) ? this.data.dayFilter : 'all'
+
+    // Smart default: on first load, default dayFilter to shift's departure date
+    let dayFilter = this.data.dayFilter
+    if (!this._dayFilterInitialized) {
+      this._dayFilterInitialized = true
+      const depDate = normalizeDateTime(shift.departure_time)
+      if (depDate) {
+        const shiftDay = `${depDate.getFullYear()}-${pad2(depDate.getMonth() + 1)}-${pad2(depDate.getDate())}`
+        if (dayOptions.some((x) => x.value === shiftDay)) {
+          dayFilter = shiftDay
+        }
+      }
+    }
+    if (!dayOptions.some((x) => x.value === dayFilter)) {
+      dayFilter = 'all'
+    }
+
+    const sortOrder = this.data.sortOrder || 'arrival'
 
     const filtered = candidates
       .filter((item) => (terminalFilter === 'all' ? true : item._terminal === terminalFilter))
       .filter((item) => (dayFilter === 'all' ? true : item._day === dayFilter))
       .sort((a, b) => {
+        // Primary sort by user selection
+        if (sortOrder === 'name') {
+          const cmp = (a.name || '').localeCompare(b.name || '', 'zh')
+          if (cmp !== 0) return cmp
+        } else if (sortOrder === 'flight') {
+          const cmp = (a.flight_no || '').localeCompare(b.flight_no || '')
+          if (cmp !== 0) return cmp
+        }
+        // Default / secondary: by arrival time with late/recommended hints
         if (a.late !== b.late) return a.late ? 1 : -1
         if (a.recommended !== b.recommended) return a.recommended ? -1 : 1
         if (a._delta !== b._delta) return a._delta - b._delta
@@ -498,6 +532,10 @@ Page({
     })
   },
 
+  onToggleInfoCard() {
+    this.setData({ infoCardCollapsed: !this.data.infoCardCollapsed })
+  },
+
   onTabChange(event) {
     const index = event && event.detail ? event.detail.index : 0
     this.setData({ activeTab: index || 0 })
@@ -509,6 +547,10 @@ Page({
 
   onDayChange(event) {
     this.setData({ dayFilter: event.detail }, () => this.recomputeFiltersAndList())
+  },
+
+  onSortChange(event) {
+    this.setData({ sortOrder: event.detail }, () => this.recomputeFiltersAndList())
   },
 
   async onAddPassenger(event) {

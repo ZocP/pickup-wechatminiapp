@@ -180,6 +180,9 @@ module.exports = {
   shift_detail_vehicle_save:        'Save',
   shift_detail_vehicle_save_success:'Vehicle count updated',
   shift_detail_vehicle_save_failed: 'Update failed',
+  shift_detail_sort_arrival:        'By Arrival',
+  shift_detail_sort_name:           'By Name',
+  shift_detail_sort_flight:         'By Flight',
 
   // ─── Home ─────────────────────────────────────────────────────────────
   home_nav_title:                   'Home',

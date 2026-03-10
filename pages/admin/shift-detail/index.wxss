@@ -22,6 +22,34 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-bottom: 8rpx;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.collapse-icon {
+  font-size: 24rpx;
+  color: #969799;
+  transition: transform 0.3s ease;
+}
+
+.header-card-body {
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.header-card-body-expanded {
+  max-height: 1000rpx;
+  opacity: 1;
+}
+
+.header-card-body-collapsed {
+  max-height: 0;
+  opacity: 0;
 }
 
 .header-time {
