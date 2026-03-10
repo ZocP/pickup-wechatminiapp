@@ -1,12 +1,12 @@
 <view class="page tokens-page">
   <!-- 生成按钮 -->
   <view class="top-bar">
-    <van-button type="primary" icon="plus" size="small" bind:tap="onShowForm">生成注册码</van-button>
+    <van-button type="primary" icon="plus" size="small" bind:tap="onShowForm">生成邀请码</van-button>
   </view>
 
-  <!-- Token 列表 -->
+  <!-- 邀请码列表 -->
   <view wx:if="{{ !loading && list.length === 0 }}" class="empty-wrap">
-    <van-empty description="暂无注册码" />
+    <van-empty description="暂无邀请码" />
   </view>
 
   <view wx:for="{{ list }}" wx:key="id" class="card token-card">
@@ -43,7 +43,7 @@
 
   <!-- 生成表单弹窗 -->
   <van-popup show="{{ showForm }}" position="bottom" round closeable bind:close="onHideForm" custom-style="padding: 32rpx; padding-top: 48rpx;">
-    <view class="form-title">生成注册码</view>
+    <view class="form-title">生成邀请码</view>
 
     <van-cell-group inset>
       <van-field

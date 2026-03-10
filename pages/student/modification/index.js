@@ -33,7 +33,7 @@ Page({
   onLoad(options) {
     const requestId = options.requestId ? Number(options.requestId) : null;
     if (!requestId) {
-      wx.showToast({ title: '参数错误', icon: 'none' });
+      wx.showToast({ title: t('modification_param_error'), icon: 'none' });
       wx.navigateBack();
       return;
     }
@@ -73,12 +73,10 @@ Page({
     this.setData({ loading: true });
     try {
       // 加载当前 request 数据预填表单
-      const requests = await api.getMyStudentRequests();
-      const list = Array.isArray(requests) ? requests : [];
-      const req = list.find(r => r.id === this.data.requestId);
+      const req = await api.getStudentRequest(this.data.requestId);
 
-      if (!req) {
-        wx.showToast({ title: '未找到申请记录', icon: 'none' });
+      if (!req || !req.id) {
+        wx.showToast({ title: t('modification_not_found'), icon: 'none' });
         wx.navigateBack();
         return;
       }
@@ -86,8 +84,8 @@ Page({
       // 解析现有到达时间
       let arrivalDate = '';
       let arrivalTime = '';
-      if (req.arrival_time_api) {
-        const dt = new Date(req.arrival_time_api);
+      if (req.arrival_time) {
+        const dt = new Date(req.arrival_time);
         const pad = (n) => String(n).padStart(2, '0');
         arrivalDate = dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate());
         arrivalTime = pad(dt.getHours()) + ':' + pad(dt.getMinutes());
@@ -120,7 +118,7 @@ Page({
         // 没有修改申请，正常
       }
     } catch (error) {
-      wx.showToast({ title: (error && error.message) || '加载失败', icon: 'none' });
+      wx.showToast({ title: (error && error.message) || t('modification_load_failed'), icon: 'none' });
     } finally {
       this.setData({ loading: false });
     }
@@ -227,7 +225,7 @@ Page({
   async onWithdraw() {
     const confirmed = await new Promise((resolve) => {
       wx.showModal({
-        title: '确认',
+        title: t('modification_confirm_title'),
         content: t('modification_withdraw_confirm'),
         success: (res) => resolve(res.confirm),
         fail: () => resolve(false),
@@ -241,7 +239,7 @@ Page({
       wx.showToast({ title: t('modification_withdraw_success'), icon: 'success' });
       this.setData({ hasPendingMod: false, pendingMod: null });
     } catch (error) {
-      wx.showToast({ title: (error && error.message) || '撤回失败', icon: 'none' });
+      wx.showToast({ title: (error && error.message) || t('modification_withdraw_failed'), icon: 'none' });
     }
   },
 });

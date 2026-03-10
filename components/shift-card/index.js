@@ -1,4 +1,7 @@
 const { t } = require('../../utils/i18n');
+const { formatDateTime } = require('../../utils/formatters');
+const { normalizeShiftStatus } = require('../../utils/status');
+const { resolveRequestName } = require('../../utils/helpers');
 
 Component({
   properties: {
@@ -23,6 +26,7 @@ Component({
     showRouteNotice: false,
     staffs: [],
     passengers: [],
+    vehicleText: '',
     seatUsage: null,
     checkedUsage: null,
     carryOnUsage: null,
@@ -50,18 +54,12 @@ Component({
   },
 
   methods: {
-    normalizeShiftStatus(status) {
-      const value = String(status || '').toLowerCase();
-      if (value === 'draft') return 'unpublished';
-      return value || 'unpublished';
-    },
-
     buildViewModel(rawShift) {
       const shift = rawShift || {};
       const requests = Array.isArray(shift.requests) ? shift.requests : [];
       const staffs = Array.isArray(shift.staffs) ? shift.staffs : [];
       const terminals = this.getTerminals(shift, requests);
-      const status = this.normalizeShiftStatus(shift.status);
+      const status = normalizeShiftStatus(shift.status);
       const driver = this.getDriverInfo(shift);
 
       const usedSeats = requests.length;
@@ -79,8 +77,18 @@ Component({
       ).length;
       const unboardedCount = usedSeats - boardedCount;
 
+      // Vehicle recommendation text
+      const manual = shift.manual_vehicle_count;
+      const suggested = shift.suggested_vehicles || 0;
+      let vehicleText = '';
+      if (manual != null && manual !== undefined) {
+        vehicleText = t('shiftcard_vehicle_manual').replace('{0}', manual);
+      } else if (suggested > 0) {
+        vehicleText = t('shiftcard_vehicle_suggested').replace('{0}', suggested);
+      }
+
       this.setData({
-        headerTime: this.formatDateTime(shift.departure_time || shift.DepartureTime),
+        headerTime: formatDateTime(shift.departure_time || shift.DepartureTime),
         flightsText: this.collectFlightNos(requests),
         statusText: status === 'published' ? t('shiftcard_published') : t('shiftcard_unpublished'),
         statusType: status === 'published' ? 'success' : 'default',
@@ -95,6 +103,7 @@ Component({
         carryOnUsage: this.makeUsage(t('shiftcard_carryon_label'), usedCarryOn, maxCarryOn),
         boardedCount: boardedCount,
         unboardedCount: unboardedCount,
+        vehicleText: vehicleText,
       });
     },
 
@@ -104,24 +113,12 @@ Component({
     },
 
     toPassenger(item) {
-      const user = item.user || {};
-      const name = user.name
-        || user.real_name
-        || user.user_name
-        || user.nickname
-        || item.real_name
-        || item.passenger_name
-        || item.user_name
-        || item.student_name
-        || item.nickname
-        || item.name
-        || '';
       return {
         id: item.id,
-        name: String(name).trim() || `${t('shiftcard_student_prefix')}${item.user_id || item.id || '--'}`,
+        name: resolveRequestName(item),
         flightNo: item.flight_no || '--',
-        arrivalTime: this.formatDateTime(item.arrival_time_api || item.expected_arrival_time),
-        pickupTime: this.formatDateTime(item.calc_pickup_time),
+        arrivalTime: formatDateTime(item.arrival_time || item.expected_arrival_time),
+        pickupTime: formatDateTime(item.calc_pickup_time),
         checkedBags: this.toNumber(item.checked_bags),
         carryOnBags: this.toNumber(item.carry_on_bags),
       };
@@ -203,20 +200,6 @@ Component({
     toNumber(value) {
       const n = Number(value);
       return Number.isFinite(n) ? n : 0;
-    },
-
-    formatDateTime(value) {
-      if (!value) return '--';
-      const date = new Date(value);
-      if (Number.isNaN(date.getTime())) {
-        return String(value);
-      }
-      const y = date.getFullYear();
-      const m = `${date.getMonth() + 1}`.padStart(2, '0');
-      const d = `${date.getDate()}`.padStart(2, '0');
-      const hh = `${date.getHours()}`.padStart(2, '0');
-      const mm = `${date.getMinutes()}`.padStart(2, '0');
-      return `${y}-${m}-${d} ${hh}:${mm}`;
     },
 
     onTapManageShift() {

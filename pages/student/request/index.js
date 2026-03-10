@@ -3,6 +3,8 @@ const { requestStatusText } = require('../../../utils/status');
 const { formatDateOnly } = require('../../../utils/formatters');
 const { QRCodeModel, QRErrorCorrectLevel, getTypeNumber } = require('../../../utils/qrcode');
 const { t } = require('../../../utils/i18n');
+const { logError, logWarn } = require('../../../utils/logger');
+const { setTabBarHidden } = require('../../../utils/ui');
 
 const WECHAT_ID_REGEXP = /^[a-zA-Z0-9_]{6,20}$/;
 
@@ -55,9 +57,7 @@ Page({
     savingEdit: false,
     formattedArrivalTime: '',
     editForm: {},
-    _editDateMode: false,
-    _editTimeMode: false,
-    _editTerminalMode: false,
+    _pickerTarget: null, // null | 'form' | 'editForm'
   },
 
   onLoad() {
@@ -131,10 +131,7 @@ Page({
 
   onShow() {
     const app = getApp();
-    if (app.globalData.userInfo && app.isWechatBound && !app.isWechatBound()) {
-      wx.reLaunch({ url: '/pages/bind/index' });
-      return;
-    }
+    if (!app.ensureWechatBound()) return;
 
     const userInfo = (app && app.globalData && app.globalData.userInfo) || wx.getStorageSync('userInfo') || {};
     if (!this.data.form.real_name) {
@@ -177,75 +174,76 @@ Page({
 
   openTerminalPicker() {
     this.setTabBarHidden(true);
+    if (!this.data._pickerTarget) this.setData({ _pickerTarget: 'form' });
     this.setData({ showTerminalPicker: true });
   },
 
   onCloseTerminalPicker() {
     this.setTabBarHidden(false);
-    this.setData({ showTerminalPicker: false });
+    this.setData({ showTerminalPicker: false, _pickerTarget: null });
   },
 
   onSelectTerminal(e) {
     const detail = (e && e.detail) || {};
     const value = detail.name || detail.value || '';
     if (!value) {
-      this.setData({ showTerminalPicker: false });
+      this.setData({ showTerminalPicker: false, _pickerTarget: null });
       return;
     }
     this.setTabBarHidden(false);
-    if (this.data._editTerminalMode) {
-      this.setData({ showTerminalPicker: false, _editTerminalMode: false, 'editForm.terminal': value });
-    } else {
-      this.setData({ showTerminalPicker: false, 'form.terminal': value });
-    }
+    const target = this.data._pickerTarget || 'form';
+    this.setData({ showTerminalPicker: false, _pickerTarget: null, [`${target}.terminal`]: value });
   },
 
   openDatePicker() {
     this.setTabBarHidden(true);
+    if (!this.data._pickerTarget) this.setData({ _pickerTarget: 'form' });
     this.setData({ showDatePicker: true });
   },
 
   onDatePickerClose() {
     this.setTabBarHidden(false);
-    this.setData({ showDatePicker: false });
+    this.setData({ showDatePicker: false, _pickerTarget: null });
   },
 
   onDateConfirm(e) {
     const value = e && e.detail;
     const selectedDate = value instanceof Date ? value : new Date(value);
     const arrivalDate = formatDateOnly(selectedDate);
+    const target = this.data._pickerTarget || 'form';
 
     this.setTabBarHidden(false);
-    if (this.data._editDateMode) {
-      this.setData({ showDatePicker: false, _editDateMode: false, 'editForm.arrival_date': arrivalDate });
-    } else {
-      this.setData({ showDatePicker: false, 'form.arrival_date': arrivalDate });
-      this.syncExpectedArrivalTime();
-    }
+    this.setData({ showDatePicker: false, _pickerTarget: null, [`${target}.arrival_date`]: arrivalDate });
+    if (target === 'form') this.syncExpectedArrivalTime();
   },
 
   openTimePicker() {
     this.setTabBarHidden(true);
+    if (!this.data._pickerTarget) this.setData({ _pickerTarget: 'form' });
+    const target = this.data._pickerTarget || 'form';
+    const currentTime = this.data[target].arrival_time;
     this.setData({
       showTimePicker: true,
-      timePickerValue: this.data.form.arrival_time || this.data.timePickerValue,
+      timePickerValue: currentTime || this.data.timePickerValue,
     });
   },
 
   onTimePickerCancel() {
     this.setTabBarHidden(false);
-    this.setData({ showTimePicker: false });
+    this.setData({ showTimePicker: false, _pickerTarget: null });
   },
 
   onTimeConfirm(e) {
     const arrivalTime = (e && e.detail) || '';
+    const target = this.data._pickerTarget || 'form';
     this.setTabBarHidden(false);
-    if (this.data._editTimeMode) {
-      this.setData({ showTimePicker: false, _editTimeMode: false, timePickerValue: arrivalTime || this.data.timePickerValue, 'editForm.arrival_time': arrivalTime });
-    } else {
-      this.setData({ showTimePicker: false, timePickerValue: arrivalTime || this.data.timePickerValue, 'form.arrival_time': arrivalTime });
-      this.syncExpectedArrivalTime();
-    }
+    this.setData({
+      showTimePicker: false,
+      _pickerTarget: null,
+      timePickerValue: arrivalTime || this.data.timePickerValue,
+      [`${target}.arrival_time`]: arrivalTime,
+    });
+    if (target === 'form') this.syncExpectedArrivalTime();
   },
 
   syncExpectedArrivalTime() {
@@ -366,7 +364,7 @@ Page({
           const result = await api.getBoardingToken(latest.id);
           boardingToken = result && result.token ? result.token : null;
         } catch (tokenErr) {
-          console.warn('获取登车 token 失败:', tokenErr);
+          logWarn('获取登车 token 失败:', tokenErr);
         }
       }
 
@@ -385,7 +383,7 @@ Page({
 
       // Format arrival time for display
       let formattedArrivalTime = '--';
-      const rawTime = latest.arrival_time_api || latest.expected_arrival_time;
+      const rawTime = latest.arrival_time || latest.expected_arrival_time;
       if (rawTime) {
         const d = new Date(rawTime);
         if (!isNaN(d.getTime())) {
@@ -432,7 +430,7 @@ Page({
       this.setData({ qrCodePath: qrCodePath, qrCodeError: '' });
     } catch (error) {
       const msg = (error && (error.errMsg || error.message)) || t('student_request_qr_failed');
-      console.error('生成二维码失败:', error);
+      logError('生成二维码失败:', error);
       this.setData({ qrCodePath: null, qrCodeError: msg });
       wx.showToast({ title: msg, icon: 'none' });
     } finally {
@@ -613,7 +611,7 @@ Page({
       return;
     }
     // 前端校验：落地时间前 24 小时
-    const rawTime = req.arrival_time_api || req.expected_arrival_time;
+    const rawTime = req.arrival_time || req.expected_arrival_time;
     if (rawTime) {
       const arrivalMs = new Date(rawTime).getTime();
       if (arrivalMs - Date.now() < 24 * 60 * 60 * 1000) {
@@ -629,10 +627,10 @@ Page({
   // === Pending 状态直接编辑 ===
   editRequest() {
     const req = this.data.latestRequest;
-    // 解析 arrival_time_api 为 date + time
+    // 解析 arrival_time 为 date + time
     let arrivalDate = '';
     let arrivalTime = '';
-    const rawTime = req.arrival_time_api || req.expected_arrival_time;
+    const rawTime = req.arrival_time || req.expected_arrival_time;
     if (rawTime) {
       const d = new Date(rawTime);
       if (!isNaN(d.getTime())) {
@@ -674,22 +672,21 @@ Page({
   },
 
   openEditDatePicker() {
-    this.setTabBarHidden(true);
-    this.setData({ showDatePicker: true, _editDateMode: true });
+    this.setData({ _pickerTarget: 'editForm' });
+    this.openDatePicker();
   },
 
   openEditTerminalPicker() {
-    this.setTabBarHidden(true);
-    this.setData({ showTerminalPicker: true, _editTerminalMode: true });
+    this.setData({ _pickerTarget: 'editForm' });
+    this.openTerminalPicker();
   },
 
   openEditTimePicker() {
-    this.setTabBarHidden(true);
     this.setData({
-      showTimePicker: true,
-      _editTimeMode: true,
+      _pickerTarget: 'editForm',
       timePickerValue: this.data.editForm.arrival_time || '12:00',
     });
+    this.openTimePicker();
   },
 
   async saveEdit() {
@@ -723,9 +720,6 @@ Page({
   },
 
   setTabBarHidden(hidden) {
-    const tabBar = this.getTabBar && this.getTabBar();
-    if (tabBar && typeof tabBar.setHidden === 'function') {
-      tabBar.setHidden(!!hidden);
-    }
+    setTabBarHidden(this, hidden);
   },
 });

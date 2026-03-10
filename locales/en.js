@@ -5,6 +5,11 @@ module.exports = {
   tab_dispatch:                     'Dispatch',
   tab_profile:                      'Profile',
 
+  // ─── Status ────────────────────────────────────────────────────────────
+  status_pending:                   'Pending',
+  status_assigned:                  'Assigned (Unpublished)',
+  status_published:                 'Published',
+
   // ─── Common ───────────────────────────────────────────────────────────
   common_admin_only:                'Admin access only',
   common_load_failed:               'Load failed, pull to retry',
@@ -60,6 +65,7 @@ module.exports = {
   dashboard_exit_simulation:        'Exited role simulation',
   dashboard_shift_data:             'Shift data',
   dashboard_pending_data:           'Pending data',
+  dashboard_mod_requests:           'Mod Review',
 
   // ─── Staff ────────────────────────────────────────────────────────────
   staff_nav_title:                  'Staff Management',
@@ -80,6 +86,8 @@ module.exports = {
   staff_unset_driver_failed:        'Failed to remove driver',
   staff_action_set_staff:           'Set as Staff',
   staff_action_unset_staff:         'Remove Staff',
+  staff_search_placeholder:          'Search by name or WeChat ID',
+  staff_search_result_count:         'Results: ',
   staff_action_set_driver:          'Set as Driver',
   staff_action_unset_driver:        'Remove Driver',
 
@@ -99,6 +107,8 @@ module.exports = {
   assign_no_arrival_time:           'No arrival time for this student',
   assign_load_shifts_failed:        'Failed to load shifts',
   assign_op_in_progress:            'In progress',
+  assign_search_placeholder:         'Search name, flight, or WeChat ID',
+  assign_search_result_count:        'Results: ',
   assign_success:                   'Assigned',
   assign_failed:                    'Assignment failed',
 
@@ -135,6 +145,7 @@ module.exports = {
   shift_detail_tab_pending:         'Pending Pool',
   shift_detail_no_onboard:          'No passengers onboard',
   shift_detail_pickup_time:         'Pickup: ',
+  shift_detail_luggage_label:       'Luggage: ',
   shift_detail_luggage_checked:     'chk',
   shift_detail_luggage_carry_on:    'co',
   shift_detail_ride_with_note:      'Ride with: ',
@@ -162,6 +173,17 @@ module.exports = {
   shift_detail_remove_boarded_confirm:'This passenger has already boarded. Are you sure you want to remove them?',
   shift_detail_passenger_boarded:   'Boarded',
   shift_detail_passenger_unboarded: 'Not Boarded',
+  shift_detail_vehicle_label:       'Vehicles',
+  shift_detail_vehicle_suggested:   'Suggested {0}',
+  shift_detail_vehicle_manual:      '{0} (manual)',
+  shift_detail_vehicle_override:    'Set vehicle count manually',
+  shift_detail_vehicle_clear:       'Clear',
+  shift_detail_vehicle_save:        'Save',
+  shift_detail_vehicle_save_success:'Vehicle count updated',
+  shift_detail_vehicle_save_failed: 'Update failed',
+  shift_detail_sort_arrival:        'By Arrival',
+  shift_detail_sort_name:           'By Name',
+  shift_detail_sort_flight:         'By Flight',
 
   // ─── Home ─────────────────────────────────────────────────────────────
   home_nav_title:                   'Home',
@@ -341,6 +363,8 @@ module.exports = {
   shiftcard_overload_prefix:        'Overload +',
   shiftcard_manage_btn:             'Manage Shift',
   shiftcard_student_prefix:         'Student#',
+  shiftcard_vehicle_suggested:      'Suggested {0} vehicles',
+  shiftcard_vehicle_manual:         '{0} vehicles (manual)',
 
 
   // Modification request
@@ -444,6 +468,73 @@ module.exports = {
   mod_count_label:                  'Modifications used: ',
   today:                            'Today',
   all:                              'All',
+
+  // ─── Invite Code Verification ───────────────────────────────────────────
+  token_nav_title:                  'Invite Code Verification',
+  token_verify_success:             'Verified',
+  token_verify_failed:              'Verification failed, please retry',
+  token_err_not_found:              'Invalid invite code',
+  token_err_used:                   'Invite code already used',
+  token_err_expired:                'Invite code expired',
+  token_err_revoked:                'Invite code revoked',
+
+  // ─── Invite Code Management (staff) ─────────────────────────────────────────
+  tokens_nav_title:                 'Invite Code Management',
+  tokens_no_permission:             'Permission denied',
+  tokens_load_failed:               'Load failed',
+  tokens_user_prefix:               'User#',
+  tokens_name_required:             'Please enter name',
+  tokens_payment_required:          'Please select payment method',
+  tokens_amount_invalid:            'Please enter valid amount',
+  tokens_generate_success:          'Generated',
+  tokens_generate_failed:           'Generation failed',
+  tokens_revoke_title:              'Confirm Revoke',
+  tokens_revoke_confirm:            'Revoked codes cannot be used. Continue?',
+  tokens_revoke_success:            'Revoked',
+  tokens_op_failed:                 'Operation failed',
+  tokens_copied:                    'Copied',
+
+  // ─── Modification Extras ──────────────────────────────────────────────
+  modification_param_error:         'Invalid parameters',
+  modification_not_found:           'Request not found',
+  modification_load_failed:         'Load failed',
+  modification_confirm_title:       'Confirm',
+  modification_withdraw_failed:     'Withdraw failed',
+
+  // ─── All Shifts ────────────────────────────────────────────────────────
+  allshifts_nav_title:              'All Shifts',
+  allshifts_tab_all:                'All',
+  allshifts_tab_published:          'Published',
+  allshifts_tab_draft:              'Unpublished',
+  allshifts_empty:                  'No shifts',
+  allshifts_sort_time:              'By Time',
+  allshifts_sort_seats:             'By Seats',
+  allshifts_sort_status:            'By Status',
+
+  // ─── Dashboard Pending Filter ────────────────────────────────────────
+  dashboard_pending_search_placeholder: 'Search name, flight, or WeChat ID',
+  dashboard_pending_show_all:       'Show All',
+  dashboard_pending_today_only:     'Today Only',
+  dashboard_pending_overflow:       'Showing first {0} items, please narrow down',
+
+  // ─── Smart Suggest ─────────────────────────────────────────────────────
+  suggest_title:                    'Smart Shift Suggestions',
+  suggest_loading:                  'Analyzing pending requests...',
+  suggest_empty:                    'No suggestions available',
+  suggest_empty_desc:               'No pending student requests, or all requests are missing arrival times',
+  suggest_student_count:            '{0} students',
+  suggest_select_all:               'Select All',
+  suggest_deselect_all:             'Deselect All',
+  suggest_create_count:             'Create {0} shifts',
+  suggest_none_selected:            'Please select at least one suggestion',
+  suggest_create_success:           'Successfully created {0} shifts',
+  suggest_create_failed:            'Batch creation failed',
+  suggest_load_failed:              'Failed to load suggestions',
+  suggest_expand:                   'Show students',
+  suggest_collapse:                 'Collapse',
+  dashboard_smart_suggest:          '🤖 Smart Suggest',
+  suggest_manual_create:            'Manual Create',
+  suggest_smart_create:             'Smart Suggest',
 
   // ─── Home Driver ──────────────────────────────────────────────────────
   home_driver_section:              'Driver',

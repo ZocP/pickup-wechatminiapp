@@ -1,10 +1,14 @@
 <view class="page shift-detail-page">
   <van-sticky>
     <view class="header-card">
-      <view class="header-row-base">
+      <view class="header-row-base" bind:tap="onToggleInfoCard">
         <view class="header-time">{{headerTime}}</view>
-        <van-tag type="{{statusTagType}}" plain>{{statusText}}</van-tag>
+        <view class="header-right">
+          <van-tag type="{{statusTagType}}" plain>{{statusText}}</van-tag>
+          <text class="collapse-icon">{{infoCardCollapsed ? '▼' : '▲'}}</text>
+        </view>
       </view>
+      <view class="header-card-body {{infoCardCollapsed ? 'header-card-body-collapsed' : 'header-card-body-expanded'}}">
       <view class="header-row-meta">
         <view class="header-driver">{{i18n.shift_detail_driver_prefix}}{{driverText}}</view>
         <van-tag plain type="primary" size="medium">{{terminalRoute || i18n.shift_detail_no_route}}</van-tag>
@@ -35,6 +39,31 @@
           <text class="resource-value">{{carryOnUsage.used}} / {{carryOnUsage.max}}</text>
         </view>
 
+        <!-- 车辆建议 -->
+        <view class="resource-line vehicle-line" wx:if="{{vehicleText}}">
+          <text class="resource-label">{{i18n.shift_detail_vehicle_label}}</text>
+          <view class="vehicle-display">
+            <text class="vehicle-text">🚗 {{vehicleText}}</text>
+            <van-button size="mini" plain type="primary" custom-class="vehicle-edit-btn" bind:tap="onToggleVehicleEditor">✏️</van-button>
+          </view>
+        </view>
+        <view class="resource-line vehicle-line" wx:elif="{{!vehicleText}}">
+          <text class="resource-label">{{i18n.shift_detail_vehicle_label}}</text>
+          <view class="vehicle-display">
+            <text class="vehicle-text">--</text>
+            <van-button size="mini" plain type="primary" custom-class="vehicle-edit-btn" bind:tap="onToggleVehicleEditor">✏️</van-button>
+          </view>
+        </view>
+
+        <!-- 车辆数手动设置 -->
+        <view class="vehicle-editor" wx:if="{{showVehicleEditor}}">
+          <view class="vehicle-editor-row">
+            <input class="vehicle-input" type="number" value="{{vehicleInputValue}}" placeholder="{{i18n.shift_detail_vehicle_override}}" bindinput="onVehicleInput" />
+            <van-button size="small" type="primary" loading="{{vehicleSaving}}" bind:tap="onSaveVehicleCount" custom-class="vehicle-save-btn">{{i18n.shift_detail_vehicle_save}}</van-button>
+            <van-button size="small" plain type="default" loading="{{vehicleSaving}}" bind:tap="onClearVehicleCount" wx:if="{{manualVehicleCount != null}}" custom-class="vehicle-clear-btn">{{i18n.shift_detail_vehicle_clear}}</van-button>
+          </view>
+        </view>
+
         <!-- 登车状态 -->
         <view class="resource-line boarding-status-line" wx:if="{{boardedCount !== undefined && unboardedCount !== undefined}}">
           <text class="resource-label">{{i18n.shift_detail_boarding}}</text>
@@ -43,6 +72,7 @@
             <text class="boarding-count unboarded">{{unboardedCount}} {{i18n.shift_detail_unboarded_suffix}}</text>
           </view>
         </view>
+      </view>
       </view>
     </view>
   </van-sticky>
@@ -98,6 +128,7 @@
         <van-dropdown-menu>
           <van-dropdown-item value="{{terminalFilter}}" options="{{terminalOptions}}" bind:change="onTerminalChange" />
           <van-dropdown-item value="{{dayFilter}}" options="{{dayOptions}}" bind:change="onDayChange" />
+          <van-dropdown-item value="{{sortOrder}}" options="{{sortOptions}}" bind:change="onSortChange" />
         </van-dropdown-menu>
 
         <view class="card pending-card">

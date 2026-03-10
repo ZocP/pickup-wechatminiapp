@@ -1,5 +1,6 @@
 const api = require('../../../utils/api');
 const { t } = require('../../../utils/i18n');
+const { setTabBarHidden } = require('../../../utils/ui');
 
 function buildI18n() {
   return {
@@ -10,6 +11,8 @@ function buildI18n() {
     staff_role_actions_title: t('staff_role_actions_title'),
     staff_driver_picker_title:t('staff_driver_picker_title'),
     common_student_prefix:    t('common_student_prefix'),
+    staff_search_placeholder: t('staff_search_placeholder'),
+    staff_search_result_count:t('staff_search_result_count'),
   };
 }
 
@@ -17,6 +20,8 @@ Page({
   data: {
     loading: false,
     userList: [],
+    filteredUserList: [],
+    searchKeyword: '',
     driverList: [],
     actingUserId: 0,
     showDriverPicker: false,
@@ -36,10 +41,7 @@ Page({
 
   onShow() {
     const app = getApp();
-    if (app.isWechatBound && !app.isWechatBound()) {
-      wx.reLaunch({ url: '/pages/bind/index' });
-      return;
-    }
+    if (!app.ensureWechatBound()) return;
 
     const role = app.getEffectiveRole ? app.getEffectiveRole() : ((app.globalData.userInfo && app.globalData.userInfo.role) || 'student');
     if (role !== 'admin') {
@@ -49,7 +51,6 @@ Page({
     }
 
     wx.setNavigationBarTitle({ title: t('staff_nav_title') });
-    this.setData({ i18n: buildI18n() });
     this.loadAll();
   },
 
@@ -65,11 +66,42 @@ Page({
       const userList = Array.isArray(usersRes) ? usersRes : [];
       const driverList = Array.isArray(driversRes) ? driversRes : [];
       this.setData({ userList, driverList });
+      this._applyFilter();
     } catch (error) {
       wx.showToast({ title: (error && error.message) || t('staff_load_failed'), icon: 'none' });
     } finally {
       this.setData({ loading: false });
     }
+  },
+
+  onSearchChange(e) {
+    const keyword = (e.detail || '').trim();
+    this.setData({ searchKeyword: keyword });
+    if (this._searchTimer) clearTimeout(this._searchTimer);
+    this._searchTimer = setTimeout(() => {
+      this._applyFilter();
+    }, 300);
+  },
+
+  onSearchClear() {
+    if (this._searchTimer) clearTimeout(this._searchTimer);
+    this.setData({ searchKeyword: '' });
+    this._applyFilter();
+  },
+
+  _applyFilter() {
+    const keyword = (this.data.searchKeyword || '').toLowerCase();
+    const userList = this.data.userList || [];
+    if (!keyword) {
+      this.setData({ filteredUserList: userList });
+      return;
+    }
+    const filtered = userList.filter((item) => {
+      const name = (item.name || '').toLowerCase();
+      const wechatId = (item.wechat_id || '').toLowerCase();
+      return name.includes(keyword) || wechatId.includes(keyword);
+    });
+    this.setData({ filteredUserList: filtered });
   },
 
   async onToggleStaff(e) {
@@ -211,9 +243,6 @@ Page({
   },
 
   setTabBarHidden(hidden) {
-    const tabBar = this.getTabBar && this.getTabBar();
-    if (tabBar && typeof tabBar.setHidden === 'function') {
-      tabBar.setHidden(!!hidden);
-    }
+    setTabBarHidden(this, hidden);
   },
 });

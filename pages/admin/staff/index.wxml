@@ -1,13 +1,23 @@
 <view class="page staff-page">
+	<van-search
+		value="{{searchKeyword}}"
+		placeholder="{{i18n.staff_search_placeholder}}"
+		bind:change="onSearchChange"
+		bind:clear="onSearchClear"
+	/>
+	<view wx:if="{{searchKeyword}}" class="search-result-count">
+		<text>{{i18n.staff_search_result_count}}{{filteredUserList.length}}</text>
+	</view>
+
 	<view class="card">
 		<view class="section-title">{{i18n.staff_role_management}}</view>
 
-		<view wx:if="{{!loading && userList.length === 0}}">
+		<view wx:if="{{!loading && filteredUserList.length === 0}}">
 			<van-empty description="{{i18n.staff_no_users}}" />
 		</view>
 
 		<van-cell-group inset wx:else>
-			<van-cell wx:for="{{userList}}" wx:key="id" title="{{item.name || (i18n.common_student_prefix + item.id)}}" center use-slot use-label-slot>
+			<van-cell wx:for="{{filteredUserList}}" wx:key="id" title="{{item.name || (i18n.common_student_prefix + item.id)}}" center use-slot use-label-slot>
 				<view slot="label" class="cell-label">
 					<text class="cell-wechat">{{i18n.staff_wechat_label}}{{item.wechat_id || '--'}}</text>
 					<van-tag

@@ -1,74 +1,26 @@
 const api = require('../../../utils/api');
 const { t } = require('../../../utils/i18n');
 const { pad2, formatDateOnly } = require('../../../utils/formatters');
+const { resolveRequestName, buildRideWithText, runWithActionLock } = require('../../../utils/helpers');
+const { normalizeShiftStatus } = require('../../../utils/status');
+const { setTabBarHidden } = require('../../../utils/ui');
 
-function resolveRequestName(request) {
-  const user = (request && request.user) || {};
-  const name = user.name
-    || user.real_name
-    || user.user_name
-    || user.nickname
-    || request.real_name
-    || request.passenger_name
-    || request.user_name
-    || request.student_name
-    || request.nickname
-    || request.name
-    || '';
-  const normalized = String(name || '').trim();
-  if (normalized) return normalized;
-  return `${t('common_student_prefix')}${request.user_id || request.id || '--'}`;
-}
-
-function buildRideWithText(request) {
-  const note = String((request && request.ride_with_note) || '').trim();
-  const wxid = String((request && request.ride_with_wechat) || '').trim();
-  if (!note && !wxid) return '';
-  if (note && wxid) return `${t('common_ride_with_prefix')}${note} | ${t('common_wechat_prefix')}${wxid}`;
-  if (note) return `${t('common_ride_with_prefix')}${note}`;
-  return `${t('common_wechat_prefix')}${wxid}`;
-}
-
-function unwrapPayload(payload) {
-  if (!payload || typeof payload !== 'object') return payload;
-  if (Array.isArray(payload)) return payload;
-  return payload.data || payload.result || payload.payload || payload;
-}
-
+// 简化后的数据提取 — 后端已统一返回格式，保留最小兜底
 function extractArray(payload, candidates) {
-  const root = unwrapPayload(payload);
-  if (Array.isArray(root)) return root;
-  if (!root || typeof root !== 'object') return [];
-
+  if (Array.isArray(payload)) return payload;
+  if (!payload || typeof payload !== 'object') return [];
   for (let i = 0; i < candidates.length; i += 1) {
-    const key = candidates[i];
-    if (Array.isArray(root[key])) return root[key];
+    if (Array.isArray(payload[candidates[i]])) return payload[candidates[i]];
   }
-
-  const nested = unwrapPayload(root.data);
-  if (nested && nested !== root) {
-    if (Array.isArray(nested)) return nested;
-    for (let i = 0; i < candidates.length; i += 1) {
-      const key = candidates[i];
-      if (Array.isArray(nested[key])) return nested[key];
-    }
-  }
-
+  if (payload.data && Array.isArray(payload.data)) return payload.data;
   return [];
 }
 
 function pickNumber(payload, keys) {
-  const level1 = unwrapPayload(payload);
-  const level2 = level1 && level1.data ? unwrapPayload(level1.data) : null;
-  const roots = [payload, level1, level2].filter(Boolean);
-  for (let i = 0; i < roots.length; i += 1) {
-    const root = roots[i];
-    if (!root || typeof root !== 'object' || Array.isArray(root)) continue;
-    for (let j = 0; j < keys.length; j += 1) {
-      const value = root[keys[j]];
-      const num = Number(value);
-      if (Number.isFinite(num)) return num;
-    }
+  if (!payload || typeof payload !== 'object') return null;
+  for (let j = 0; j < keys.length; j += 1) {
+    const num = Number(payload[keys[j]]);
+    if (Number.isFinite(num)) return num;
   }
   return null;
 }
@@ -81,12 +33,6 @@ function normalizeDateKey(source) {
   const date = new Date(raw.includes('T') ? raw : raw.replace(' ', 'T'));
   if (Number.isNaN(date.getTime())) return '';
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
-}
-
-function normalizeShiftStatus(status) {
-  const value = String(status || '').toLowerCase();
-  if (value === 'draft') return 'unpublished';
-  return value || 'unpublished';
 }
 
 function shiftStatusText(status) {
@@ -115,6 +61,25 @@ function buildI18n() {
     dashboard_confirm_create:         t('dashboard_confirm_create'),
     today:                            t('today'),
     all:                              t('all'),
+    common_published:                 t('common_published'),
+    common_unpublished:               t('common_unpublished'),
+    dashboard_mod_requests:           t('dashboard_mod_requests'),
+    dashboard_pending_show_all:       t('dashboard_pending_show_all'),
+    dashboard_pending_today_only:     t('dashboard_pending_today_only'),
+    dashboard_pending_search_placeholder: t('dashboard_pending_search_placeholder'),
+    assign_no_requests:               t('assign_no_requests'),
+    suggest_title:                    t('suggest_title'),
+    suggest_loading:                  t('suggest_loading'),
+    suggest_empty:                    t('suggest_empty'),
+    suggest_empty_desc:               t('suggest_empty_desc'),
+    suggest_select_all:               t('suggest_select_all'),
+    suggest_deselect_all:             t('suggest_deselect_all'),
+    suggest_none_selected:            t('suggest_none_selected'),
+    suggest_expand:                   t('suggest_expand'),
+    suggest_collapse:                 t('suggest_collapse'),
+    suggest_manual_create:            t('suggest_manual_create'),
+    suggest_smart_create:             t('suggest_smart_create'),
+    dashboard_smart_suggest:          t('dashboard_smart_suggest'),
   };
 }
 
@@ -124,6 +89,9 @@ Page({
   data: {
     loading: false,
     shifts: [],
+    filteredShifts: [],
+    filterStatus: '',
+    unpublishedCount: 0,
     pendingRequests: [],
 
     filterDate: null,
@@ -132,15 +100,22 @@ Page({
     showCalendar: false,
     calendarDefaultDate: null,
 
+    pendingFilterToday: true,
+    allPendingActions: [],
+    todayPendingActions: [],
     pendingCount: 0,
+    todayPendingCount: 0,
     todayShiftCount: 0,
     publishedCount: 0,
+    pendingModCount: 0,
     pendingActionOverflow: 0,
     overflowTipText: '',
     actionBusy: false,
 
     showPendingSheet: false,
     pendingActions: [],
+    visiblePendingActions: [],
+    pendingSearchKeyword: '',
     selectedPendingRequest: null,
 
     showShiftPicker: false,
@@ -166,6 +141,15 @@ Page({
     minDateTs: new Date().getTime(),
     formattedTime: '',
 
+    // 智能推荐相关
+    showCreateChoicePopup: false,
+    showSuggestPopup: false,
+    suggestLoading: false,
+    suggestions: [],
+    allSuggestionsSelected: false,
+    selectedSuggestionCount: 0,
+    suggestCreateBtnText: '',
+
     // 角色模拟相关
     showRoleSimulator: false,
     isViewingAsUser: false,
@@ -183,10 +167,7 @@ Page({
 
   onShow() {
     const app = getApp();
-    if (app.isWechatBound && !app.isWechatBound()) {
-      wx.reLaunch({ url: '/pages/bind/index' });
-      return;
-    }
+    if (!app.ensureWechatBound()) return;
     const role = app.getEffectiveRole ? app.getEffectiveRole() : ((app.globalData.userInfo && app.globalData.userInfo.role) || 'student');
 
     const tabBar = this.getTabBar && this.getTabBar();
@@ -214,7 +195,7 @@ Page({
     wx.setNavigationBarTitle({ title: t('dashboard_nav_title') });
     this.setData({ i18n: buildI18n(), todayDate: this._formatDate(new Date()) });
 
-    if (!app.globalData.dashboardNeedsRefresh && fresh) {
+    if (!app.isDashboardDirty() && fresh) {
       return;
     }
 
@@ -278,8 +259,8 @@ Page({
 
     const pendingRequests = extractArray(pendingRes, ['items', 'requests', 'list', 'rows']);
 
-    const today = new Date();
-    const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const todayDate = new Date();
+    const todayKey = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
 
     const todayShiftCountFromRows = shifts.filter((s) => normalizeDateKey(s.departure_time) === todayKey).length;
     const publishedCountFromRows = shifts.filter((s) => (s.status || '').toLowerCase() === 'published').length;
@@ -296,31 +277,53 @@ Page({
     const publishedCountFromApi = pickNumber(shiftsRes, ['published_count', 'publishedCount']);
     const publishedCount = Number.isFinite(publishedCountFromApi) ? publishedCountFromApi : publishedCountFromRows;
 
-    const limitedPendingActions = pendingRequests.slice(0, MAX_PENDING_ACTIONS).map((r) => {
+    const mapPendingAction = (r) => {
       const rideWith = buildRideWithText(r);
       return {
         name: `${resolveRequestName(r)} | ${(r.flight_no || '--')}`,
         subname: rideWith
-          ? `${rideWith} | ${t('assign_arrival_time')}${r.arrival_time_api || r.arrival_date || '--'}`
-          : `${t('assign_arrival_time')}${r.arrival_time_api || r.arrival_date || '--'}`,
+          ? `${rideWith} | ${t('assign_arrival_time')}${r.arrival_time || r.arrival_date || '--'}`
+          : `${t('assign_arrival_time')}${r.arrival_time || r.arrival_date || '--'}`,
         request: r,
       };
-    });
+    };
 
-    const overflow = Math.max(0, pendingRequests.length - limitedPendingActions.length);
+    const allPendingActions = pendingRequests.slice(0, MAX_PENDING_ACTIONS).map(mapPendingAction);
+
+    // Filter today's pending requests
+    const today = this._formatDate(new Date());
+    const todayPendingRequests = pendingRequests.filter((r) => {
+      const arrDate = r.arrival_date || '';
+      return arrDate.slice(0, 10) === today;
+    });
+    const todayPendingActions = todayPendingRequests.slice(0, MAX_PENDING_ACTIONS).map(mapPendingAction);
+
+    // Default to today's filter
+    const useTodayFilter = this.data.pendingFilterToday;
+    const activePendingActions = useTodayFilter ? todayPendingActions : allPendingActions;
+    const overflow = Math.max(0, pendingRequests.length - allPendingActions.length);
+
+    const unpublishedCount = shifts.filter(s => s.status === 'draft').length;
+
     this.setData({
       shifts,
+      unpublishedCount,
       pendingRequests,
       pendingCount,
+      todayPendingCount: todayPendingRequests.length,
       todayShiftCount,
       publishedCount,
-      pendingActions: limitedPendingActions,
+      allPendingActions,
+      todayPendingActions,
+      pendingActions: activePendingActions,
       pendingActionOverflow: overflow,
       overflowTipText: overflow > 0
-        ? `${t('dashboard_pending_pool_label')}${t('common_op_in_progress').replace('操作进行中，请稍候', '')}仅展示前${limitedPendingActions.length}条，请缩小范围`
+        ? t('dashboard_pending_overflow').replace('{0}', allPendingActions.length)
         : '',
       loading: false,
     });
+
+    this.applyStatusFilter();
 
     const cache = app.globalData.dashboardCache || {};
     app.globalData.dashboardCache = {
@@ -328,7 +331,13 @@ Page({
       lastLoadAt: Date.now(),
       ttlMs: Number(cache.ttlMs) || 45 * 1000,
     };
-    app.globalData.dashboardNeedsRefresh = false;
+    app.clearDashboardDirty();
+
+    // 异步加载待审核修改申请数量
+    api.getModificationRequests('pending').then((res) => {
+      const modList = Array.isArray(res) ? res : [];
+      this.setData({ pendingModCount: modList.length });
+    }).catch(() => {});
   },
 
   openPendingPool() {
@@ -336,11 +345,67 @@ Page({
     this.setData({
       showPendingSheet: true,
       currentShiftIdForAdd: 0,
+      pendingSearchKeyword: '',
+      visiblePendingActions: this.data.pendingActions,
     });
 
     if (this.data.pendingActionOverflow > 0) {
-      wx.showToast({ title: `仅展示前${MAX_PENDING_ACTIONS}条，请缩小范围`, icon: 'none' });
+      wx.showToast({ title: t('dashboard_pending_overflow').replace('{0}', MAX_PENDING_ACTIONS), icon: 'none' });
     }
+  },
+
+  togglePendingFilter() {
+    const newVal = !this.data.pendingFilterToday;
+    const actions = newVal ? this.data.todayPendingActions : this.data.allPendingActions;
+    this.setData({
+      pendingFilterToday: newVal,
+      pendingActions: actions,
+      pendingSearchKeyword: '',
+      visiblePendingActions: actions,
+    });
+  },
+
+  onPendingSearchChange(e) {
+    const keyword = (e.detail || '').trim();
+    this.setData({ pendingSearchKeyword: keyword });
+    if (this._pendingSearchTimer) clearTimeout(this._pendingSearchTimer);
+    this._pendingSearchTimer = setTimeout(() => {
+      this._applyPendingFilter();
+    }, 300);
+  },
+
+  onPendingSearchClear() {
+    if (this._pendingSearchTimer) clearTimeout(this._pendingSearchTimer);
+    this.setData({ pendingSearchKeyword: '' });
+    this._applyPendingFilter();
+  },
+
+  _applyPendingFilter() {
+    const keyword = (this.data.pendingSearchKeyword || '').toLowerCase();
+    const actions = this.data.pendingActions || [];
+    if (!keyword) {
+      this.setData({ visiblePendingActions: actions });
+      return;
+    }
+    const filtered = actions.filter((item) => {
+      const name = (item.name || '').toLowerCase();
+      const subname = (item.subname || '').toLowerCase();
+      const req = item.request || {};
+      const wechatId = (req.wechat_id || '').toLowerCase();
+      return name.includes(keyword) || subname.includes(keyword) || wechatId.includes(keyword);
+    });
+    this.setData({ visiblePendingActions: filtered });
+  },
+
+  onTapPendingItem(e) {
+    const index = e.currentTarget.dataset.index;
+    const actions = this.data.visiblePendingActions || [];
+    const action = actions[index];
+    if (!action) return;
+    // Find the original index in pendingActions for consistency
+    const originalActions = this.data.pendingActions || [];
+    const originalIndex = originalActions.indexOf(action);
+    this.onSelectPendingRequest({ detail: { index: originalIndex >= 0 ? originalIndex : index } });
   },
 
   onAddPassenger(e) {
@@ -358,6 +423,8 @@ Page({
     this.setData({
       showPendingSheet: true,
       currentShiftIdForAdd: shiftId,
+      pendingSearchKeyword: '',
+      visiblePendingActions: this.data.pendingActions,
     });
     this.setTabBarHidden(true);
   },
@@ -510,16 +577,7 @@ Page({
   },
 
   async runWithActionLock(task) {
-    if (this.data.actionBusy) {
-      wx.showToast({ title: t('common_op_in_progress'), icon: 'none' });
-      return;
-    }
-    this.setData({ actionBusy: true });
-    try {
-      await task();
-    } finally {
-      this.setData({ actionBusy: false });
-    }
+    return runWithActionLock(this, task);
   },
 
   getSelectedAction(e, actions) {
@@ -550,21 +608,141 @@ Page({
   },
 
   setTabBarHidden(hidden) {
-    const tabBar = this.getTabBar && this.getTabBar();
-    if (tabBar && typeof tabBar.setHidden === 'function') {
-      tabBar.setHidden(!!hidden);
-    }
+    setTabBarHidden(this, hidden);
   },
 
-  async onShowCreatePopup() {
-    const now = Date.now();
+  onShowCreatePopup() {
     this.setTabBarHidden(true);
+    this.setData({ showCreateChoicePopup: true });
+  },
+
+  onCloseCreateChoice() {
+    this.setTabBarHidden(false);
+    this.setData({ showCreateChoicePopup: false });
+  },
+
+  async onChooseManualCreate() {
+    const now = Date.now();
     this.setData({
+      showCreateChoicePopup: false,
       showCreatePopup: true,
       selectedDateTs: this.data.selectedDateTs || now,
       minDateTs: now,
     });
     await this.fetchDrivers();
+  },
+
+  async onChooseSmartSuggest() {
+    this.setData({
+      showCreateChoicePopup: false,
+      showSuggestPopup: true,
+      suggestLoading: true,
+      suggestions: [],
+    });
+    try {
+      const raw = await api.suggestShifts(2, 5);
+      const list = Array.isArray(raw) ? raw : [];
+      const suggestions = list.map((item) => {
+        const startDate = new Date(item.window_start);
+        const endDate = new Date(item.window_end);
+        return {
+          ...item,
+          selected: true,
+          expanded: false,
+          windowStartText: this._formatDateTime(startDate),
+          windowEndText: this._formatDateTime(endDate),
+          studentCountText: t('suggest_student_count').replace('{0}', item.student_count || 0),
+          departureTime: this._formatDepartureTime(endDate),
+        };
+      });
+      const selectedCount = suggestions.length;
+      this.setData({
+        suggestions,
+        suggestLoading: false,
+        allSuggestionsSelected: selectedCount > 0,
+        selectedSuggestionCount: selectedCount,
+        suggestCreateBtnText: t('suggest_create_count').replace('{0}', selectedCount),
+      });
+    } catch (err) {
+      wx.showToast({ title: t('suggest_load_failed'), icon: 'none' });
+      this.setData({ suggestLoading: false });
+    }
+  },
+
+  onCloseSuggestPopup() {
+    this.setTabBarHidden(false);
+    this.setData({ showSuggestPopup: false });
+  },
+
+  onToggleSuggestion(e) {
+    const index = e.currentTarget.dataset.index;
+    const key = `suggestions[${index}].selected`;
+    const newVal = !this.data.suggestions[index].selected;
+    this.setData({ [key]: newVal });
+    this._updateSuggestionSelection();
+  },
+
+  onToggleSuggestionExpand(e) {
+    const index = e.currentTarget.dataset.index;
+    const key = `suggestions[${index}].expanded`;
+    this.setData({ [key]: !this.data.suggestions[index].expanded });
+  },
+
+  onToggleSelectAll() {
+    const newVal = !this.data.allSuggestionsSelected;
+    const updates = {};
+    this.data.suggestions.forEach((_, i) => {
+      updates[`suggestions[${i}].selected`] = newVal;
+    });
+    this.setData(updates);
+    this._updateSuggestionSelection();
+  },
+
+  _updateSuggestionSelection() {
+    const suggestions = this.data.suggestions;
+    const selectedCount = suggestions.filter(s => s.selected).length;
+    this.setData({
+      selectedSuggestionCount: selectedCount,
+      allSuggestionsSelected: selectedCount === suggestions.length && suggestions.length > 0,
+      suggestCreateBtnText: t('suggest_create_count').replace('{0}', selectedCount),
+    });
+  },
+
+  async onBatchCreateFromSuggestions() {
+    const selected = this.data.suggestions.filter(s => s.selected);
+    if (!selected.length) {
+      wx.showToast({ title: t('suggest_none_selected'), icon: 'none' });
+      return;
+    }
+
+    await this.runWithActionLock(async () => {
+      try {
+        const payload = selected.map(s => ({
+          departure_time: s.departureTime,
+          driver_id: null,
+        }));
+        await api.batchCreateShifts(payload);
+        wx.showToast({
+          title: t('suggest_create_success').replace('{0}', selected.length),
+          icon: 'success',
+        });
+        this.setData({ showSuggestPopup: false });
+        this.setTabBarHidden(false);
+        await this.loadAll();
+      } catch (err) {
+        wx.showToast({ title: t('suggest_create_failed'), icon: 'none' });
+      }
+    });
+  },
+
+  _formatDateTime(d) {
+    if (!(d instanceof Date) || isNaN(d.getTime())) return '--';
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  },
+
+  _formatDepartureTime(d) {
+    if (!(d instanceof Date) || isNaN(d.getTime())) return '';
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:00`;
   },
 
   onCloseCreatePopup() {
@@ -853,8 +1031,28 @@ Page({
   },
 
   filterReset() {
-    this.setData({ filterDate: null, filterDateLabel: '-' });
-    this.loadAll();
+    wx.navigateTo({ url: '/pages/admin/all-shifts/index' });
+  },
+
+  filterStatusAll() {
+    this.setData({ filterStatus: '' });
+    this.applyStatusFilter();
+  },
+
+  filterStatusPublished() {
+    this.setData({ filterStatus: 'published' });
+    this.applyStatusFilter();
+  },
+
+  filterStatusDraft() {
+    this.setData({ filterStatus: 'draft' });
+    this.applyStatusFilter();
+  },
+
+  applyStatusFilter() {
+    const { shifts, filterStatus } = this.data;
+    const filtered = filterStatus ? shifts.filter(s => s.status === filterStatus) : shifts;
+    this.setData({ filteredShifts: filtered });
   },
 
   _formatDate(d) {
@@ -866,6 +1064,10 @@ Page({
 
   onQuickAssign() {
     wx.navigateTo({ url: '/pages/admin/assign/index' });
+  },
+
+  onGoModificationRequests() {
+    wx.navigateTo({ url: '/pages/admin/modification-requests/index' });
   },
 
   getRoleDisplayText() {

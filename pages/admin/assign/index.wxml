@@ -1,15 +1,25 @@
 <view class="page assign-page">
+  <van-search
+    value="{{searchKeyword}}"
+    placeholder="{{i18n.assign_search_placeholder}}"
+    bind:change="onSearchChange"
+    bind:clear="onSearchClear"
+  />
+  <view wx:if="{{searchKeyword}}" class="search-result-count">
+    <text>{{i18n.assign_search_result_count}}{{filteredRequests.length}}</text>
+  </view>
+
   <view wx:if="{{loading}}" class="card">
     <van-skeleton title row="3" />
     <van-skeleton title row="3" custom-style="margin-top: 16rpx;" />
   </view>
 
-  <view wx:elif="{{!requests.length}}" class="card">
+  <view wx:elif="{{!filteredRequests.length}}" class="card">
     <van-empty description="{{i18n.assign_no_requests}}" />
   </view>
 
   <block wx:else>
-    <view class="card request-card" wx:for="{{requests}}" wx:key="id">
+    <view class="card request-card" wx:for="{{filteredRequests}}" wx:key="id">
       <view class="request-info">
         <view class="request-header">
           <text class="student-name">{{item.userName}}</text>

@@ -1,9 +1,8 @@
 const request = require('./request');
 
 module.exports = {
-  health() {
-    return request.get('/health');
-  },
+  // health() — 保留注释：用于后端健康检查，当前前端未调用
+  // health() { return request.get('/health'); },
 
   authLogin(code) {
     return request.post('/auth/login', { code });
@@ -13,13 +12,7 @@ module.exports = {
     return request.post('/auth/refresh', { refresh_token: refreshToken });
   },
 
-  bindPhone(phoneCode) {
-    return request.post('/auth/bind-phone', { phone_code: phoneCode });
-  },
-
-  bindWechatID(wechatID) {
-    return request.post('/auth/bind-wechat-id', { wechat_id: wechatID });
-  },
+  // bindPhone / bindWechatID — 已被 bindProfile 替代，删除
 
   bindProfile(payload) {
     return request.post('/auth/bind-profile', payload);
@@ -29,8 +22,13 @@ module.exports = {
     return request.get('/auth/me');
   },
 
-  getDashboard(date) {
-    const url = date ? `/admin/shifts/dashboard?date=${date}` : '/admin/shifts/dashboard';
+  getDashboard(date, page, pageSize, status) {
+    const params = [];
+    if (date) params.push(`date=${date}`);
+    if (page) params.push(`page=${page}`);
+    if (pageSize) params.push(`page_size=${pageSize}`);
+    if (status) params.push(`status=${status}`);
+    const url = params.length ? `/admin/shifts/dashboard?${params.join('&')}` : '/admin/shifts/dashboard';
     return request.get(url);
   },
 
@@ -78,12 +76,20 @@ module.exports = {
     return request.del(`/admin/drivers/${id}`);
   },
 
+  getShift(id) {
+    return request.get(`/admin/shifts/${id}`);
+  },
+
   createShift(payload) {
     return request.post('/admin/shifts', payload);
   },
 
   updateShift(id, payload) {
     return request.put(`/admin/shifts/${id}`, payload);
+  },
+
+  updateShiftVehicles(id, manualVehicleCount) {
+    return request.patch(`/admin/shifts/${id}/vehicles`, { manual_vehicle_count: manualVehicleCount });
   },
 
   publishShift(shiftId) {
@@ -102,13 +108,7 @@ module.exports = {
     return request.post(`/admin/shifts/${shiftId}/remove-student`, { request_id: requestId });
   },
 
-  assignStaff(shiftId, staffId) {
-    return request.post(`/admin/shifts/${shiftId}/assign-staff`, { staff_id: staffId });
-  },
-
-  removeStaff(shiftId, staffId) {
-    return request.post(`/admin/shifts/${shiftId}/remove-staff`, { staff_id: staffId });
-  },
+  // assignStaff / removeStaff — 已废弃，删除
 
   createStudentRequest(payload) {
     return request.post('/student/requests', payload);
@@ -116,6 +116,10 @@ module.exports = {
 
   getMyStudentRequests() {
     return request.get('/student/requests/my');
+  },
+
+  getStudentRequest(id) {
+    return request.get(`/student/requests/${id}`);
   },
 
   updateStudentRequest(id, payload) {
@@ -180,6 +184,15 @@ module.exports = {
 
   rejectModification(id, adminNote) {
     return request.post(`/admin/modification-requests/${id}/reject`, { admin_note: adminNote || '' });
+  },
+
+  // 智能推荐相关接口
+  suggestShifts(windowHours = 2, topN = 5) {
+    return request.get(`/admin/shifts/suggest?window_hours=${windowHours}&top_n=${topN}`);
+  },
+
+  batchCreateShifts(suggestions) {
+    return request.post('/admin/shifts/batch', { suggestions });
   },
 
   // Token 相关 API

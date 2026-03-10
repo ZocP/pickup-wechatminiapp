@@ -1,6 +1,7 @@
 const api = require('../../utils/api');
 const { formatDateTime } = require('../../utils/formatters');
 const { t } = require('../../utils/i18n');
+const { logError, logWarn } = require('../../utils/logger');
 
 Page({
   data: {
@@ -52,10 +53,7 @@ Page({
 
   onShow() {
     const app = getApp();
-    if (app.isWechatBound && !app.isWechatBound()) {
-      wx.reLaunch({ url: '/pages/bind/index' });
-      return;
-    }
+    if (!app.ensureWechatBound()) return;
     wx.setNavigationBarTitle({ title: t('driver_nav_title') });
     this.loadDriverShifts();
   },
@@ -72,7 +70,7 @@ Page({
     this.setData({ loading: true });
     try {
       const shiftsRes = await api.getDriverShifts();
-      const rawShifts = Array.isArray(shiftsRes) ? shiftsRes : (shiftsRes.data || shiftsRes.shifts || []);
+      const rawShifts = Array.isArray(shiftsRes) ? shiftsRes : (shiftsRes && shiftsRes.data || []);
 
       const now = new Date();
       // Enrich each shift with display fields
@@ -130,7 +128,7 @@ Page({
         wx.showToast({ title: t('driver_no_shift'), icon: 'none' });
       }
     } catch (error) {
-      console.error('Failed to load shifts:', error);
+      logError('Failed to load shifts:', error);
       wx.showToast({ title: error.message || t('driver_load_failed'), icon: 'none' });
       this.setData({
         shifts: [],
@@ -146,7 +144,7 @@ Page({
   async _loadPassengers(shiftId) {
     try {
       const passengersRes = await api.getShiftPassengers(shiftId);
-      let passengers = Array.isArray(passengersRes) ? passengersRes : (passengersRes.data || passengersRes.passengers || []);
+      let passengers = Array.isArray(passengersRes) ? passengersRes : (passengersRes && passengersRes.data || []);
       return passengers.map(passenger => ({
         ...passenger,
         status: passenger.status || passenger.boarding_status || 'assigned',
@@ -154,7 +152,7 @@ Page({
         student_id: passenger.student_id || passenger.student_id_number || passenger.user_id || '',
       }));
     } catch (err) {
-      console.warn('Failed to load passengers:', err);
+      logWarn('Failed to load passengers:', err);
       wx.showToast({ title: t('driver_passengers_load_failed'), icon: 'none' });
       return [];
     }
@@ -216,7 +214,7 @@ Page({
         });
       }
 
-      getApp().globalData.dashboardNeedsRefresh = true;
+      getApp().markDashboardDirty();
       await this.loadDriverShifts();
     } catch (error) {
       const errMsg = error.message || t('driver_board_failed');

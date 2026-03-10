@@ -5,6 +5,11 @@ module.exports = {
   tab_dispatch:                     '调度',
   tab_profile:                      '我的',
 
+  // ─── Status ────────────────────────────────────────────────────────────
+  status_pending:                   '待分配',
+  status_assigned:                  '已分配待发布',
+  status_published:                 '已发布',
+
   // ─── Common ───────────────────────────────────────────────────────────
   common_admin_only:                '仅管理员可访问',
   common_load_failed:               '加载失败，请下拉重试',
@@ -60,6 +65,7 @@ module.exports = {
   dashboard_exit_simulation:        '已退出角色模拟',
   dashboard_shift_data:             '班次数据',
   dashboard_pending_data:           '待分配数据',
+  dashboard_mod_requests:           '修改审批',
 
   // ─── Staff ────────────────────────────────────────────────────────────
   staff_nav_title:                  'Staff 管理',
@@ -80,6 +86,8 @@ module.exports = {
   staff_unset_driver_failed:        '取消司机失败',
   staff_action_set_staff:           '设为Staff',
   staff_action_unset_staff:         '取消Staff',
+  staff_search_placeholder:          '搜索姓名或微信号',
+  staff_search_result_count:         '搜索结果：',
   staff_action_set_driver:          '设为司机',
   staff_action_unset_driver:        '取消司机',
 
@@ -99,6 +107,8 @@ module.exports = {
   assign_no_arrival_time:           '该学生无落地时间',
   assign_load_shifts_failed:        '加载班次失败',
   assign_op_in_progress:            '操作进行中',
+  assign_search_placeholder:         '搜索姓名、航班号或微信号',
+  assign_search_result_count:        '搜索结果：',
   assign_success:                   '分配成功',
   assign_failed:                    '分配失败',
 
@@ -135,6 +145,7 @@ module.exports = {
   shift_detail_tab_pending:         '待分配池',
   shift_detail_no_onboard:          '车上暂无乘客',
   shift_detail_pickup_time:         '预计上车: ',
+  shift_detail_luggage_label:       '行李: ',
   shift_detail_luggage_checked:     '托',
   shift_detail_luggage_carry_on:    '登',
   shift_detail_ride_with_note:      '同乘备注: ',
@@ -162,6 +173,17 @@ module.exports = {
   shift_detail_remove_boarded_confirm:'该乘客已经登车，确定要将其移出班次？',
   shift_detail_passenger_boarded:   '已登车',
   shift_detail_passenger_unboarded: '未登车',
+  shift_detail_vehicle_label:       '车辆',
+  shift_detail_vehicle_suggested:   '建议 {0} 辆',
+  shift_detail_vehicle_manual:      '{0} 辆 (手动)',
+  shift_detail_vehicle_override:    '手动设置车辆数',
+  shift_detail_vehicle_clear:       '清除',
+  shift_detail_vehicle_save:        '保存',
+  shift_detail_vehicle_save_success:'车辆数已更新',
+  shift_detail_vehicle_save_failed: '更新失败',
+  shift_detail_sort_arrival:        '按到达时间',
+  shift_detail_sort_name:           '按姓名',
+  shift_detail_sort_flight:         '按航班号',
   // ─── Home ─────────────────────────────────────────────────────────────
   home_nav_title:                   '首页',
   home_welcome:                     '欢迎使用 UIUC 接机调度',
@@ -340,6 +362,8 @@ module.exports = {
   shiftcard_overload_prefix:        '超载 +',
   shiftcard_manage_btn:             '管理班次',
   shiftcard_student_prefix:         '学生#',
+  shiftcard_vehicle_suggested:      '建议 {0} 辆车',
+  shiftcard_vehicle_manual:         '{0} 辆车 (手动)',
 
 
   // 修改申请相关
@@ -443,6 +467,73 @@ module.exports = {
   mod_count_label:                  '已修改次数：',
   today:                            '今天',
   all:                              '全部',
+
+  // ─── 邀请码验证页 ───────────────────────────────────────────────────────
+  token_nav_title:                  '邀请码验证',
+  token_verify_success:             '验证成功',
+  token_verify_failed:              '验证失败，请重试',
+  token_err_not_found:              '邀请码无效',
+  token_err_used:                   '邀请码已被使用',
+  token_err_expired:                '邀请码已过期',
+  token_err_revoked:                '邀请码已作废',
+
+  // ─── 邀请码管理页 (staff) ─────────────────────────────────────────────
+  tokens_nav_title:                 '邀请码管理',
+  tokens_no_permission:             '权限不足',
+  tokens_load_failed:               '加载失败',
+  tokens_user_prefix:               '用户#',
+  tokens_name_required:             '请输入姓名',
+  tokens_payment_required:          '请选择付款方式',
+  tokens_amount_invalid:            '请输入有效金额',
+  tokens_generate_success:          '生成成功',
+  tokens_generate_failed:           '生成失败',
+  tokens_revoke_title:              '确认作废',
+  tokens_revoke_confirm:            '作废后该邀请码将无法使用，是否继续？',
+  tokens_revoke_success:            '已作废',
+  tokens_op_failed:                 '操作失败',
+  tokens_copied:                    '已复制',
+
+  // ─── Modification 补充 ────────────────────────────────────────────────
+  modification_param_error:         '参数错误',
+  modification_not_found:           '未找到申请记录',
+  modification_load_failed:         '加载失败',
+  modification_confirm_title:       '确认',
+  modification_withdraw_failed:     '撤回失败',
+
+  // ─── All Shifts ────────────────────────────────────────────────────────
+  allshifts_nav_title:              '全部班次',
+  allshifts_tab_all:                '全部',
+  allshifts_tab_published:          '已发布',
+  allshifts_tab_draft:              '未发布',
+  allshifts_empty:                  '暂无班次',
+  allshifts_sort_time:              '按时间',
+  allshifts_sort_seats:             '按空位',
+  allshifts_sort_status:            '按状态',
+
+  // ─── Dashboard Pending Filter ────────────────────────────────────────
+  dashboard_pending_search_placeholder: '搜索姓名、航班号或微信号',
+  dashboard_pending_show_all:       '显示全部',
+  dashboard_pending_today_only:     '仅今天',
+  dashboard_pending_overflow:       '仅展示前{0}条，请缩小范围',
+
+  // ─── Smart Suggest ─────────────────────────────────────────────────────
+  suggest_title:                    '智能推荐班次',
+  suggest_loading:                  '正在分析待分配请求...',
+  suggest_empty:                    '暂无可推荐的班次',
+  suggest_empty_desc:               '没有待分配的学生请求，或所有请求缺少落地时间',
+  suggest_student_count:            '{0}人',
+  suggest_select_all:               '全选',
+  suggest_deselect_all:             '取消全选',
+  suggest_create_count:             '创建 {0} 个班次',
+  suggest_none_selected:            '请至少选择一个推荐班次',
+  suggest_create_success:           '成功创建 {0} 个班次',
+  suggest_create_failed:            '批量创建失败',
+  suggest_load_failed:              '加载推荐失败',
+  suggest_expand:                   '展开学生列表',
+  suggest_collapse:                 '收起',
+  dashboard_smart_suggest:          '🤖 智能推荐',
+  suggest_manual_create:            '手动创建',
+  suggest_smart_create:             '智能推荐',
 
   // ─── Home Driver ──────────────────────────────────────────────────────
   home_driver_section:              '司机功能',

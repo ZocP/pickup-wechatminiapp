@@ -1,4 +1,5 @@
 const { t, getLocale, setLocale } = require('../../utils/i18n');
+const { setTabBarHidden } = require('../../utils/ui');
 
 Page({
   data: {
@@ -64,10 +65,7 @@ Page({
 
   onShow() {
     const app = getApp();
-    if (app.isWechatBound && !app.isWechatBound()) {
-      wx.reLaunch({ url: '/pages/bind/index' });
-      return;
-    }
+    if (!app.ensureWechatBound()) return;
 
     const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo') || {};
     const realRole = userInfo.role || 'student';
@@ -168,9 +166,6 @@ Page({
   },
 
   setTabBarHidden(hidden) {
-    const tabBar = this.getTabBar && this.getTabBar();
-    if (tabBar && typeof tabBar.setHidden === 'function') {
-      tabBar.setHidden(!!hidden);
-    }
+    setTabBarHidden(this, hidden);
   },
 });

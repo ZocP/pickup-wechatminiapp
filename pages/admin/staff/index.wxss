@@ -27,3 +27,9 @@
 	color: #969799;
 	line-height: 1.4;
 }
+
+.search-result-count {
+	padding: 8rpx 32rpx;
+	font-size: 24rpx;
+	color: #969799;
+}

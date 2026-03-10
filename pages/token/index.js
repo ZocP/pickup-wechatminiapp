@@ -1,4 +1,5 @@
 const api = require('../../utils/api');
+const { t } = require('../../utils/i18n');
 
 Page({
   data: {
@@ -8,7 +9,7 @@ Page({
   },
 
   onLoad() {
-    wx.setNavigationBarTitle({ title: '注册验证' });
+    wx.setNavigationBarTitle({ title: t('token_nav_title') });
   },
 
   onCodeInput(e) {
@@ -35,22 +36,22 @@ Page({
         app.globalData.userInfo = userInfo;
       }
 
-      wx.showToast({ title: '验证成功', icon: 'success' });
+      wx.showToast({ title: t('token_verify_success'), icon: 'success' });
       setTimeout(() => {
         wx.reLaunch({ url: '/pages/home/index' });
       }, 800);
     } catch (err) {
       const data = err && err.data;
       const serverError = data && (data.error || data.message);
-      let msg = '验证失败，请重试';
+      let msg = t('token_verify_failed');
 
       if (serverError) {
         const errorMap = {
-          'token_not_found': '注册码无效',
-          'token_already_used': '注册码已被使用',
-          'token_expired': '注册码已过期',
-          'token_revoked': '注册码已作废',
-          'invalid_code': '注册码无效',
+          'token_not_found': t('token_err_not_found'),
+          'token_already_used': t('token_err_used'),
+          'token_expired': t('token_err_expired'),
+          'token_revoked': t('token_err_revoked'),
+          'invalid_code': t('token_err_not_found'),
         };
         msg = errorMap[serverError] || serverError;
       }

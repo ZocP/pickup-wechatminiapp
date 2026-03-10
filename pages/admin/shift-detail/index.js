@@ -1,7 +1,10 @@
 const app = getApp()
-const { getDashboard, getPendingRequests, assignStudent, removeStudent, publishShift, updateShift, unpublishShift } = require('../../../utils/api')
+const api = require('../../../utils/api')
+const { getDashboard, getPendingRequests, assignStudent, removeStudent, publishShift, updateShift, unpublishShift, updateShiftVehicles } = api
 const { t } = require('../../../utils/i18n')
 const { pad2, normalizeDateTime, formatDateTime, formatMonthDay, formatHourMinute } = require('../../../utils/formatters')
+const { resolveRequestName, runWithActionLock: runWithActionLockHelper } = require('../../../utils/helpers')
+const { normalizeShiftStatus } = require('../../../utils/status')
 
 function terminalOf(req) {
   return req.terminal || req.arrival_terminal || req.flight_terminal || req.arrival_gate || ''
@@ -125,21 +128,9 @@ function groupByTwentyMinutes(items, getTs) {
 function toPassengerFromRequest(request) {
   const pickupRaw = pickupTimeOf(request)
   const pickupDate = normalizeDateTime(pickupRaw)
-  const user = request && request.user ? request.user : {}
-  const resolvedName = user.name
-    || user.real_name
-    || user.user_name
-    || user.nickname
-    || request.real_name
-    || request.passenger_name
-    || request.user_name
-    || request.student_name
-    || request.nickname
-    || request.name
-    || ''
   return {
     id: request.id,
-    name: String(resolvedName).trim() || `${t('common_student_prefix')}${request.user_id || request.id}`,
+    name: resolveRequestName(request),
     flight_no: request.flight_no || request.flightNumber || '--',
     calc_pickup_time: pickupRaw,
     pickup_time_text: formatDateTime(pickupRaw),
@@ -157,7 +148,7 @@ function isLate(pickupTime, shiftTime) {
   const pickup = normalizeDateTime(pickupTime)
   const shift = normalizeDateTime(shiftTime)
   if (!pickup || !shift) return false
-  return pickup.getTime() < shift.getTime()
+  return pickup.getTime() > shift.getTime()
 }
 
 function sameTerminal(a, b) {
@@ -188,16 +179,10 @@ function usageOf(used, max) {
   }
 }
 
-function normalizeShiftStatus(status) {
-  const value = String(status || '').toLowerCase()
-  if (value === 'draft') return 'unpublished'
-  return value || 'unpublished'
-}
-
 function markDashboardDirty() {
   const root = getApp()
-  if (root && root.globalData) {
-    root.globalData.dashboardNeedsRefresh = true
+  if (root && typeof root.markDashboardDirty === 'function') {
+    root.markDashboardDirty()
   }
 }
 
@@ -215,7 +200,7 @@ function buildI18n() {
     shift_detail_tab_pending:        t('shift_detail_tab_pending'),
     shift_detail_no_onboard:         t('shift_detail_no_onboard'),
     shift_detail_pickup_time:        t('shift_detail_pickup_time'),
-    shift_detail_luggage_label:      '行李: ',
+    shift_detail_luggage_label:      t('shift_detail_luggage_label'),
     shift_detail_luggage_checked:    t('shift_detail_luggage_checked'),
     shift_detail_luggage_carry_on:   t('shift_detail_luggage_carry_on'),
     shift_detail_ride_with_note:     t('shift_detail_ride_with_note'),
@@ -227,6 +212,10 @@ function buildI18n() {
     shift_detail_add:                t('shift_detail_add'),
     shift_detail_passenger_boarded:  t('shift_detail_passenger_boarded'),
     shift_detail_passenger_unboarded:t('shift_detail_passenger_unboarded'),
+    shift_detail_vehicle_label:      t('shift_detail_vehicle_label'),
+    shift_detail_vehicle_override:   t('shift_detail_vehicle_override'),
+    shift_detail_vehicle_clear:      t('shift_detail_vehicle_clear'),
+    shift_detail_vehicle_save:       t('shift_detail_vehicle_save'),
   }
 }
 
@@ -252,7 +241,7 @@ Page({
     headerTerminal: '--',
     terminalRoute: '',
     driverText: '--',
-    statusText: t('shift_detail_status_unpublished') || t('common_unpublished'),
+    statusText: t('common_unpublished'),
     statusTagType: 'primary',
     seatUsage: { used: 0, max: 0, percent: 0, color: '#1989fa' },
     checkedUsage: { used: 0, max: 0, percent: 0, color: '#1989fa' },
@@ -265,6 +254,19 @@ Page({
     onboardCount: 0,
     boardedCount: 0,
     unboardedCount: 0,
+    vehicleText: '',
+    suggestedVehicles: 0,
+    manualVehicleCount: null,
+    vehicleInputValue: '',
+    showVehicleEditor: false,
+    vehicleSaving: false,
+    infoCardCollapsed: false,
+    sortOrder: 'arrival',
+    sortOptions: [
+      { text: t('shift_detail_sort_arrival'), value: 'arrival' },
+      { text: t('shift_detail_sort_name'), value: 'name' },
+      { text: t('shift_detail_sort_flight'), value: 'flight' },
+    ],
     i18n: buildI18n(),
   },
 
@@ -272,16 +274,14 @@ Page({
     wx.setNavigationBarTitle({ title: t('shift_detail_nav_title') })
     this.setData({ i18n: buildI18n() })
 
-    if (app.isWechatBound && !app.isWechatBound()) {
-      wx.reLaunch({ url: '/pages/bind/index' });
-      return;
-    }
+    if (!app.ensureWechatBound()) return;
     const shiftId = query && query.id ? String(query.id) : ''
     if (!shiftId) {
       wx.showToast({ title: t('shift_detail_missing_id'), icon: 'none' })
       return
     }
     this.setData({ shiftId })
+    this._dayFilterInitialized = false
     await this.loadData()
   },
 
@@ -290,7 +290,6 @@ Page({
 
   onShow() {
     wx.setNavigationBarTitle({ title: t('shift_detail_nav_title') })
-    this.setData({ i18n: buildI18n() })
     const now = Date.now()
     if (this.data.shiftId && now - this._lastLoadTime > 2000) {
       this._lastLoadTime = now
@@ -335,29 +334,25 @@ Page({
     this._lastLoadTime = Date.now()
     if (!silent) wx.showLoading({ title: t('shift_detail_loading') })
     try {
-      const [dashboard, pending] = await Promise.all([
-        getDashboard(),
+      const [shiftRes, pending] = await Promise.all([
+        api.getShift(this.data.shiftId),
         getPendingRequests()
       ])
 
-      const dashboardRows = Array.isArray(dashboard)
-        ? dashboard
-        : (dashboard && Array.isArray(dashboard.shifts) ? dashboard.shifts : [])
+      const rawShift = shiftRes || {}
+      const shift = {
+        ...rawShift,
+        id: rawShift.id || rawShift.ID || rawShift.shift_id || 0,
+        status: normalizeShiftStatus(rawShift.status || rawShift.Status),
+        departure_time: rawShift.departure_time || rawShift.DepartureTime || '',
+        requests: Array.isArray(rawShift.requests)
+          ? rawShift.requests
+          : (Array.isArray(rawShift.Requests)
+            ? rawShift.Requests
+            : (Array.isArray(rawShift.passengers) ? rawShift.passengers : []))
+      }
 
-      const shifts = dashboardRows.map((item) => ({
-        ...item,
-        id: item.id || item.ID || item.shift_id || 0,
-        status: normalizeShiftStatus(item.status || item.Status),
-        departure_time: item.departure_time || item.DepartureTime || '',
-        requests: Array.isArray(item.requests)
-          ? item.requests
-          : (Array.isArray(item.Requests)
-            ? item.Requests
-            : (Array.isArray(item.passengers) ? item.passengers : []))
-      }))
-
-      const shift = shifts.find((item) => String(item.id) === String(this.data.shiftId))
-      if (!shift) {
+      if (!shift.id) {
         wx.showToast({ title: t('shift_detail_not_found'), icon: 'none' })
         return
       }
@@ -408,6 +403,16 @@ Page({
     const statusText = shiftStatus === 'published' ? t('common_published') : t('common_unpublished')
     const statusTagType = shiftStatus === 'published' ? 'success' : 'primary'
 
+    // Vehicle recommendation
+    const manual = shift.manual_vehicle_count
+    const suggested = shift.suggested_vehicles || 0
+    let vehicleText = ''
+    if (manual != null && manual !== undefined) {
+      vehicleText = t('shift_detail_vehicle_manual').replace('{0}', manual)
+    } else if (suggested > 0) {
+      vehicleText = t('shift_detail_vehicle_suggested').replace('{0}', suggested)
+    }
+
     this.setData({
       headerTime: formatDateTime(shift.departure_time),
       headerTerminal: shiftTerminalOf(shift, onboard),
@@ -421,7 +426,11 @@ Page({
       checkedUsage: usageOf(checkedUsed, checkedMax),
       carryOnUsage: usageOf(carryOnUsed, carryOnMax),
       canPublish: shiftStatus === 'published' ? true : seatUsed > 0,
-      publishButtonText: shiftStatus === 'published' ? t('shift_detail_withdraw_btn') : t('shift_detail_publish_btn')
+      publishButtonText: shiftStatus === 'published' ? t('shift_detail_withdraw_btn') : t('shift_detail_publish_btn'),
+      vehicleText,
+      suggestedVehicles: suggested,
+      manualVehicleCount: manual != null ? manual : null,
+      vehicleInputValue: manual != null ? String(manual) : '',
     })
   },
 
@@ -470,12 +479,38 @@ Page({
     )
 
     const terminalFilter = terminalOptions.some((x) => x.value === this.data.terminalFilter) ? this.data.terminalFilter : 'all'
-    const dayFilter = dayOptions.some((x) => x.value === this.data.dayFilter) ? this.data.dayFilter : 'all'
+
+    // Smart default: on first load, default dayFilter to shift's departure date
+    let dayFilter = this.data.dayFilter
+    if (!this._dayFilterInitialized) {
+      this._dayFilterInitialized = true
+      const depDate = normalizeDateTime(shift.departure_time)
+      if (depDate) {
+        const shiftDay = `${depDate.getFullYear()}-${pad2(depDate.getMonth() + 1)}-${pad2(depDate.getDate())}`
+        if (dayOptions.some((x) => x.value === shiftDay)) {
+          dayFilter = shiftDay
+        }
+      }
+    }
+    if (!dayOptions.some((x) => x.value === dayFilter)) {
+      dayFilter = 'all'
+    }
+
+    const sortOrder = this.data.sortOrder || 'arrival'
 
     const filtered = candidates
       .filter((item) => (terminalFilter === 'all' ? true : item._terminal === terminalFilter))
       .filter((item) => (dayFilter === 'all' ? true : item._day === dayFilter))
       .sort((a, b) => {
+        // Primary sort by user selection
+        if (sortOrder === 'name') {
+          const cmp = (a.name || '').localeCompare(b.name || '', 'zh')
+          if (cmp !== 0) return cmp
+        } else if (sortOrder === 'flight') {
+          const cmp = (a.flight_no || '').localeCompare(b.flight_no || '')
+          if (cmp !== 0) return cmp
+        }
+        // Default / secondary: by arrival time with late/recommended hints
         if (a.late !== b.late) return a.late ? 1 : -1
         if (a.recommended !== b.recommended) return a.recommended ? -1 : 1
         if (a._delta !== b._delta) return a._delta - b._delta
@@ -497,6 +532,10 @@ Page({
     })
   },
 
+  onToggleInfoCard() {
+    this.setData({ infoCardCollapsed: !this.data.infoCardCollapsed })
+  },
+
   onTabChange(event) {
     const index = event && event.detail ? event.detail.index : 0
     this.setData({ activeTab: index || 0 })
@@ -508,6 +547,10 @@ Page({
 
   onDayChange(event) {
     this.setData({ dayFilter: event.detail }, () => this.recomputeFiltersAndList())
+  },
+
+  onSortChange(event) {
+    this.setData({ sortOrder: event.detail }, () => this.recomputeFiltersAndList())
   },
 
   async onAddPassenger(event) {
@@ -536,8 +579,8 @@ Page({
     if (boarded) {
       const res = await new Promise((resolve) => {
         wx.showModal({
-          title: t('shift_detail_remove_confirm_title') || '确认移除',
-          content: t('shift_detail_remove_boarded_confirm') || '该乘客已经登车，确定移除？',
+          title: t('shift_detail_remove_confirm_title'),
+          content: t('shift_detail_remove_boarded_confirm'),
           confirmColor: '#ee0a24',
           success: resolve,
           fail: () => resolve({ confirm: false })
@@ -585,17 +628,57 @@ Page({
     })
   },
 
-  async runWithActionLock(task) {
-    if (this.data.actionBusy) {
-      wx.showToast({ title: t('common_op_in_progress'), icon: 'none' })
+  onToggleVehicleEditor() {
+    this.setData({ showVehicleEditor: !this.data.showVehicleEditor })
+  },
+
+  onVehicleInput(event) {
+    this.setData({ vehicleInputValue: event.detail || '' })
+  },
+
+  async onSaveVehicleCount() {
+    const val = this.data.vehicleInputValue.trim()
+    const count = val ? parseInt(val, 10) : null
+
+    if (val && (!Number.isFinite(count) || count < 1)) {
+      wx.showToast({ title: t('shift_detail_vehicle_save_failed'), icon: 'none' })
       return
     }
 
-    this.setData({ actionBusy: true })
-    try {
-      await task()
-    } finally {
-      this.setData({ actionBusy: false })
-    }
+    await this.runWithActionLock(async () => {
+      this.setData({ vehicleSaving: true })
+      try {
+        await updateShiftVehicles(this.data.shiftId, count)
+        wx.showToast({ title: t('shift_detail_vehicle_save_success'), icon: 'success' })
+        this.setData({ showVehicleEditor: false })
+        await this.loadData()
+        markDashboardDirty()
+      } catch (error) {
+        wx.showToast({ title: (error && error.message) || t('shift_detail_vehicle_save_failed'), icon: 'none' })
+      } finally {
+        this.setData({ vehicleSaving: false })
+      }
+    })
+  },
+
+  async onClearVehicleCount() {
+    await this.runWithActionLock(async () => {
+      this.setData({ vehicleSaving: true })
+      try {
+        await updateShiftVehicles(this.data.shiftId, null)
+        wx.showToast({ title: t('shift_detail_vehicle_save_success'), icon: 'success' })
+        this.setData({ showVehicleEditor: false, vehicleInputValue: '' })
+        await this.loadData()
+        markDashboardDirty()
+      } catch (error) {
+        wx.showToast({ title: (error && error.message) || t('shift_detail_vehicle_save_failed'), icon: 'none' })
+      } finally {
+        this.setData({ vehicleSaving: false })
+      }
+    })
+  },
+
+  async runWithActionLock(task) {
+    return runWithActionLockHelper(this, task)
   }
 })

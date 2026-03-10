@@ -1,0 +1,32 @@
+<view class="page all-shifts-page">
+  <!-- Tab bar -->
+  <van-tabs active="{{activeTab}}" bind:change="onTabChange">
+    <van-tab title="{{i18n.allshifts_tab_all}}({{allCount}})"/>
+    <van-tab title="{{i18n.allshifts_tab_published}}({{publishedCount}})"/>
+    <van-tab title="{{i18n.allshifts_tab_draft}}({{draftCount}})"/>
+  </van-tabs>
+
+  <!-- Sort -->
+  <view class="sort-bar">
+    <van-dropdown-menu>
+      <van-dropdown-item value="{{sortBy}}" options="{{sortOptions}}" bind:change="onSortChange"/>
+    </van-dropdown-menu>
+  </view>
+
+  <!-- Shift list -->
+  <view class="shift-list">
+    <van-empty wx:if="{{!loading && filteredShifts.length === 0}}" description="{{i18n.allshifts_empty}}"/>
+    <shift-card
+      wx:for="{{filteredShifts}}"
+      wx:key="id"
+      shift="{{item}}"
+      bind:manageshift="onManageShift"
+    />
+    <view wx:if="{{loadingMore}}" class="loading-more">
+      <van-loading size="24px">加载更多...</van-loading>
+    </view>
+    <view wx:if="{{!hasMore && filteredShifts.length > 0}}" class="no-more">
+      <text>没有更多了</text>
+    </view>
+  </view>
+</view>

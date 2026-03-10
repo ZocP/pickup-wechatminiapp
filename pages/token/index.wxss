@@ -33,7 +33,7 @@
 
 .token-input-wrap {
   background: #fff;
-  border-radius: 16rpx;
+  border-radius: 12rpx;
   overflow: hidden;
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.06);
 }
