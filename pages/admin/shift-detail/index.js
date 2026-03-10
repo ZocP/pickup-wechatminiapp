@@ -148,7 +148,7 @@ function isLate(pickupTime, shiftTime) {
   const pickup = normalizeDateTime(pickupTime)
   const shift = normalizeDateTime(shiftTime)
   if (!pickup || !shift) return false
-  return pickup.getTime() < shift.getTime()
+  return pickup.getTime() > shift.getTime()
 }
 
 function sameTerminal(a, b) {
