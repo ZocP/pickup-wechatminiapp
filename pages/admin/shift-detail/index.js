@@ -200,7 +200,7 @@ function buildI18n() {
     shift_detail_tab_pending:        t('shift_detail_tab_pending'),
     shift_detail_no_onboard:         t('shift_detail_no_onboard'),
     shift_detail_pickup_time:        t('shift_detail_pickup_time'),
-    shift_detail_luggage_label:      '行李: ',
+    shift_detail_luggage_label:      t('shift_detail_luggage_label'),
     shift_detail_luggage_checked:    t('shift_detail_luggage_checked'),
     shift_detail_luggage_carry_on:   t('shift_detail_luggage_carry_on'),
     shift_detail_ride_with_note:     t('shift_detail_ride_with_note'),
@@ -579,8 +579,8 @@ Page({
     if (boarded) {
       const res = await new Promise((resolve) => {
         wx.showModal({
-          title: t('shift_detail_remove_confirm_title') || '确认移除',
-          content: t('shift_detail_remove_boarded_confirm') || '该乘客已经登车，确定移除？',
+          title: t('shift_detail_remove_confirm_title'),
+          content: t('shift_detail_remove_boarded_confirm'),
           confirmColor: '#ee0a24',
           success: resolve,
           fail: () => resolve({ confirm: false })

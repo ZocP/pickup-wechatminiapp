@@ -145,6 +145,7 @@ module.exports = {
   shift_detail_tab_pending:         'Pending Pool',
   shift_detail_no_onboard:          'No passengers onboard',
   shift_detail_pickup_time:         'Pickup: ',
+  shift_detail_luggage_label:       'Luggage: ',
   shift_detail_luggage_checked:     'chk',
   shift_detail_luggage_carry_on:    'co',
   shift_detail_ride_with_note:      'Ride with: ',

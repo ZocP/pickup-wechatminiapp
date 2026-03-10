@@ -145,6 +145,7 @@ module.exports = {
   shift_detail_tab_pending:         '待分配池',
   shift_detail_no_onboard:          '车上暂无乘客',
   shift_detail_pickup_time:         '预计上车: ',
+  shift_detail_luggage_label:       '行李: ',
   shift_detail_luggage_checked:     '托',
   shift_detail_luggage_carry_on:    '登',
   shift_detail_ride_with_note:      '同乘备注: ',
