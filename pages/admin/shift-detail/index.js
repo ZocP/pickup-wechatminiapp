@@ -241,7 +241,7 @@ Page({
     headerTerminal: '--',
     terminalRoute: '',
     driverText: '--',
-    statusText: t('shift_detail_status_unpublished') || t('common_unpublished'),
+    statusText: t('common_unpublished'),
     statusTagType: 'primary',
     seatUsage: { used: 0, max: 0, percent: 0, color: '#1989fa' },
     checkedUsage: { used: 0, max: 0, percent: 0, color: '#1989fa' },
