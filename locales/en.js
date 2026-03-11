@@ -536,6 +536,26 @@ module.exports = {
   suggest_manual_create:            'Manual Create',
   suggest_smart_create:             'Smart Suggest',
 
+  // ─── Student Management ─────────────────────────────────────────────
+  sm_nav_title:                     'Student Management',
+  sm_search_placeholder:            'Search name or flight number',
+  sm_tab_pending:                   'Pending',
+  sm_tab_assigned:                  'Assigned',
+  sm_tab_all:                       'All',
+  sm_empty:                         'No students',
+  sm_status_pending:                'Pending',
+  sm_status_assigned:               'Assigned',
+  sm_status_published:              'Published',
+  sm_just_assigned:                 'Added ✓',
+  sm_recommend_shifts:              'Recommend Shifts',
+  sm_no_recommend:                  'No shifts to recommend',
+  sm_seats_remaining:               'Remaining',
+  sm_add:                           'Add',
+  sm_unassign:                      'Unassign',
+  sm_reassign:                      'Reassign',
+  sm_reassign_title:                'Select New Shift',
+  sm_manage_link:                   'Manage Students',
+
   // ─── Home Driver ──────────────────────────────────────────────────────
   home_driver_section:              'Driver',
   home_driver_my_shifts:            'My Shifts',

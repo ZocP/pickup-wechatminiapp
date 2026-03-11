@@ -10,6 +10,7 @@
     "pages/admin/assign/index",
     "pages/admin/modification-requests/index",
     "pages/admin/all-shifts/index",
+    "pages/admin/student-mgmt/index",
     "pages/profile/index",
     "pages/student/request/index",
     "pages/student/modification/index",

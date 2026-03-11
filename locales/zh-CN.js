@@ -535,6 +535,26 @@ module.exports = {
   suggest_manual_create:            '手动创建',
   suggest_smart_create:             '智能推荐',
 
+  // ─── Student Management ─────────────────────────────────────────────
+  sm_nav_title:                     '学生管理',
+  sm_search_placeholder:            '搜索姓名或航班号',
+  sm_tab_pending:                   '待分配',
+  sm_tab_assigned:                  '已分配',
+  sm_tab_all:                       '全部',
+  sm_empty:                         '暂无学生数据',
+  sm_status_pending:                '待分配',
+  sm_status_assigned:               '已分配',
+  sm_status_published:              '已发布',
+  sm_just_assigned:                 '已添加 ✓',
+  sm_recommend_shifts:              '推荐班次',
+  sm_no_recommend:                  '暂无可推荐班次',
+  sm_seats_remaining:               '剩余',
+  sm_add:                           '添加',
+  sm_unassign:                      '取消分配',
+  sm_reassign:                      '换班次',
+  sm_reassign_title:                '选择新班次',
+  sm_manage_link:                   '管理学生',
+
   // ─── Home Driver ──────────────────────────────────────────────────────
   home_driver_section:              '司机功能',
   home_driver_my_shifts:            '我的班次',

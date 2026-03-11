@@ -211,4 +211,25 @@ module.exports = {
   verifyToken(code) {
     return request.post('/auth/verify-token', { code });
   },
+
+  // ─── Student Management ────────────────────────────────────────────
+  getManageRequests(tab, search, page, pageSize) {
+    const params = [];
+    if (tab) params.push(`tab=${encodeURIComponent(tab)}`);
+    if (search) params.push(`search=${encodeURIComponent(search)}`);
+    if (page) params.push(`page=${page}`);
+    if (pageSize) params.push(`page_size=${pageSize}`);
+    const qs = params.length ? `?${params.join('&')}` : '';
+    return request.get(`/admin/requests/manage${qs}`);
+  },
+
+  getRecommendShifts(requestId, limit) {
+    let url = `/admin/requests/${requestId}/recommend-shifts`;
+    if (limit) url += `?limit=${limit}`;
+    return request.get(url);
+  },
+
+  reassignRequest(requestId, shiftId) {
+    return request.post(`/admin/requests/${requestId}/reassign`, { shift_id: shiftId });
+  },
 };

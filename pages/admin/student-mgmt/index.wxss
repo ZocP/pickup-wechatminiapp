@@ -1,0 +1,182 @@
+page {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.student-mgmt-page {
+  padding-bottom: 40rpx;
+  overflow-x: hidden;
+}
+
+.request-list {
+  padding: 16rpx 20rpx;
+}
+
+.request-card {
+  margin-bottom: 16rpx;
+  padding: 20rpx 24rpx;
+  background: #fff;
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.req-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.req-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #323233;
+}
+
+.req-info {
+  margin-bottom: 12rpx;
+}
+
+.req-detail {
+  display: block;
+  font-size: 24rpx;
+  color: #646566;
+  line-height: 1.6;
+}
+
+.shift-info {
+  background: #f0f7ff;
+  border-radius: 8rpx;
+  padding: 16rpx;
+  margin-top: 8rpx;
+}
+
+.shift-detail {
+  font-size: 24rpx;
+  color: #323233;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.shift-actions {
+  display: flex;
+  gap: 16rpx;
+}
+
+.pending-actions {
+  margin-top: 12rpx;
+}
+
+.recommend-section {
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #ebedf0;
+}
+
+.recommend-loading, .recommend-empty {
+  padding: 20rpx 0;
+  text-align: center;
+  font-size: 24rpx;
+  color: #969799;
+}
+
+.recommend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid #f5f6f7;
+}
+
+.recommend-item:last-child {
+  border-bottom: none;
+}
+
+.recommend-info {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx 16rpx;
+  font-size: 24rpx;
+  color: #646566;
+  align-items: center;
+}
+
+.recommend-time {
+  font-weight: 500;
+  color: #323233;
+}
+
+.recommend-driver {
+  color: #969799;
+}
+
+.recommend-seats {
+  color: #07c160;
+}
+
+.recommend-score {
+  color: #ff976a;
+  font-size: 22rpx;
+}
+
+/* Reassign popup */
+.reassign-popup {
+  padding: 24rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+}
+
+.reassign-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  text-align: center;
+  padding-bottom: 16rpx;
+}
+
+.reassign-loading, .reassign-empty {
+  padding: 40rpx 0;
+  text-align: center;
+}
+
+.reassign-scroll {
+  max-height: 55vh;
+}
+
+.reassign-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 16rpx;
+  border-bottom: 1rpx solid #ebedf0;
+}
+
+.reassign-item:active {
+  background: #f2f3f5;
+}
+
+.reassign-item-info {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx 16rpx;
+  font-size: 26rpx;
+}
+
+.reassign-time {
+  font-weight: 500;
+  color: #323233;
+}
+
+.reassign-driver {
+  color: #969799;
+}
+
+.reassign-seats {
+  color: #07c160;
+}
+
+.reassign-score {
+  color: #ff976a;
+  font-size: 24rpx;
+  flex: 0 0 auto;
+}

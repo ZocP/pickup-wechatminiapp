@@ -1,17 +1,15 @@
 <view class="page dashboard-page">
-  <view class="summary card">
+  <view class="summary card" bind:tap="onGoStudentMgmt">
     <view class="summary-item">
       <text class="summary-label">{{i18n.dashboard_pending_count_label}}</text>
       <text class="grid-number danger">{{pendingCount}}</text>
+      <text class="summary-link">{{i18n.sm_manage_link}} →</text>
     </view>
   </view>
 
   <view class="action-bar">
     <view class="action-item">
       <van-button type="info" size="mini" block bind:tap="onShowCreatePopup">{{i18n.dashboard_add_shift}}</van-button>
-    </view>
-    <view class="action-item">
-      <van-button type="warning" size="mini" block bind:tap="onQuickAssign">{{i18n.dashboard_quick_assign}}</van-button>
     </view>
     <view class="action-item">
       <van-button type="default" size="mini" block bind:tap="onGoModificationRequests">{{i18n.dashboard_mod_requests}}</van-button>
@@ -54,64 +52,9 @@
     />
   </view>
 
-  <view class="pending-fab-area">
-    <view class="pending-filter-btn" bind:tap="togglePendingFilter">
-      <text>{{pendingFilterToday ? i18n.dashboard_pending_show_all : i18n.dashboard_pending_today_only}}</text>
-    </view>
-    <view class="pending-fab" bind:tap="openPendingPool">
-      <text>{{i18n.dashboard_pending_pool_label}} {{pendingFilterToday ? todayPendingCount : pendingCount}}</text>
-    </view>
-  </view>
-  <view wx:if="{{pendingActionOverflow > 0}}" class="card" style="margin-top: 16rpx;">
-    <text style="font-size: 24rpx; color: #999;">{{overflowTipText}}</text>
-  </view>
 
-  <van-popup
-    show="{{showPendingSheet}}"
-    position="bottom"
-    round
-    closeable
-    z-index="2000"
-    root-portal
-    bind:close="onClosePendingSheet"
-    custom-style="max-height: 80vh;"
-  >
-    <view class="pending-popup">
-      <view class="pending-popup-title">{{i18n.dashboard_pending_students}}</view>
-      <van-search
-        value="{{pendingSearchKeyword}}"
-        placeholder="{{i18n.dashboard_pending_search_placeholder}}"
-        bind:change="onPendingSearchChange"
-        bind:clear="onPendingSearchClear"
-      />
-      <scroll-view scroll-y class="pending-scroll-list">
-        <view wx:if="{{!visiblePendingActions.length}}" class="pending-empty-tip">
-          <van-empty description="{{i18n.assign_no_requests}}" />
-        </view>
-        <view
-          wx:for="{{visiblePendingActions}}"
-          wx:key="index"
-          class="pending-list-item"
-          data-index="{{index}}"
-          bind:tap="onTapPendingItem"
-        >
-          <view class="pending-item-name">{{item.name}}</view>
-          <view wx:if="{{item.subname}}" class="pending-item-sub">{{item.subname}}</view>
-        </view>
-      </scroll-view>
-    </view>
-  </van-popup>
 
-  <van-action-sheet
-    show="{{showShiftPicker}}"
-    title="{{i18n.dashboard_select_shift}}"
-    z-index="2000"
-    root-portal
-    actions="{{shiftActions}}"
-    close-on-click-action="true"
-    bind:select="onSelectShift"
-    bind:close="onCloseShiftPicker"
-  />
+
 
   <van-action-sheet
     show="{{showRemoveSheet}}"

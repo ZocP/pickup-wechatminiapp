@@ -74,6 +74,12 @@ page {
   color: #969799;
 }
 
+.summary-link {
+  font-size: 22rpx;
+  color: #1989fa;
+  margin-top: 4rpx;
+}
+
 .action-bar {
   display: flex;
   gap: 8rpx;

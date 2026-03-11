@@ -80,6 +80,7 @@ function buildI18n() {
     suggest_manual_create:            t('suggest_manual_create'),
     suggest_smart_create:             t('suggest_smart_create'),
     dashboard_smart_suggest:          t('dashboard_smart_suggest'),
+    sm_manage_link:                   t('sm_manage_link'),
   };
 }
 
@@ -1060,6 +1061,10 @@ Page({
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return y + '-' + m + '-' + day;
+  },
+
+  onGoStudentMgmt() {
+    wx.navigateTo({ url: '/pages/admin/student-mgmt/index?tab=pending' });
   },
 
   onQuickAssign() {

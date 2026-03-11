@@ -1,0 +1,147 @@
+<view class="page student-mgmt-page">
+  <!-- Search Bar -->
+  <van-search
+    value="{{searchKeyword}}"
+    placeholder="{{i18n.sm_search_placeholder}}"
+    bind:change="onSearchChange"
+    bind:clear="onSearchClear"
+  />
+
+  <!-- Tabs -->
+  <van-tabs active="{{activeTab}}" bind:change="onTabChange" custom-style="z-index: 1;">
+    <van-tab title="{{i18n.sm_tab_pending}} ({{pendingCount}})">
+      <!-- Pending content rendered below tabs -->
+    </van-tab>
+    <van-tab title="{{i18n.sm_tab_assigned}} ({{assignedCount}})">
+      <!-- Assigned content rendered below tabs -->
+    </van-tab>
+    <van-tab title="{{i18n.sm_tab_all}} ({{totalCount}})">
+      <!-- All content rendered below tabs -->
+    </van-tab>
+  </van-tabs>
+
+  <!-- Loading -->
+  <view wx:if="{{loading}}" class="card" style="margin-top: 16rpx;">
+    <van-skeleton title row="3" />
+    <van-skeleton title row="3" custom-style="margin-top: 16rpx;" />
+  </view>
+
+  <!-- Empty state -->
+  <view wx:elif="{{!displayItems.length}}" style="margin-top: 16rpx;">
+    <van-empty description="{{i18n.sm_empty}}" />
+  </view>
+
+  <!-- Request cards -->
+  <view wx:else class="request-list">
+    <view
+      wx:for="{{displayItems}}"
+      wx:key="id"
+      class="request-card card"
+    >
+      <!-- Student info header -->
+      <view class="req-header">
+        <view class="req-name">{{item._displayName}}</view>
+        <van-tag wx:if="{{item.justAssigned}}" type="success" plain>{{i18n.sm_just_assigned}}</van-tag>
+        <van-tag wx:elif="{{item.status === 'pending'}}" type="warning" plain>{{i18n.sm_status_pending}}</van-tag>
+        <van-tag wx:elif="{{item.status === 'assigned'}}" type="primary" plain>{{i18n.sm_status_assigned}}</van-tag>
+        <van-tag wx:else type="success" plain>{{i18n.sm_status_published}}</van-tag>
+      </view>
+
+      <view class="req-info">
+        <text class="req-detail">✈ {{item.flight_no || '--'}} | {{item._arrivalText}}</text>
+        <text class="req-detail">🧳 {{i18n.sm_checked}}{{item.checked_bags}} {{i18n.sm_carry_on}}{{item.carry_on_bags}}</text>
+      </view>
+
+      <!-- Assigned shift info (for assigned/published) -->
+      <view wx:if="{{item.shift && (item.status === 'assigned' || item.status === 'published')}}" class="shift-info">
+        <text class="shift-detail">🚐 {{item.shift._driverName}} | {{item.shift._departureText}}</text>
+        <view class="shift-actions">
+          <van-button size="mini" type="default" data-item="{{item}}" bind:tap="onUnassign">{{i18n.sm_unassign}}</van-button>
+          <van-button size="mini" type="info" data-item="{{item}}" bind:tap="onReassign">{{i18n.sm_reassign}}</van-button>
+        </view>
+      </view>
+
+      <!-- Pending: show recommend button -->
+      <view wx:if="{{item.status === 'pending' && !item.justAssigned}}" class="pending-actions">
+        <van-button
+          size="small"
+          type="info"
+          plain
+          data-request-id="{{item.id}}"
+          data-index="{{item._originalIndex}}"
+          bind:tap="onShowRecommend"
+        >{{i18n.sm_recommend_shifts}}</van-button>
+      </view>
+
+      <!-- Inline recommend shifts (expanded) -->
+      <view wx:if="{{item._showRecommend}}" class="recommend-section">
+        <view wx:if="{{item._recommendLoading}}" class="recommend-loading">
+          <van-loading size="20px">{{i18n.sm_loading_shifts}}</van-loading>
+        </view>
+        <view wx:elif="{{!item._recommendShifts || !item._recommendShifts.length}}" class="recommend-empty">
+          <text>{{i18n.sm_no_recommend}}</text>
+        </view>
+        <view wx:else class="recommend-list">
+          <view
+            wx:for="{{item._recommendShifts}}"
+            wx:for-item="shift"
+            wx:key="id"
+            class="recommend-item"
+          >
+            <view class="recommend-info">
+              <text class="recommend-time">{{shift._departureText}}</text>
+              <text class="recommend-driver">{{shift._driverName}}</text>
+              <text class="recommend-seats">{{i18n.sm_seats_remaining}} {{shift._remaining}}</text>
+              <text class="recommend-score">⭐ {{shift.score}}</text>
+            </view>
+            <van-button
+              size="mini"
+              type="success"
+              data-shift-id="{{shift.id}}"
+              data-request-id="{{item.id}}"
+              data-item-index="{{item._originalIndex}}"
+              bind:tap="onQuickAssign"
+            >{{i18n.sm_add}}</van-button>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Reassign popup -->
+  <van-popup
+    show="{{showReassignPopup}}"
+    position="bottom"
+    round
+    closeable
+    z-index="1500"
+    bind:close="onCloseReassign"
+    custom-style="max-height: 80vh;"
+  >
+    <view class="reassign-popup">
+      <view class="reassign-title">{{i18n.sm_reassign_title}}</view>
+      <view wx:if="{{reassignLoading}}" class="reassign-loading">
+        <van-loading size="24px">{{i18n.sm_loading_shifts}}</van-loading>
+      </view>
+      <view wx:elif="{{!reassignShifts.length}}" class="reassign-empty">
+        <van-empty description="{{i18n.sm_no_recommend}}" />
+      </view>
+      <scroll-view wx:else scroll-y class="reassign-scroll">
+        <view
+          wx:for="{{reassignShifts}}"
+          wx:key="id"
+          class="reassign-item"
+          data-shift-id="{{item.id}}"
+          bind:tap="onSelectReassignShift"
+        >
+          <view class="reassign-item-info">
+            <text class="reassign-time">{{item._departureText}}</text>
+            <text class="reassign-driver">{{item._driverName}}</text>
+            <text class="reassign-seats">{{i18n.sm_seats_remaining}} {{item._remaining}}</text>
+          </view>
+          <text class="reassign-score">⭐ {{item.score}}</text>
+        </view>
+      </scroll-view>
+    </view>
+  </van-popup>
+</view>
