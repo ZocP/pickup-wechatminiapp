@@ -113,20 +113,9 @@ Page({
     overflowTipText: '',
     actionBusy: false,
 
-    showPendingSheet: false,
-    pendingActions: [],
-    visiblePendingActions: [],
-    pendingSearchKeyword: '',
-    selectedPendingRequest: null,
-
-    showShiftPicker: false,
-    shiftActions: [],
-
     showRemoveSheet: false,
     removeActions: [],
     removeShiftId: 0,
-
-    currentShiftIdForAdd: 0,
 
     showCreatePopup: false,
     showDriverPicker: false,
@@ -341,95 +330,6 @@ Page({
     }).catch(() => {});
   },
 
-  openPendingPool() {
-    this.setTabBarHidden(true);
-    this.setData({
-      showPendingSheet: true,
-      currentShiftIdForAdd: 0,
-      pendingSearchKeyword: '',
-      visiblePendingActions: this.data.pendingActions,
-    });
-
-    if (this.data.pendingActionOverflow > 0) {
-      wx.showToast({ title: t('dashboard_pending_overflow').replace('{0}', MAX_PENDING_ACTIONS), icon: 'none' });
-    }
-  },
-
-  togglePendingFilter() {
-    const newVal = !this.data.pendingFilterToday;
-    const actions = newVal ? this.data.todayPendingActions : this.data.allPendingActions;
-    this.setData({
-      pendingFilterToday: newVal,
-      pendingActions: actions,
-      pendingSearchKeyword: '',
-      visiblePendingActions: actions,
-    });
-  },
-
-  onPendingSearchChange(e) {
-    const keyword = (e.detail || '').trim();
-    this.setData({ pendingSearchKeyword: keyword });
-    if (this._pendingSearchTimer) clearTimeout(this._pendingSearchTimer);
-    this._pendingSearchTimer = setTimeout(() => {
-      this._applyPendingFilter();
-    }, 300);
-  },
-
-  onPendingSearchClear() {
-    if (this._pendingSearchTimer) clearTimeout(this._pendingSearchTimer);
-    this.setData({ pendingSearchKeyword: '' });
-    this._applyPendingFilter();
-  },
-
-  _applyPendingFilter() {
-    const keyword = (this.data.pendingSearchKeyword || '').toLowerCase();
-    const actions = this.data.pendingActions || [];
-    if (!keyword) {
-      this.setData({ visiblePendingActions: actions });
-      return;
-    }
-    const filtered = actions.filter((item) => {
-      const name = (item.name || '').toLowerCase();
-      const subname = (item.subname || '').toLowerCase();
-      const req = item.request || {};
-      const wechatId = (req.wechat_id || '').toLowerCase();
-      return name.includes(keyword) || subname.includes(keyword) || wechatId.includes(keyword);
-    });
-    this.setData({ visiblePendingActions: filtered });
-  },
-
-  onTapPendingItem(e) {
-    const index = e.currentTarget.dataset.index;
-    const actions = this.data.visiblePendingActions || [];
-    const action = actions[index];
-    if (!action) return;
-    // Find the original index in pendingActions for consistency
-    const originalActions = this.data.pendingActions || [];
-    const originalIndex = originalActions.indexOf(action);
-    this.onSelectPendingRequest({ detail: { index: originalIndex >= 0 ? originalIndex : index } });
-  },
-
-  onAddPassenger(e) {
-    const detail = (e && e.detail) || {};
-    const shiftId = Number(detail.shiftId || detail.shiftid || detail.id || 0);
-    if (!shiftId) {
-      wx.showToast({ title: t('dashboard_shift_id_invalid'), icon: 'none' });
-      return;
-    }
-    if (!(this.data.pendingRequests || []).length) {
-      wx.showToast({ title: t('dashboard_no_pending_students'), icon: 'none' });
-      return;
-    }
-
-    this.setData({
-      showPendingSheet: true,
-      currentShiftIdForAdd: shiftId,
-      pendingSearchKeyword: '',
-      visiblePendingActions: this.data.pendingActions,
-    });
-    this.setTabBarHidden(true);
-  },
-
   onManageShift(e) {
     const detail = (e && e.detail) || {};
     const shiftId = Number(detail.shiftId || detail.shiftid || detail.id || 0);
@@ -438,46 +338,6 @@ Page({
       return;
     }
     wx.navigateTo({ url: `/pages/admin/shift-detail/index?id=${shiftId}` });
-  },
-
-  onSelectPendingRequest(e) {
-    const action = this.getSelectedAction(e, this.data.pendingActions);
-    const req = action.request;
-    const shifts = this.data.shifts || [];
-
-    if (!req) return;
-
-    if (this.data.currentShiftIdForAdd) {
-      this.assignStudentToShift(this.data.currentShiftIdForAdd, req.id);
-      this.setData({ showPendingSheet: false, selectedPendingRequest: null });
-      return;
-    }
-
-    const shiftActions = shifts.map((s) => ({
-      name: `#${s.id} ${s.departure_time || '--'}`,
-      subname: `${(s.driver && s.driver.name) || t('common_unassigned_driver')} | ${shiftStatusText(s.status)}`,
-      shiftId: s.id,
-    }));
-
-    this.setData({
-      selectedPendingRequest: req,
-      shiftActions,
-      showPendingSheet: false,
-      showShiftPicker: true,
-    });
-    this.setTabBarHidden(true);
-  },
-
-  async onSelectShift(e) {
-    const action = this.getSelectedAction(e, this.data.shiftActions);
-    const req = this.data.selectedPendingRequest;
-    if (!req || !action.shiftId) return;
-
-    await this.assignStudentToShift(action.shiftId, req.id);
-    this.setData({
-      showShiftPicker: false,
-      selectedPendingRequest: null,
-    });
   },
 
   async assignStudentToShift(shiftId, requestId) {
@@ -591,16 +451,6 @@ Page({
       if (found) return found;
     }
     return detail;
-  },
-
-  onClosePendingSheet() {
-    this.setTabBarHidden(false);
-    this.setData({ showPendingSheet: false });
-  },
-
-  onCloseShiftPicker() {
-    this.setTabBarHidden(false);
-    this.setData({ showShiftPicker: false });
   },
 
   onCloseRemoveSheet() {

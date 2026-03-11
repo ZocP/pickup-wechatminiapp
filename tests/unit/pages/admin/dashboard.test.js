@@ -69,8 +69,6 @@ describe('pages/admin/dashboard', () => {
       expect(pageConfig.data.filteredShifts).toEqual([]);
       expect(pageConfig.data.filterStatus).toBe('');
       expect(pageConfig.data.pendingRequests).toEqual([]);
-      expect(pageConfig.data.showPendingSheet).toBe(false);
-      expect(pageConfig.data.showShiftPicker).toBe(false);
       expect(pageConfig.data.showRemoveSheet).toBe(false);
       expect(pageConfig.data.showCreatePopup).toBe(false);
       expect(pageConfig.data.actionBusy).toBe(false);
@@ -277,27 +275,6 @@ describe('pages/admin/dashboard', () => {
     });
   });
 
-  describe('onAddPassenger', () => {
-    it('shows toast for invalid shift ID', () => {
-      pageConfig.onAddPassenger.call(ctx, { detail: {} });
-      expect(wx.showToast).toHaveBeenCalled();
-    });
-
-    it('shows toast when no pending requests', () => {
-      ctx.data.pendingRequests = [];
-      pageConfig.onAddPassenger.call(ctx, { detail: { shiftId: 1 } });
-      expect(wx.showToast).toHaveBeenCalled();
-    });
-
-    it('opens pending sheet with valid shift and pending requests', () => {
-      ctx.data.pendingRequests = [{ id: 1 }];
-      ctx.data.pendingActions = [{ name: 'Test', request: { id: 1 } }];
-      pageConfig.onAddPassenger.call(ctx, { detail: { shiftId: 5 } });
-      expect(ctx.data.showPendingSheet).toBe(true);
-      expect(ctx.data.currentShiftIdForAdd).toBe(5);
-    });
-  });
-
   describe('onManageShift', () => {
     it('navigates to shift detail page', () => {
       pageConfig.onManageShift.call(ctx, { detail: { shiftId: 42 } });
@@ -357,58 +334,6 @@ describe('pages/admin/dashboard', () => {
       ctx.data.actionBusy = false;
       await pageConfig.onSubmitShift.call(ctx);
       expect(wx.showToast).toHaveBeenCalledWith(expect.objectContaining({ icon: 'none' }));
-    });
-  });
-
-  describe('togglePendingFilter', () => {
-    it('toggles from today to all', () => {
-      ctx.data.pendingFilterToday = true;
-      ctx.data.allPendingActions = [{ name: 'A' }, { name: 'B' }];
-      ctx.data.todayPendingActions = [{ name: 'A' }];
-      pageConfig.togglePendingFilter.call(ctx);
-      expect(ctx.data.pendingFilterToday).toBe(false);
-      expect(ctx.data.pendingActions).toEqual(ctx.data.allPendingActions);
-    });
-
-    it('toggles from all to today', () => {
-      ctx.data.pendingFilterToday = false;
-      ctx.data.allPendingActions = [{ name: 'A' }, { name: 'B' }];
-      ctx.data.todayPendingActions = [{ name: 'A' }];
-      pageConfig.togglePendingFilter.call(ctx);
-      expect(ctx.data.pendingFilterToday).toBe(true);
-      expect(ctx.data.pendingActions).toEqual(ctx.data.todayPendingActions);
-    });
-  });
-
-  describe('_applyPendingFilter', () => {
-    it('returns all actions when no keyword', () => {
-      ctx.data.pendingSearchKeyword = '';
-      ctx.data.pendingActions = [
-        { name: 'Alice | UA123', subname: 'time', request: { wechat_id: 'alice_wx' } },
-        { name: 'Bob | AA100', subname: 'time', request: { wechat_id: 'bob_wx' } },
-      ];
-      pageConfig._applyPendingFilter.call(ctx);
-      expect(ctx.data.visiblePendingActions).toHaveLength(2);
-    });
-
-    it('filters by name keyword', () => {
-      ctx.data.pendingSearchKeyword = 'alice';
-      ctx.data.pendingActions = [
-        { name: 'Alice | UA123', subname: 'time', request: { wechat_id: 'alice_wx' } },
-        { name: 'Bob | AA100', subname: 'time', request: { wechat_id: 'bob_wx' } },
-      ];
-      pageConfig._applyPendingFilter.call(ctx);
-      expect(ctx.data.visiblePendingActions).toHaveLength(1);
-    });
-
-    it('filters by wechat_id', () => {
-      ctx.data.pendingSearchKeyword = 'bob_wx';
-      ctx.data.pendingActions = [
-        { name: 'Alice', subname: '', request: { wechat_id: 'alice_wx' } },
-        { name: 'Bob', subname: '', request: { wechat_id: 'bob_wx' } },
-      ];
-      pageConfig._applyPendingFilter.call(ctx);
-      expect(ctx.data.visiblePendingActions).toHaveLength(1);
     });
   });
 
@@ -796,48 +721,7 @@ describe('pages/admin/dashboard', () => {
     });
   });
 
-  describe('onSelectPendingRequest', () => {
-    it('assigns directly when currentShiftIdForAdd is set', () => {
-      ctx.data.currentShiftIdForAdd = 5;
-      ctx.data.pendingActions = [{ name: 'Test', request: { id: 10 } }];
-      ctx.assignStudentToShift = jest.fn(() => Promise.resolve());
-      pageConfig.onSelectPendingRequest.call(ctx, { detail: { index: 0 } });
-      expect(ctx.assignStudentToShift).toHaveBeenCalledWith(5, 10);
-    });
-
-    it('opens shift picker when no currentShiftIdForAdd', () => {
-      ctx.data.currentShiftIdForAdd = 0;
-      ctx.data.pendingActions = [{ name: 'Test', request: { id: 10 } }];
-      ctx.data.shifts = [{ id: 1, departure_time: '14:00', driver: { name: 'D' }, status: 'published' }];
-      pageConfig.onSelectPendingRequest.call(ctx, { detail: { index: 0 } });
-      expect(ctx.data.showShiftPicker).toBe(true);
-      expect(ctx.data.shiftActions).toHaveLength(1);
-    });
-  });
-
-  describe('onSelectShift', () => {
-    it('assigns student to selected shift', async () => {
-      ctx.data.selectedPendingRequest = { id: 10 };
-      ctx.data.shiftActions = [{ name: '#1 14:00', shiftId: 1 }];
-      ctx.assignStudentToShift = jest.fn(() => Promise.resolve());
-      await pageConfig.onSelectShift.call(ctx, { detail: { index: 0 } });
-      expect(ctx.assignStudentToShift).toHaveBeenCalledWith(1, 10);
-    });
-  });
-
   describe('close handlers', () => {
-    it('onClosePendingSheet closes sheet', () => {
-      ctx.data.showPendingSheet = true;
-      pageConfig.onClosePendingSheet.call(ctx);
-      expect(ctx.data.showPendingSheet).toBe(false);
-    });
-
-    it('onCloseShiftPicker closes picker', () => {
-      ctx.data.showShiftPicker = true;
-      pageConfig.onCloseShiftPicker.call(ctx);
-      expect(ctx.data.showShiftPicker).toBe(false);
-    });
-
     it('onCloseRemoveSheet closes sheet', () => {
       ctx.data.showRemoveSheet = true;
       pageConfig.onCloseRemoveSheet.call(ctx);
@@ -1007,63 +891,6 @@ describe('pages/admin/dashboard', () => {
       ctx.data.showCalendar = true;
       pageConfig.onCalendarClose.call(ctx);
       expect(ctx.data.showCalendar).toBe(false);
-    });
-  });
-
-  describe('openPendingPool', () => {
-    it('opens pending sheet', () => {
-      ctx.data.pendingActions = [{ name: 'A' }];
-      ctx.data.pendingActionOverflow = 0;
-      pageConfig.openPendingPool.call(ctx);
-      expect(ctx.data.showPendingSheet).toBe(true);
-      expect(ctx.data.currentShiftIdForAdd).toBe(0);
-    });
-
-    it('shows overflow toast', () => {
-      ctx.data.pendingActions = [{ name: 'A' }];
-      ctx.data.pendingActionOverflow = 5;
-      pageConfig.openPendingPool.call(ctx);
-      expect(wx.showToast).toHaveBeenCalled();
-    });
-  });
-
-  describe('onPendingSearchChange / onPendingSearchClear', () => {
-    beforeEach(() => {
-      jest.useFakeTimers();
-      ctx._applyPendingFilter = jest.fn();
-    });
-
-    afterEach(() => {
-      jest.useRealTimers();
-    });
-
-    it('debounces search', () => {
-      pageConfig.onPendingSearchChange.call(ctx, { detail: 'alice' });
-      expect(ctx.data.pendingSearchKeyword).toBe('alice');
-      jest.advanceTimersByTime(300);
-      expect(ctx._applyPendingFilter).toHaveBeenCalled();
-    });
-
-    it('clears search', () => {
-      pageConfig.onPendingSearchClear.call(ctx);
-      expect(ctx.data.pendingSearchKeyword).toBe('');
-    });
-  });
-
-  describe('onTapPendingItem', () => {
-    it('calls onSelectPendingRequest with correct index', () => {
-      ctx.data.visiblePendingActions = [{ name: 'A' }, { name: 'B' }];
-      ctx.data.pendingActions = [{ name: 'A' }, { name: 'B' }];
-      ctx.onSelectPendingRequest = jest.fn();
-      pageConfig.onTapPendingItem.call(ctx, { currentTarget: { dataset: { index: 1 } } });
-      expect(ctx.onSelectPendingRequest).toHaveBeenCalled();
-    });
-
-    it('does nothing for invalid index', () => {
-      ctx.data.visiblePendingActions = [];
-      ctx.onSelectPendingRequest = jest.fn();
-      pageConfig.onTapPendingItem.call(ctx, { currentTarget: { dataset: { index: 5 } } });
-      expect(ctx.onSelectPendingRequest).not.toHaveBeenCalled();
     });
   });
 
