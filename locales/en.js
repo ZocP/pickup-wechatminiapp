@@ -554,6 +554,7 @@ module.exports = {
   sm_unassign:                      'Unassign',
   sm_reassign:                      'Reassign',
   sm_reassign_title:                'Select New Shift',
+  sm_arrival_time_label:            'ETA:',
   sm_manage_link:                   'Manage Students',
 
   // ─── Home Driver ──────────────────────────────────────────────────────

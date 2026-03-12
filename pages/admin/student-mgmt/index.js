@@ -24,6 +24,7 @@ function buildI18n() {
     sm_unassign:            t('sm_unassign'),
     sm_reassign:            t('sm_reassign'),
     sm_reassign_title:      t('sm_reassign_title'),
+    sm_arrival_time_label:  t('sm_arrival_time_label'),
   };
 }
 

@@ -60,7 +60,19 @@ page {
 
 .shift-actions {
   display: flex;
-  gap: 16rpx;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.shift-actions van-button {
+  flex: 0 0 auto;
+}
+
+.shift-actions button {
+  width: auto !important;
+  min-width: 0 !important;
+  padding-left: 16rpx !important;
+  padding-right: 16rpx !important;
 }
 
 .pending-actions {

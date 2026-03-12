@@ -48,7 +48,7 @@
       </view>
 
       <view class="req-info">
-        <text class="req-detail">✈ {{item.flight_no || '--'}} | {{item._arrivalText}}</text>
+        <text class="req-detail">✈ {{item.flight_no || '--'}} | {{i18n.sm_arrival_time_label}} {{item._arrivalText}}</text>
         <text class="req-detail">🧳 {{i18n.sm_checked}}{{item.checked_bags}} {{i18n.sm_carry_on}}{{item.carry_on_bags}}</text>
       </view>
 

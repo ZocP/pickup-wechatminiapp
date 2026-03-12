@@ -553,6 +553,7 @@ module.exports = {
   sm_unassign:                      '取消分配',
   sm_reassign:                      '换班次',
   sm_reassign_title:                '选择新班次',
+  sm_arrival_time_label:            '预计落地时间:',
   sm_manage_link:                   '管理学生',
 
   // ─── Home Driver ──────────────────────────────────────────────────────
