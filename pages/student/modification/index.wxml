@@ -38,22 +38,24 @@
           is-link
         />
       </view>
-      <van-field
-        label="{{i18n.student_request_terminal_label}}"
-        placeholder="{{i18n.student_request_terminal_placeholder}}"
-        value="{{form.terminal}}"
-        readonly
-        is-link
-        bind:click-input="openTerminalPicker"
-      />
-      <van-field
-        label="{{i18n.student_request_time_label}}"
-        placeholder="{{i18n.student_request_time_placeholder}}"
-        value="{{form.arrival_time}}"
-        readonly
-        is-link
-        bind:click-input="openTimePicker"
-      />
+      <view bindtap="openTerminalPicker">
+        <van-field
+          label="{{i18n.student_request_terminal_label}}"
+          placeholder="{{i18n.student_request_terminal_placeholder}}"
+          value="{{form.terminal}}"
+          readonly
+          is-link
+        />
+      </view>
+      <view bindtap="openTimePicker">
+        <van-field
+          label="{{i18n.student_request_time_label}}"
+          placeholder="{{i18n.student_request_time_placeholder}}"
+          value="{{form.arrival_time}}"
+          readonly
+          is-link
+        />
+      </view>
       <view class="stepper-row">
         <text class="stepper-label">{{i18n.student_request_checked_label}}</text>
         <van-stepper value="{{form.checked_bags}}" min="0" max="10" bind:change="onStepperCheckedChange" bind:overlimit="onBagsOverLimit" />

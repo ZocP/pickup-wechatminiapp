@@ -82,30 +82,33 @@
     <view class="create-popup">
       <view class="create-title">{{i18n.dashboard_create_shift_title}}</view>
       <van-cell-group inset>
-        <van-field
-          label="{{i18n.dashboard_field_driver}}"
-          value="{{selectedDriverName}}"
-          placeholder="{{i18n.dashboard_placeholder_driver}}"
-          readonly
-          is-link
-          bind:click-input="onOpenDriverPicker"
-        />
-        <van-field
-          label="{{i18n.dashboard_field_date}}"
-          value="{{selectedDate}}"
-          placeholder="{{i18n.dashboard_placeholder_date}}"
-          readonly
-          is-link
-          bind:click-input="onOpenDatePicker"
-        />
-        <van-field
-          label="{{i18n.dashboard_field_time}}"
-          value="{{selectedClock}}"
-          placeholder="{{i18n.dashboard_placeholder_time}}"
-          readonly
-          is-link
-          bind:click-input="onOpenTimePicker"
-        />
+        <view bindtap="onOpenDriverPicker">
+          <van-field
+            label="{{i18n.dashboard_field_driver}}"
+            value="{{selectedDriverName}}"
+            placeholder="{{i18n.dashboard_placeholder_driver}}"
+            readonly
+            is-link
+          />
+        </view>
+        <view bindtap="onOpenDatePicker">
+          <van-field
+            label="{{i18n.dashboard_field_date}}"
+            value="{{selectedDate}}"
+            placeholder="{{i18n.dashboard_placeholder_date}}"
+            readonly
+            is-link
+          />
+        </view>
+        <view bindtap="onOpenTimePicker">
+          <van-field
+            label="{{i18n.dashboard_field_time}}"
+            value="{{selectedClock}}"
+            placeholder="{{i18n.dashboard_placeholder_time}}"
+            readonly
+            is-link
+          />
+        </view>
       </van-cell-group>
       <van-button type="info" block custom-style="margin-top: 24rpx;" bind:tap="onSubmitShift">{{i18n.dashboard_confirm_create}}</van-button>
     </view>
