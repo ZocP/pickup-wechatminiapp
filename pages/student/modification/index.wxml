@@ -39,6 +39,14 @@
         />
       </view>
       <van-field
+        label="{{i18n.student_request_terminal_label}}"
+        placeholder="{{i18n.student_request_terminal_placeholder}}"
+        value="{{form.terminal}}"
+        readonly
+        is-link
+        bind:click-input="openTerminalPicker"
+      />
+      <van-field
         label="{{i18n.student_request_time_label}}"
         placeholder="{{i18n.student_request_time_placeholder}}"
         value="{{form.arrival_time}}"
@@ -89,6 +97,15 @@
       bind:tap="onSubmit"
     >{{i18n.modification_submit}}</van-button>
   </view>
+
+  <van-action-sheet
+    show="{{showTerminalPicker}}"
+    title="{{i18n.student_request_terminal_title}}"
+    actions="{{terminalActions}}"
+    close-on-click-action="true"
+    bind:select="onSelectTerminal"
+    bind:close="onCloseTerminalPicker"
+  />
 
   <van-calendar
     show="{{showDatePicker}}" min-date="{{calendarMinDate}}" max-date="{{calendarMaxDate}}"

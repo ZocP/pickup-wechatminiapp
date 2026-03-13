@@ -677,8 +677,8 @@ Page({
   },
 
   openEditTerminalPicker() {
-    this.setData({ _pickerTarget: 'editForm' });
-    this.openTerminalPicker();
+    this.setData({ _pickerTarget: 'editForm', showTerminalPicker: true });
+    this.setTabBarHidden(true);
   },
 
   openEditTimePicker() {

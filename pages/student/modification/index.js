@@ -14,14 +14,22 @@ Page({
     pendingMod: null,
     showDatePicker: false,
     showTimePicker: false,
+    showTerminalPicker: false,
     calendarMinDate: new Date().setHours(0, 0, 0, 0),
     calendarMaxDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).getTime(),
     timePickerValue: '12:00',
+    terminalActions: [
+      { name: 'T1' },
+      { name: 'T2' },
+      { name: 'T3' },
+      { name: 'T5' },
+    ],
 
     form: {
       flight_no: '',
       arrival_date: '',
       arrival_time: '',
+      terminal: '',
       checked_bags: 0,
       carry_on_bags: 0,
       ride_with_note: '',
@@ -45,6 +53,9 @@ Page({
         student_request_flight_placeholder: t('student_request_flight_placeholder'),
         student_request_date_label: t('student_request_date_label'),
         student_request_date_placeholder: t('student_request_date_placeholder'),
+        student_request_terminal_label: t('student_request_terminal_label'),
+        student_request_terminal_placeholder: t('student_request_terminal_placeholder'),
+        student_request_terminal_title: t('student_request_terminal_title'),
         student_request_time_label: t('student_request_time_label'),
         student_request_time_placeholder: t('student_request_time_placeholder'),
         student_request_checked_label: t('student_request_checked_label'),
@@ -100,6 +111,7 @@ Page({
           flight_no: req.flight_no || '',
           arrival_date: arrivalDate,
           arrival_time: arrivalTime,
+          terminal: req.terminal || '',
           checked_bags: req.checked_bags || 0,
           carry_on_bags: req.carry_on_bags || 0,
           ride_with_note: req.ride_with_note || '',
@@ -147,6 +159,19 @@ Page({
     }
   },
 
+  openTerminalPicker() {
+    this.setData({ showTerminalPicker: true });
+  },
+
+  onCloseTerminalPicker() {
+    this.setData({ showTerminalPicker: false });
+  },
+
+  onSelectTerminal(e) {
+    const value = (e && e.detail && e.detail.name) || '';
+    this.setData({ showTerminalPicker: false, 'form.terminal': value });
+  },
+
   openDatePicker() {
     this.setData({ showDatePicker: true });
   },
@@ -185,9 +210,9 @@ Page({
   async onSubmit() {
     if (this.data.submitting) return;
 
-    const { flight_no, arrival_date, arrival_time, checked_bags, carry_on_bags, ride_with_note, ride_with_wechat } = this.data.form;
+    const { flight_no, arrival_date, arrival_time, terminal, checked_bags, carry_on_bags, ride_with_note, ride_with_wechat } = this.data.form;
 
-    if (!flight_no || !arrival_date || !arrival_time) {
+    if (!flight_no || !arrival_date || !arrival_time || !terminal) {
       wx.showToast({ title: t('student_request_form_incomplete'), icon: 'none' });
       return;
     }
@@ -203,6 +228,7 @@ Page({
     const payload = {
       new_flight_number: flight_no,
       new_arrival_time: newArrivalTime,
+      new_terminal: terminal,
       new_checked_bags: checked_bags,
       new_carry_on_bags: carry_on_bags,
       new_ride_with_note: String(ride_with_note || '').trim(),
