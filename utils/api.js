@@ -297,4 +297,45 @@ module.exports = {
   lockShift(shiftId) {
     return request.post(`/admin/shifts/${shiftId}/lock`, {});
   },
+
+  /**
+   * Import CSV file with passenger requests.
+   * Uses wx.uploadFile (not wx.request) since it's multipart/form-data.
+   * @param {string} filePath - Local temp file path from wx.chooseMessageFile
+   * @param {number|string} [shiftId] - Optional shift ID to auto-assign
+   * @returns {Promise<{total_rows, success_count, error_count, errors}>}
+   */
+  importCSV(filePath, shiftId) {
+    return new Promise((resolve, reject) => {
+      const token = wx.getStorageSync('token') || '';
+      wx.uploadFile({
+        url: `${request.getBaseURL()}/admin/csv/import`,
+        filePath: filePath,
+        name: 'file',
+        formData: shiftId ? { shift_id: String(shiftId) } : {},
+        header: {
+          Authorization: token ? `Bearer ${token}` : '',
+        },
+        success(res) {
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            try {
+              resolve(JSON.parse(res.data));
+            } catch (e) {
+              reject(new Error('Invalid response'));
+            }
+          } else {
+            try {
+              const err = JSON.parse(res.data);
+              reject(new Error(err.message || err.error || 'Import failed'));
+            } catch (e) {
+              reject(new Error(`HTTP ${res.statusCode}`));
+            }
+          }
+        },
+        fail(err) {
+          reject(new Error(err.errMsg || 'Upload failed'));
+        },
+      });
+    });
+  },
 };

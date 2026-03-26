@@ -357,4 +357,5 @@ request.patch = (url, data = {}, options = {}) => request({
   method: 'PATCH',
 });
 
+request.getBaseURL = getBaseURL;
 module.exports = request;

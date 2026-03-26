@@ -24,6 +24,9 @@ function buildI18n() {
     sc_publish_success:    t('sc_publish_success'),
     sc_passengers:         t('sc_passengers'),
     sc_today:              t('sc_today'),
+    sc_import_uploading:   t('sc_import_uploading'),
+    sc_import_result:      t('sc_import_result'),
+    sc_import_failed:      t('sc_import_failed'),
     common_confirm:        t('common_confirm'),
     common_cancel:         t('common_cancel'),
   };
@@ -106,8 +109,36 @@ Page({
       type: 'file',
       extension: ['csv'],
       success(res) {
-        // Phase 4 backend work — show WIP toast
-        wx.showToast({ title: that.data.i18n.sc_upload_wip, icon: 'none', duration: 2000 });
+        const filePath = res.tempFiles[0].path;
+        wx.showLoading({ title: t('sc_import_uploading') });
+        api.importCSV(filePath, that.data.currentShiftId || '')
+          .then((result) => {
+            wx.hideLoading();
+            that.setData({ csvUploaded: true });
+            // Build result message
+            let content = `${t('sc_import_total')}: ${result.total_rows}\n` +
+              `${t('sc_import_success_count')}: ${result.success_count}\n` +
+              `${t('sc_import_error_count')}: ${result.error_count}`;
+            if (result.errors && result.errors.length > 0) {
+              content += `\n\n${t('sc_import_errors_title')}:`;
+              result.errors.slice(0, 10).forEach((e) => {
+                content += `\n${t('sc_import_row').replace('{row}', e.row)}: ${e.reason}`;
+              });
+              if (result.errors.length > 10) {
+                content += `\n... (+${result.errors.length - 10})`;
+              }
+            }
+            wx.showModal({
+              title: t('sc_import_result'),
+              content: content,
+              showCancel: false,
+            });
+            that.loadShifts();
+          })
+          .catch((err) => {
+            wx.hideLoading();
+            wx.showToast({ title: err.message || t('sc_import_failed'), icon: 'none', duration: 2500 });
+          });
       },
       fail() {
         // User cancelled
