@@ -63,10 +63,12 @@ Page({
     this.setData({ loading: true });
     try {
       const res = await api.getDashboard(this.data.selectedDate);
-      const shifts = (res && Array.isArray(res.shifts)) ? res.shifts : (Array.isArray(res) ? res : []);
+      const rawShifts = (res && Array.isArray(res.shifts)) ? res.shifts : (Array.isArray(res) ? res : []);
+      const shifts = rawShifts.map(item => ({ ...item, id: item.id || item.ID }));
       this.setData({ shifts, loading: false });
     } catch (e) {
       console.error('loadShifts error', e);
+      wx.showToast({ title: t('operation_failed'), icon: 'none' });
       this.setData({ loading: false, shifts: [] });
     }
   },
@@ -118,6 +120,7 @@ Page({
     const that = this;
     wx.showModal({
       title: this.data.i18n.sc_publish_confirm,
+      content: ' ',
       confirmText: this.data.i18n.common_confirm,
       cancelText: this.data.i18n.common_cancel,
       success: async (res) => {
@@ -128,6 +131,7 @@ Page({
             that.loadShifts();
           } catch (err) {
             console.error('lockShift error', err);
+            wx.showToast({ title: t('operation_failed'), icon: 'none' });
           }
         }
       },

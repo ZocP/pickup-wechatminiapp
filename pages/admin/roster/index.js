@@ -80,6 +80,7 @@ Page({
       }
     } catch (e) {
       console.error('loadShifts error', e);
+      wx.showToast({ title: t('operation_failed'), icon: 'none' });
       this.setData({ loading: false, shifts: [], currentShift: null });
     }
   },
@@ -95,6 +96,7 @@ Page({
       this.setData({ allocatedList: allocated, unallocatedList: unallocated });
     } catch (e) {
       console.error('loadRoster error', e);
+      wx.showToast({ title: t('operation_failed'), icon: 'none' });
       this.setData({ allocatedList: [], unallocatedList: [] });
     }
   },
@@ -156,6 +158,7 @@ Page({
     const that = this;
     wx.showModal({
       title: this.data.i18n.roster_publish_confirm,
+      content: ' ',
       confirmText: this.data.i18n.common_confirm,
       cancelText: this.data.i18n.common_cancel,
       success: async (res) => {
@@ -166,6 +169,7 @@ Page({
             that.loadShifts();
           } catch (err) {
             console.error('lockShift error', err);
+            wx.showToast({ title: t('operation_failed'), icon: 'none' });
           }
         }
       },

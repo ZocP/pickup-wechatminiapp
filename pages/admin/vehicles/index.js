@@ -61,7 +61,8 @@ Page({
     this.setData({ loading: true });
     try {
       const res = await api.getVehicles(this.data.page, this.data.pageSize);
-      const list = Array.isArray(res) ? res : (res && res.vehicles ? res.vehicles : []);
+      const rawList = Array.isArray(res) ? res : (res && res.vehicles ? res.vehicles : []);
+      const list = rawList.map(item => ({ ...item, id: item.id || item.ID }));
       const hasMore = list.length >= this.data.pageSize;
       this.setData({
         vehicleList: this.data.page === 1 ? list : this.data.vehicleList.concat(list),
@@ -70,6 +71,7 @@ Page({
       });
     } catch (e) {
       console.error('loadVehicles error', e);
+      wx.showToast({ title: t('operation_failed'), icon: 'none' });
     } finally {
       this.setData({ loading: false });
     }
@@ -89,6 +91,7 @@ Page({
     const that = this;
     wx.showModal({
       title: this.data.i18n.vehicles_delete_title,
+      content: ' ',
       confirmText: this.data.i18n.common_confirm,
       cancelText: this.data.i18n.common_cancel,
       success: async (res) => {
@@ -99,6 +102,7 @@ Page({
             that.resetAndLoad();
           } catch (err) {
             console.error('deleteVehicle error', err);
+            wx.showToast({ title: t('operation_failed'), icon: 'none' });
           }
         }
       },

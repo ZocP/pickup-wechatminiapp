@@ -615,6 +615,7 @@ module.exports = {
   dispatch_shift_label:             'Shift',
   common_confirm:                   'Confirm',
   common_cancel:                    'Cancel',
+  operation_failed:                 'Operation failed',
 
   // ─── Home Page (new sections) ─────────────────────────────────────────
   home_vehicle_section:             'Vehicle Management',

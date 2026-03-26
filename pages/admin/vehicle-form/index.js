@@ -69,6 +69,7 @@ Page({
       }
     } catch (e) {
       console.error('loadVehicle error', e);
+      wx.showToast({ title: t('operation_failed'), icon: 'none' });
     }
   },
 
@@ -116,6 +117,7 @@ Page({
       setTimeout(() => wx.navigateBack(), 800);
     } catch (e) {
       console.error('submit vehicle error', e);
+      wx.showToast({ title: t('operation_failed'), icon: 'none' });
     } finally {
       this.setData({ submitting: false });
     }

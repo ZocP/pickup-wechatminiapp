@@ -614,6 +614,7 @@ module.exports = {
   dispatch_shift_label:             '班次',
   common_confirm:                   '确认',
   common_cancel:                    '取消',
+  operation_failed:                 '操作失败',
 
   // ─── Home Page (new sections) ─────────────────────────────────────────
   home_vehicle_section:             '车辆管理',
