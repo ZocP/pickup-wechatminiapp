@@ -11,6 +11,7 @@ function todayStr() {
 function buildI18n() {
   return {
     dispatch_title: t('dispatch_title'),
+    dispatch_today: t('dispatch_today'),
     dispatch_add_vehicle: t('dispatch_add_vehicle'),
     dispatch_no_shifts: t('dispatch_no_shifts'),
     dispatch_no_vehicles: t('dispatch_no_vehicles'),
@@ -141,7 +142,14 @@ Page({
 
     api.getShiftVehicles(shiftId)
       .then((res) => {
-        const vehicles = Array.isArray(res) ? res : (res.vehicles || res.data || []);
+        const raw = Array.isArray(res) ? res : (res.vehicles || res.data || []);
+        // Ensure each item has a top-level id for wx:key
+        const vehicles = raw.map(function (item) {
+          if (!item.id && item.vehicle && item.vehicle.id) {
+            item.id = item.vehicle.id;
+          }
+          return item;
+        });
         this.setData({ shiftVehicles: vehicles });
       })
       .catch(() => {

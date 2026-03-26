@@ -133,5 +133,10 @@ Component({
       const requestId = e.currentTarget.dataset.requestid;
       this.triggerEvent('removepassenger', { requestId });
     },
+
+    onTapRemoveVehicle() {
+      const vehicle = this.data.vehicle || {};
+      this.triggerEvent('removevehicle', { vehicleId: vehicle.id });
+    },
   },
 });

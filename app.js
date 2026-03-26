@@ -95,9 +95,6 @@ App({
     const realRole = this.getRealRole();
     // Backward compat: treat 'student' as 'passenger' when appropriate
     if (realRole === 'passenger' || realRole === 'student') {
-      if (realRole === 'admin' && this.globalData.viewAsRole) {
-        return this.globalData.viewAsRole;
-      }
       return realRole;
     }
     if (realRole === 'admin' && this.globalData.viewAsRole) {

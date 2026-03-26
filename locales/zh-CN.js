@@ -599,6 +599,7 @@ module.exports = {
 
   // ─── Dispatch Page ────────────────────────────────────────────────────
   dispatch_title:                   '调度大厅',
+  dispatch_today:                   '今天',
   dispatch_add_vehicle:             '+ 添加车辆',
   dispatch_no_shifts:               '当天暂无班次',
   dispatch_no_vehicles:             '暂未分配车辆，点击上方添加',

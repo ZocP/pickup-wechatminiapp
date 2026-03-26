@@ -600,6 +600,7 @@ module.exports = {
 
   // ─── Dispatch Page ────────────────────────────────────────────────────
   dispatch_title:                   'Dispatch Hall',
+  dispatch_today:                   'Today',
   dispatch_add_vehicle:             '+ Add Vehicle',
   dispatch_no_shifts:               'No shifts for this day',
   dispatch_no_vehicles:             'No vehicles yet. Tap above to add.',

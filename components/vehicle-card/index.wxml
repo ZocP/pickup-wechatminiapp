@@ -5,6 +5,12 @@
       <view class="color-dot" wx:if="{{colorDot}}" style="background-color: {{colorDot}};"></view>
       <text class="header-title">{{headerText}}</text>
     </view>
+    <van-icon
+      wx:if="{{editable}}"
+      name="delete-o"
+      class="remove-vehicle-btn"
+      bind:tap="onTapRemoveVehicle"
+    />
   </view>
 
   <!-- Driver info -->

@@ -135,3 +135,10 @@
 .add-btn {
   width: auto !important;
 }
+
+.remove-vehicle-btn {
+  color: #969799;
+  font-size: 36rpx;
+  padding: 8rpx;
+  flex-shrink: 0;
+}

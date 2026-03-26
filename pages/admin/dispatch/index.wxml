@@ -13,7 +13,7 @@
       <view class="date-label">{{selectedDate}}</view>
     </picker>
     <button class="nav-btn" bindtap="onNextDay">›</button>
-    <button class="today-btn" bindtap="onToday">{{i18n.dispatch_title}}</button>
+    <button class="today-btn" bindtap="onToday">{{i18n.dispatch_today}}</button>
   </view>
 
   <!-- Shift selector -->
@@ -69,6 +69,7 @@
         data-vehicleid="{{item.vehicle.id || item.id}}"
         bind:addpassenger="onAddPassenger"
         bind:removepassenger="onRemovePassenger"
+        bind:removevehicle="onRemoveVehicle"
       />
     </view>
   </view>
