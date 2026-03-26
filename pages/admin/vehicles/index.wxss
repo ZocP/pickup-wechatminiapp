@@ -1,0 +1,25 @@
+.vehicles-page {
+  padding: 24rpx;
+  padding-bottom: 40rpx;
+}
+
+.header-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20rpx;
+}
+
+.vehicle-list {
+  margin-top: 12rpx;
+}
+
+.swipe-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 65px;
+  height: 100%;
+  background: #ee0a24;
+  color: #fff;
+  font-size: 28rpx;
+}

@@ -1,0 +1,71 @@
+<view class="page roster-page">
+  <!-- Date navigation -->
+  <view class="date-nav">
+    <button class="nav-btn" bindtap="onPrevDay">‹</button>
+    <picker mode="date" value="{{selectedDate}}" bindchange="onDateChange">
+      <view class="date-label">{{selectedDate}}</view>
+    </picker>
+    <button class="nav-btn" bindtap="onNextDay">›</button>
+    <button class="today-btn" bindtap="onToday">{{i18n.roster_today}}</button>
+  </view>
+
+  <!-- Shift selector -->
+  <view class="shift-nav" wx:if="{{shifts.length > 0}}">
+    <button class="nav-btn" bindtap="onPrevShift" disabled="{{currentShiftIndex <= 0}}">‹</button>
+    <view class="shift-label">
+      <text>{{i18n.roster_shift_label}} {{currentShiftIndex + 1}}/{{shifts.length}}</text>
+      <text wx:if="{{currentShift.departure_time}}" class="shift-time"> · {{currentShift.departure_time}}</text>
+    </view>
+    <button class="nav-btn" bindtap="onNextShift" disabled="{{currentShiftIndex >= shifts.length - 1}}">›</button>
+  </view>
+
+  <!-- Loading -->
+  <view wx:if="{{loading}}" class="card">
+    <van-skeleton title row="3" />
+  </view>
+
+  <!-- No shifts -->
+  <van-empty wx:elif="{{shifts.length === 0}}" description="{{i18n.roster_no_shifts}}" />
+
+  <!-- Roster content -->
+  <view wx:elif="{{currentShift}}" class="roster-content">
+    <!-- Publish button -->
+    <view class="action-bar" wx:if="{{!isLocked}}">
+      <van-button type="primary" size="small" custom-style="width:auto;" bindtap="onPublishAll">{{i18n.roster_publish_all}}</van-button>
+    </view>
+
+    <van-tabs active="{{activeTab}}" bind:change="onTabChange">
+      <van-tab title="{{i18n.roster_allocated}} ({{allocatedList.length}})">
+        <van-empty wx:if="{{allocatedList.length === 0}}" description="{{i18n.roster_empty}}" />
+        <van-cell-group wx:else inset custom-class="roster-list">
+          <van-cell
+            wx:for="{{allocatedList}}"
+            wx:key="request_id"
+            title="{{item.passenger_name || item.name || '--'}}"
+            label="{{item.departure_time || ''}}{{item.vehicle_name ? ' · ' + item.vehicle_name : ''}}"
+          >
+            <van-tag
+              slot="right-icon"
+              type="{{item.published ? 'success' : 'warning'}}"
+              plain
+            >{{item.published ? i18n.roster_published : i18n.roster_unpublished}}</van-tag>
+          </van-cell>
+        </van-cell-group>
+      </van-tab>
+      <van-tab title="{{i18n.roster_unallocated}} ({{unallocatedList.length}})">
+        <van-empty wx:if="{{unallocatedList.length === 0}}" description="{{i18n.roster_empty}}" />
+        <van-cell-group wx:else inset custom-class="roster-list">
+          <van-cell
+            wx:for="{{unallocatedList}}"
+            wx:key="request_id"
+            title="{{item.passenger_name || item.name || '--'}}"
+            label="{{item.arrival_time || ''}}{{item.flight_number ? ' · ' + item.flight_number : ''}}"
+          />
+        </van-cell-group>
+      </van-tab>
+    </van-tabs>
+  </view>
+
+  <van-dialog id="van-dialog" />
+  <van-toast id="van-toast" />
+</view>

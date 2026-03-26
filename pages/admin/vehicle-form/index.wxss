@@ -1,0 +1,9 @@
+.vform-page {
+  padding: 24rpx;
+  padding-bottom: 40rpx;
+}
+
+.form-footer {
+  margin-top: 40rpx;
+  padding: 0 24rpx;
+}

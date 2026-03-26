@@ -1,0 +1,65 @@
+<view class="page sc-page">
+  <!-- Date navigation -->
+  <view class="date-nav">
+    <button class="nav-btn" bindtap="onPrevDay">‹</button>
+    <picker mode="date" value="{{selectedDate}}" bindchange="onDateChange">
+      <view class="date-label">{{selectedDate}}</view>
+    </picker>
+    <button class="nav-btn" bindtap="onNextDay">›</button>
+    <button class="today-btn" bindtap="onToday">{{i18n.sc_today}}</button>
+  </view>
+
+  <!-- CSV Upload Section -->
+  <view class="card csv-section">
+    <view class="section-title">{{i18n.sc_csv_section}}</view>
+    <view class="csv-status">
+      <van-icon name="description" size="40rpx" color="#1989fa" />
+      <text class="csv-label">{{csvUploaded ? i18n.sc_upload_done : i18n.sc_upload_none}}</text>
+    </view>
+    <van-button
+      type="info"
+      size="small"
+      plain
+      custom-style="width:auto;"
+      bindtap="onUploadCSV"
+    >{{i18n.sc_upload_btn}}</van-button>
+  </view>
+
+  <!-- Shift List Section -->
+  <view class="card shift-section">
+    <view class="section-title">{{i18n.sc_shift_section}}</view>
+
+    <view wx:if="{{loading}}">
+      <van-skeleton title row="3" />
+    </view>
+
+    <van-empty wx:elif="{{shifts.length === 0}}" description="{{i18n.sc_no_shifts}}" />
+
+    <van-cell-group wx:else inset>
+      <van-cell
+        wx:for="{{shifts}}"
+        wx:key="id"
+        title="{{item.departure_time || '--'}}"
+        label="{{i18n.sc_passengers}} {{item.passenger_count || item.assigned_count || 0}}"
+      >
+        <view slot="right-icon" class="shift-actions">
+          <van-tag
+            type="{{item.status === 'locked' || item.status === 'published' ? 'success' : 'warning'}}"
+            plain
+          >{{item.status === 'locked' || item.status === 'published' ? i18n.sc_published : i18n.sc_unpublished}}</van-tag>
+          <van-button
+            wx:if="{{item.status !== 'locked' && item.status !== 'published'}}"
+            type="primary"
+            size="mini"
+            custom-style="width:auto;margin-left:12rpx;"
+            data-id="{{item.id || item.ID}}"
+            bindtap="onPublishShift"
+          >{{i18n.sc_publish_btn}}</van-button>
+        </view>
+      </van-cell>
+    </van-cell-group>
+  </view>
+
+  <van-dialog id="van-dialog" />
+  <van-toast id="van-toast" />
+</view>

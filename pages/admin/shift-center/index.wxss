@@ -1,0 +1,74 @@
+.sc-page {
+  padding: 24rpx;
+  padding-bottom: 40rpx;
+}
+
+.date-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16rpx;
+  gap: 16rpx;
+}
+
+.nav-btn {
+  width: 60rpx;
+  height: 60rpx;
+  line-height: 60rpx;
+  text-align: center;
+  font-size: 32rpx;
+  padding: 0;
+  border-radius: 8rpx;
+  background: #f2f3f5;
+  color: #323233;
+  border: none;
+}
+
+.today-btn {
+  font-size: 24rpx;
+  padding: 0 16rpx;
+  height: 52rpx;
+  line-height: 52rpx;
+  border-radius: 8rpx;
+  background: #f2f3f5;
+  color: #1989fa;
+  border: none;
+}
+
+.date-label {
+  font-size: 28rpx;
+  font-weight: 600;
+  min-width: 200rpx;
+  text-align: center;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 14rpx;
+}
+
+.csv-section {
+  margin-bottom: 20rpx;
+}
+
+.csv-status {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.csv-label {
+  font-size: 26rpx;
+  color: #646566;
+}
+
+.shift-section {
+  margin-top: 12rpx;
+}
+
+.shift-actions {
+  display: flex;
+  align-items: center;
+}

@@ -1,0 +1,68 @@
+<view class="page vform-page">
+  <van-cell-group inset>
+    <van-field
+      label="{{i18n.vform_car_model}}"
+      value="{{form.car_model}}"
+      placeholder="{{i18n.vform_model_placeholder}}"
+      required
+      data-field="car_model"
+      bind:change="onFieldChange"
+    />
+    <van-field
+      label="{{i18n.vform_car_plate}}"
+      value="{{form.car_plate}}"
+      placeholder="{{i18n.vform_plate_placeholder}}"
+      data-field="car_plate"
+      bind:change="onFieldChange"
+    />
+    <van-field
+      label="{{i18n.vform_car_color}}"
+      value="{{form.car_color}}"
+      placeholder="{{i18n.vform_color_placeholder}}"
+      data-field="car_color"
+      bind:change="onFieldChange"
+    />
+    <van-cell title="{{i18n.vform_seats}}" center>
+      <van-stepper
+        slot="right-icon"
+        value="{{form.seats_capacity}}"
+        min="1"
+        max="50"
+        data-field="seats_capacity"
+        bind:change="onStepperChange"
+      />
+    </van-cell>
+    <van-cell title="{{i18n.vform_checked}}" center>
+      <van-stepper
+        slot="right-icon"
+        value="{{form.checked_luggage_capacity}}"
+        min="0"
+        max="50"
+        data-field="checked_luggage_capacity"
+        bind:change="onStepperChange"
+      />
+    </van-cell>
+    <van-cell title="{{i18n.vform_carryon}}" center>
+      <van-stepper
+        slot="right-icon"
+        value="{{form.carry_on_capacity}}"
+        min="0"
+        max="50"
+        data-field="carry_on_capacity"
+        bind:change="onStepperChange"
+      />
+    </van-cell>
+  </van-cell-group>
+
+  <view class="form-footer">
+    <van-button
+      type="primary"
+      block
+      loading="{{submitting}}"
+      disabled="{{submitting}}"
+      bindtap="onSubmit"
+    >{{i18n.vform_submit}}</van-button>
+  </view>
+
+  <van-toast id="van-toast" />
+</view>

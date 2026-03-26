@@ -20,6 +20,14 @@ function buildI18n() {
     home_mod_review: t('home_mod_review'),
     home_driver_section: t('home_driver_section'),
     home_driver_my_shifts: t('home_driver_my_shifts'),
+    home_vehicle_section: t('home_vehicle_section'),
+    home_vehicle_manage: t('home_vehicle_manage'),
+    home_personnel_section: t('home_personnel_section'),
+    home_token_manage: t('home_token_manage'),
+    home_passenger_manage: t('home_passenger_manage'),
+    home_shift_mgmt_section: t('home_shift_mgmt_section'),
+    home_roster_manage: t('home_roster_manage'),
+    home_shift_center: t('home_shift_center'),
   };
 }
 
@@ -132,8 +140,12 @@ Page({
     wx.navigateTo({ url: '/pages/student/request/index' });
   },
 
-  goDashboard() {
-    wx.switchTab({ url: '/pages/admin/dashboard/index' });
+  goDispatch() {
+    wx.switchTab({ url: '/pages/admin/dispatch/index' });
+  },
+
+  goVehicleManage() {
+    wx.navigateTo({ url: '/pages/admin/vehicles/index' });
   },
 
   goDriverManage() {
@@ -148,7 +160,19 @@ Page({
     wx.navigateTo({ url: '/pages/staff/tokens/index' });
   },
 
-    goModificationReview() {
+  goPassengerManage() {
+    wx.navigateTo({ url: '/pages/admin/student-mgmt/index' });
+  },
+
+  goModificationReview() {
     wx.navigateTo({ url: '/pages/admin/modification-requests/index' });
+  },
+
+  goRosterManage() {
+    wx.navigateTo({ url: '/pages/admin/roster/index' });
+  },
+
+  goShiftCenter() {
+    wx.navigateTo({ url: '/pages/admin/shift-center/index' });
   },
 });
