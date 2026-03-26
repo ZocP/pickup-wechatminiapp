@@ -3,6 +3,7 @@
     "pages/bind/index",
     "pages/home/index",
     "pages/admin/dashboard/index",
+    "pages/admin/dispatch/index",
     "pages/admin/shift-detail/index",
     "pages/admin/drivers/index",
     "pages/admin/driver-detail/index",
@@ -44,8 +45,8 @@
         "selectedIconPath": "assets/tabbar/home-active.png"
       },
       {
-        "pagePath": "pages/admin/dashboard/index",
-        "text": "调度",
+        "pagePath": "pages/admin/dispatch/index",
+        "text": "调度大厅",
         "iconPath": "assets/tabbar/dashboard.png",
         "selectedIconPath": "assets/tabbar/dashboard-active.png"
       },

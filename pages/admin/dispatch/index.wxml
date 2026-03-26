@@ -1,0 +1,87 @@
+<view class="page dispatch-page">
+  <!-- Stats banner -->
+  <shift-stats-banner
+    pending-allocation="{{stats.pendingAllocation}}"
+    allocated-count="{{stats.allocatedCount}}"
+    published-vehicles="{{stats.publishedVehicles}}"
+  />
+
+  <!-- Date navigation -->
+  <view class="date-nav">
+    <button class="nav-btn" bindtap="onPrevDay">‹</button>
+    <picker mode="date" value="{{selectedDate}}" bindchange="onDateChange">
+      <view class="date-label">{{selectedDate}}</view>
+    </picker>
+    <button class="nav-btn" bindtap="onNextDay">›</button>
+    <button class="today-btn" bindtap="onToday">{{i18n.dispatch_title}}</button>
+  </view>
+
+  <!-- Shift selector -->
+  <view class="shift-nav" wx:if="{{shifts.length > 0}}">
+    <button class="nav-btn" bindtap="onPrevShift" disabled="{{currentShiftIndex <= 0}}">‹</button>
+    <view class="shift-label">
+      <text>{{i18n.dispatch_shift_label}} {{currentShiftIndex + 1}}/{{shifts.length}}</text>
+      <text wx:if="{{currentShift.departure_time}}" class="shift-time"> · {{currentShift.departure_time}}</text>
+    </view>
+    <button class="nav-btn" bindtap="onNextShift" disabled="{{currentShiftIndex >= shifts.length - 1}}">›</button>
+  </view>
+
+  <!-- Loading -->
+  <view wx:if="{{loading}}" class="card">
+    <van-skeleton title row="3" />
+  </view>
+
+  <!-- No shifts -->
+  <van-empty wx:elif="{{shifts.length === 0}}" description="{{i18n.dispatch_no_shifts}}" />
+
+  <!-- Vehicle list -->
+  <view wx:elif="{{currentShift}}" class="vehicle-list">
+    <!-- Action bar -->
+    <view class="action-bar">
+      <van-button
+        wx:if="{{!isLocked}}"
+        type="info"
+        size="small"
+        plain
+        custom-class="action-btn"
+        bind:tap="onAddVehicle"
+      >{{i18n.dispatch_add_vehicle}}</van-button>
+      <van-button
+        wx:if="{{!isLocked && shiftVehicles.length > 0}}"
+        type="danger"
+        size="small"
+        plain
+        custom-class="action-btn"
+        bind:tap="onLockShift"
+      >{{i18n.dispatch_lock_btn}}</van-button>
+    </view>
+
+    <!-- Vehicles -->
+    <van-empty wx:if="{{shiftVehicles.length === 0}}" description="{{i18n.dispatch_no_vehicles}}" />
+
+    <view wx:for="{{shiftVehicles}}" wx:key="id">
+      <vehicle-card
+        vehicle="{{item.vehicle || item}}"
+        passengers="{{item.passengers || []}}"
+        boarded-count="{{item.boarded_count || 0}}"
+        pending-count="{{item.pending_count || 0}}"
+        editable="{{!isLocked}}"
+        data-vehicleid="{{item.vehicle.id || item.id}}"
+        bind:addpassenger="onAddPassenger"
+        bind:removepassenger="onRemovePassenger"
+      />
+    </view>
+  </view>
+
+  <!-- Passenger modal -->
+  <passenger-modal
+    show="{{showPassengerModal}}"
+    recommended="{{recommendedPassengers}}"
+    others="{{otherPassengers}}"
+    bind:close="onClosePassengerModal"
+    bind:select="onSelectPassenger"
+  />
+
+  <van-toast id="van-toast" />
+  <van-dialog id="van-dialog" />
+</view>

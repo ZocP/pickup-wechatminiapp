@@ -1,0 +1,66 @@
+<view class="vehicle-card">
+  <!-- Header -->
+  <view class="header">
+    <view class="header-left">
+      <view class="color-dot" wx:if="{{colorDot}}" style="background-color: {{colorDot}};"></view>
+      <text class="header-title">{{headerText}}</text>
+    </view>
+  </view>
+
+  <!-- Driver info -->
+  <view class="driver-row" wx:if="{{driverText}}">
+    <text class="label">{{i18n.vehicle_driver_label}}</text>
+    <text class="value">{{driverText}}</text>
+  </view>
+  <view class="driver-row" wx:elif="{{!driverText}}">
+    <text class="label">{{i18n.vehicle_driver_label}}</text>
+    <text class="value muted">{{i18n.vehicle_no_driver}}</text>
+  </view>
+
+  <!-- Boarding status -->
+  <view class="boarding-status">
+    <view class="boarding-item">
+      <text class="boarding-label">{{i18n.vehicle_boarded}}</text>
+      <text class="boarding-value boarded">{{boardedText}}{{i18n.vehicle_boarded_unit}}</text>
+    </view>
+    <view class="boarding-item">
+      <text class="boarding-label">{{i18n.vehicle_pending}}</text>
+      <text class="boarding-value pending">{{pendingText}}{{i18n.vehicle_pending_unit}}</text>
+    </view>
+  </view>
+
+  <!-- Capacity bars -->
+  <view class="capacity-section">
+    <capacity-bar label="{{i18n.vehicle_seat_label}}" used="{{seatUsed}}" total="{{seatTotal}}" />
+    <capacity-bar label="{{i18n.vehicle_checked_label}}" used="{{checkedUsed}}" total="{{checkedTotal}}" />
+    <capacity-bar label="{{i18n.vehicle_carryon_label}}" used="{{carryOnUsed}}" total="{{carryOnTotal}}" />
+  </view>
+
+  <!-- Passenger list -->
+  <view class="passenger-section" wx:if="{{passengerList.length > 0}}">
+    <view class="passenger-item" wx:for="{{passengerList}}" wx:key="requestId">
+      <view class="passenger-info">
+        <text class="passenger-name">{{item.name}}</text>
+        <text class="passenger-detail">{{item.flightNo}} · {{item.arrivalTime}}</text>
+      </view>
+      <van-icon
+        wx:if="{{editable}}"
+        name="close"
+        class="remove-btn"
+        data-requestid="{{item.requestId}}"
+        bind:tap="onTapRemovePassenger"
+      />
+    </view>
+  </view>
+
+  <!-- Add button -->
+  <view class="add-section" wx:if="{{editable}}">
+    <van-button
+      type="info"
+      size="small"
+      plain
+      custom-class="add-btn"
+      bind:tap="onTapAddPassenger"
+    >{{i18n.vehicle_add_btn}}</van-button>
+  </view>
+</view>

@@ -1,0 +1,86 @@
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.modal-header {
+  padding: 24rpx 32rpx 0;
+  text-align: center;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #323233;
+}
+
+.passenger-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 24rpx 24rpx;
+}
+
+.section {
+  margin-top: 20rpx;
+}
+
+.section-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #646566;
+  margin-bottom: 12rpx;
+  display: block;
+}
+
+.passenger-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 12rpx;
+  border-bottom: 1rpx solid #f2f3f5;
+}
+
+.passenger-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.passenger-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.passenger-name {
+  font-size: 28rpx;
+  color: #323233;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.passenger-detail {
+  font-size: 22rpx;
+  color: #969799;
+}
+
+.passenger-bags {
+  font-size: 22rpx;
+  color: #969799;
+}
+
+.score-tag {
+  flex-shrink: 0;
+}
+
+.select-btn {
+  flex-shrink: 0;
+  padding: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

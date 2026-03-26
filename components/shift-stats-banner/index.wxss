@@ -1,0 +1,39 @@
+.stats-banner {
+  display: flex;
+  gap: 16rpx;
+  padding: 24rpx;
+}
+
+.stat-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+  border-radius: 12rpx;
+  padding: 20rpx 12rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.04);
+}
+
+.stat-number {
+  font-size: 40rpx;
+  font-weight: 700;
+  margin-bottom: 8rpx;
+}
+
+.stat-number.danger {
+  color: #ee0a24;
+}
+
+.stat-number.success {
+  color: #07c160;
+}
+
+.stat-number.info {
+  color: #1989fa;
+}
+
+.stat-label {
+  font-size: 22rpx;
+  color: #969799;
+}

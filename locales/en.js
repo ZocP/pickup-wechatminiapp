@@ -567,4 +567,51 @@ module.exports = {
   driver_scan_finish_btn:           'Done',
   driver_ride_with_wechat:          'Ride with WeChat: ',
   driver_passengers_load_failed:    'Failed to load passengers',
+
+  // ─── Capacity Bar ─────────────────────────────────────────────────────
+  capacity_bar_full:                'Full',
+
+  // ─── Vehicle Card ─────────────────────────────────────────────────────
+  vehicle_card_boarded:             'Boarded',
+  vehicle_card_pending:             'Pending',
+  vehicle_card_boarded_unit:        '',
+  vehicle_card_pending_unit:        '',
+  vehicle_card_driver_label:        'Driver: ',
+  vehicle_card_no_driver:           'Unassigned',
+  vehicle_card_add_btn:             '+ Add Passenger',
+  vehicle_card_remove_btn:          'Remove',
+  vehicle_card_seat_label:          'Seats',
+  vehicle_card_checked_label:       'Checked',
+  vehicle_card_carryon_label:       'Carry-on',
+
+  // ─── Dispatch Stats Banner ────────────────────────────────────────────
+  dispatch_stats_pending:           'Pending',
+  dispatch_stats_allocated:         'Allocated',
+  dispatch_stats_vehicles:          'Vehicles',
+
+  // ─── Passenger Modal ──────────────────────────────────────────────────
+  passenger_modal_title:            'Select Passenger',
+  passenger_modal_search:           'Search name or flight',
+  passenger_modal_recommended:      'Recommended',
+  passenger_modal_others:           'Others',
+  passenger_modal_empty:            'No passengers available',
+  passenger_modal_score:            'Score',
+  passenger_modal_bags_label:       'Bags: ',
+
+  // ─── Dispatch Page ────────────────────────────────────────────────────
+  dispatch_title:                   'Dispatch Hall',
+  dispatch_add_vehicle:             '+ Add Vehicle',
+  dispatch_no_shifts:               'No shifts for this day',
+  dispatch_no_vehicles:             'No vehicles yet. Tap above to add.',
+  dispatch_lock_btn:                'Lock & Publish',
+  dispatch_lock_confirm:            'Lock and publish this shift?',
+  dispatch_lock_success:            'Locked',
+  dispatch_remove_vehicle_title:    'Remove this vehicle?',
+  dispatch_remove_passenger_title:  'Remove this passenger?',
+  dispatch_assign_success:          'Assigned',
+  dispatch_remove_success:          'Removed',
+  dispatch_loading:                 'Loading...',
+  dispatch_shift_label:             'Shift',
+  common_confirm:                   'Confirm',
+  common_cancel:                    'Cancel',
 }

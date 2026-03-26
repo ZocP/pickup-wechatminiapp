@@ -1,0 +1,10 @@
+<view class="capacity-bar">
+  <text class="capacity-label">{{label}}</text>
+  <view class="bar-wrapper">
+    <view class="bar-bg">
+      <view class="bar-fill" style="width: {{percent}}%; background-color: {{barColor}};"></view>
+    </view>
+  </view>
+  <text class="capacity-text">{{usageText}}</text>
+  <view wx:if="{{isFull}}" class="full-badge">{{fullText}}</view>
+</view>

@@ -30,7 +30,7 @@ Component({
           selectedIconPath: '/assets/tabbar/home-active.png',
         },
         {
-          pagePath: '/pages/admin/dashboard/index',
+          pagePath: '/pages/admin/dispatch/index',
           text: t('tab_dispatch'),
           iconPath: '/assets/tabbar/dashboard.png',
           selectedIconPath: '/assets/tabbar/dashboard-active.png',

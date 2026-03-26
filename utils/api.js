@@ -232,4 +232,69 @@ module.exports = {
   reassignRequest(requestId, shiftId) {
     return request.post(`/admin/requests/${requestId}/reassign`, { shift_id: shiftId });
   },
+
+  // ─── Vehicle CRUD ──────────────────────────────────────────────────
+  getVehicles(page, pageSize) {
+    const params = [];
+    if (page) params.push(`page=${page}`);
+    if (pageSize) params.push(`page_size=${pageSize}`);
+    const qs = params.length ? `?${params.join('&')}` : '';
+    return request.get(`/admin/vehicles${qs}`);
+  },
+
+  getVehicle(id) {
+    return request.get(`/admin/vehicles/${id}`);
+  },
+
+  createVehicle(data) {
+    return request.post('/admin/vehicles', data);
+  },
+
+  updateVehicle(id, data) {
+    return request.put(`/admin/vehicles/${id}`, data);
+  },
+
+  deleteVehicle(id) {
+    return request.del(`/admin/vehicles/${id}`);
+  },
+
+  // ─── Shift-Vehicle ─────────────────────────────────────────────────
+  getShiftVehicles(shiftId) {
+    return request.get(`/admin/shifts/${shiftId}/vehicles`);
+  },
+
+  addVehicleToShift(shiftId, data) {
+    return request.post(`/admin/shifts/${shiftId}/vehicles`, data);
+  },
+
+  removeVehicleFromShift(shiftId, vehicleId) {
+    return request.del(`/admin/shifts/${shiftId}/vehicles/${vehicleId}`);
+  },
+
+  // ─── Passenger-Vehicle Assignment ──────────────────────────────────
+  assignPassengerToVehicle(shiftId, vehicleId, data) {
+    return request.post(`/admin/shifts/${shiftId}/vehicles/${vehicleId}/passengers`, data);
+  },
+
+  removePassengerFromVehicle(shiftId, vehicleId, requestId) {
+    return request.del(`/admin/shifts/${shiftId}/vehicles/${vehicleId}/passengers/${requestId}`);
+  },
+
+  recommendPassengers(shiftId, vehicleId) {
+    return request.get(`/admin/shifts/${shiftId}/vehicles/${vehicleId}/recommend`);
+  },
+
+  // ─── Dispatch ──────────────────────────────────────────────────────
+  getDispatchStats(shiftId) {
+    const qs = shiftId ? `?shift_id=${shiftId}` : '';
+    return request.get(`/admin/dispatch/stats${qs}`);
+  },
+
+  getShiftRoster(shiftId) {
+    return request.get(`/admin/shifts/${shiftId}/roster`);
+  },
+
+  lockShift(shiftId) {
+    return request.post(`/admin/shifts/${shiftId}/lock`, {});
+  },
 };

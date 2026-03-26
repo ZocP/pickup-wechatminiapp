@@ -1,0 +1,14 @@
+<view class="stats-banner">
+  <view class="stat-card">
+    <text class="stat-number danger">{{pendingAllocation}}</text>
+    <text class="stat-label">{{i18n.stats_pending}}</text>
+  </view>
+  <view class="stat-card">
+    <text class="stat-number success">{{allocatedCount}}</text>
+    <text class="stat-label">{{i18n.stats_allocated}}</text>
+  </view>
+  <view class="stat-card">
+    <text class="stat-number info">{{publishedVehicles}}</text>
+    <text class="stat-label">{{i18n.stats_vehicles}}</text>
+  </view>
+</view>

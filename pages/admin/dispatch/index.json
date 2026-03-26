@@ -1,0 +1,14 @@
+{
+  "navigationBarTitleText": "",
+  "usingComponents": {
+    "van-button": "/miniprogram_npm/@vant/weapp/button/index",
+    "van-icon": "/miniprogram_npm/@vant/weapp/icon/index",
+    "van-skeleton": "/miniprogram_npm/@vant/weapp/skeleton/index",
+    "van-empty": "/miniprogram_npm/@vant/weapp/empty/index",
+    "van-dialog": "/miniprogram_npm/@vant/weapp/dialog/index",
+    "van-toast": "/miniprogram_npm/@vant/weapp/toast/index",
+    "shift-stats-banner": "/components/shift-stats-banner/index",
+    "vehicle-card": "/components/vehicle-card/index",
+    "passenger-modal": "/components/passenger-modal/index"
+  }
+}

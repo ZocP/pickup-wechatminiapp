@@ -1,0 +1,69 @@
+<van-popup
+  show="{{show}}"
+  position="bottom"
+  round
+  closeable
+  custom-style="height: 80vh;"
+  bind:close="onClose"
+>
+  <view class="modal-content">
+    <view class="modal-header">
+      <text class="modal-title">{{i18n.modal_title}}</text>
+    </view>
+
+    <van-search
+      value="{{searchText}}"
+      placeholder="{{i18n.modal_search}}"
+      bind:change="onSearchChange"
+    />
+
+    <scroll-view scroll-y class="passenger-scroll">
+      <!-- Recommended section -->
+      <view wx:if="{{filteredRecommended.length > 0}}" class="section">
+        <text class="section-title">{{i18n.modal_recommended}}</text>
+        <view
+          class="passenger-row"
+          wx:for="{{filteredRecommended}}"
+          wx:key="requestId"
+        >
+          <view class="passenger-info">
+            <view class="passenger-name-row">
+              <text class="passenger-name">{{item.name}}</text>
+              <van-tag type="success" plain custom-class="score-tag">{{i18n.modal_score}} {{item.score}}</van-tag>
+            </view>
+            <text class="passenger-detail">{{item.flightNo}} · {{item.arrivalTime}}</text>
+            <text class="passenger-bags">{{i18n.modal_bags_label}} {{item.checkedBags}}+{{item.carryOnBags}}</text>
+          </view>
+          <view class="select-btn" data-requestid="{{item.requestId}}" bind:tap="onSelectPassenger">
+            <van-icon name="add-o" size="44rpx" color="#1989fa" />
+          </view>
+        </view>
+      </view>
+
+      <!-- Others section -->
+      <view wx:if="{{filteredOthers.length > 0}}" class="section">
+        <text class="section-title">{{i18n.modal_others}}</text>
+        <view
+          class="passenger-row"
+          wx:for="{{filteredOthers}}"
+          wx:key="requestId"
+        >
+          <view class="passenger-info">
+            <text class="passenger-name">{{item.name}}</text>
+            <text class="passenger-detail">{{item.flightNo}} · {{item.arrivalTime}}</text>
+            <text class="passenger-bags">{{i18n.modal_bags_label}} {{item.checkedBags}}+{{item.carryOnBags}}</text>
+          </view>
+          <view class="select-btn" data-requestid="{{item.requestId}}" bind:tap="onSelectPassenger">
+            <van-icon name="add-o" size="44rpx" color="#1989fa" />
+          </view>
+        </view>
+      </view>
+
+      <!-- Empty state -->
+      <van-empty
+        wx:if="{{filteredRecommended.length === 0 && filteredOthers.length === 0}}"
+        description="{{i18n.modal_empty}}"
+      />
+    </scroll-view>
+  </view>
+</van-popup>

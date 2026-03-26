@@ -3,10 +3,11 @@ App({
     userInfo: {
       id: 0,
       name: '',
-      role: 'student', // 'student' | 'staff' | 'admin' | 'driver'
+      role: 'student', // 'student' | 'passenger' | 'staff' | 'admin' | 'driver'
       phone: '',
       wechat_id: '',
     },
+    UserRolePassenger: 'passenger',
     viewAsRole: '', // '' means no simulation
     dashboardCache: {
       lastLoadAt: 0,
@@ -92,10 +93,25 @@ App({
 
   getEffectiveRole() {
     const realRole = this.getRealRole();
+    // Backward compat: treat 'student' as 'passenger' when appropriate
+    if (realRole === 'passenger' || realRole === 'student') {
+      if (realRole === 'admin' && this.globalData.viewAsRole) {
+        return this.globalData.viewAsRole;
+      }
+      return realRole;
+    }
     if (realRole === 'admin' && this.globalData.viewAsRole) {
       return this.globalData.viewAsRole;
     }
     return realRole;
+  },
+
+  isPassenger() {
+    const role = this.getRealRole();
+    const userInfo = this.globalData.userInfo || {};
+    if (role === 'passenger' || role === 'student') return true;
+    if ((role === 'admin' || role === 'staff') && userInfo.is_passenger) return true;
+    return false;
   },
 
   getViewAsRole() {
@@ -109,7 +125,7 @@ App({
       return '';
     }
 
-    const allow = new Set(['admin', 'staff', 'driver', 'student']);
+    const allow = new Set(['admin', 'staff', 'driver', 'student', 'passenger']);
     const target = String(nextRole || '').trim().toLowerCase();
 
     if (!target || target === 'admin') {

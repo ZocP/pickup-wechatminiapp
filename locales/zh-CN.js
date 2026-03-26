@@ -566,4 +566,51 @@ module.exports = {
   driver_scan_finish_btn:           '完成',
   driver_ride_with_wechat:          '同乘微信：',
   driver_passengers_load_failed:    '乘客列表加载失败',
+
+  // ─── Capacity Bar ─────────────────────────────────────────────────────
+  capacity_bar_full:                '已满',
+
+  // ─── Vehicle Card ─────────────────────────────────────────────────────
+  vehicle_card_boarded:             '已登车',
+  vehicle_card_pending:             '未登车',
+  vehicle_card_boarded_unit:        '人',
+  vehicle_card_pending_unit:        '人',
+  vehicle_card_driver_label:        '司机：',
+  vehicle_card_no_driver:           '未绑定',
+  vehicle_card_add_btn:             '+ 添加乘客',
+  vehicle_card_remove_btn:          '移除',
+  vehicle_card_seat_label:          '座位',
+  vehicle_card_checked_label:       '托运箱',
+  vehicle_card_carryon_label:       '登机箱',
+
+  // ─── Dispatch Stats Banner ────────────────────────────────────────────
+  dispatch_stats_pending:           '待分配',
+  dispatch_stats_allocated:         '已分配',
+  dispatch_stats_vehicles:          '已派车',
+
+  // ─── Passenger Modal ──────────────────────────────────────────────────
+  passenger_modal_title:            '选择乘客',
+  passenger_modal_search:           '搜索姓名或航班号',
+  passenger_modal_recommended:      '推荐',
+  passenger_modal_others:           '其他',
+  passenger_modal_empty:            '暂无可添加的乘客',
+  passenger_modal_score:            '匹配度',
+  passenger_modal_bags_label:       '行李：',
+
+  // ─── Dispatch Page ────────────────────────────────────────────────────
+  dispatch_title:                   '调度大厅',
+  dispatch_add_vehicle:             '+ 添加车辆',
+  dispatch_no_shifts:               '当天暂无班次',
+  dispatch_no_vehicles:             '暂未分配车辆，点击上方添加',
+  dispatch_lock_btn:                '锁定发布',
+  dispatch_lock_confirm:            '确认锁定并发布此班次？',
+  dispatch_lock_success:            '锁定成功',
+  dispatch_remove_vehicle_title:    '确认移除此车辆？',
+  dispatch_remove_passenger_title:  '确认移除此乘客？',
+  dispatch_assign_success:          '分配成功',
+  dispatch_remove_success:          '移除成功',
+  dispatch_loading:                 '加载中...',
+  dispatch_shift_label:             '班次',
+  common_confirm:                   '确认',
+  common_cancel:                    '取消',
 }
