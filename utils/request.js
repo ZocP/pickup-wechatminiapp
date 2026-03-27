@@ -5,6 +5,15 @@ let isRefreshing = false;
 let pendingRetryQueue = [];
 
 function getBaseURL() {
+  try {
+    const accountInfo = wx.getAccountInfoSync();
+    const envVersion = accountInfo.miniProgram.envVersion;
+    if (envVersion === 'develop' || envVersion === 'trial') {
+      return wx.getStorageSync('baseURL') || 'http://localhost:9090/api/v1';
+    }
+  } catch (e) {
+    // fallback to default
+  }
   return DEFAULT_BASE_URL;
 }
 
