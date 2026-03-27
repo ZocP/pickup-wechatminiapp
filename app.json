@@ -49,8 +49,8 @@
         "selectedIconPath": "assets/tabbar/home-active.png"
       },
       {
-        "pagePath": "pages/admin/dispatch/index",
-        "text": "调度大厅",
+        "pagePath": "pages/admin/dashboard/index",
+        "text": "调度",
         "iconPath": "assets/tabbar/dashboard.png",
         "selectedIconPath": "assets/tabbar/dashboard-active.png"
       },
