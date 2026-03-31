@@ -1,0 +1,49 @@
+<view class="page bind-page">
+  <!-- Verifying state: checking with backend before showing bind form -->
+  <view wx:if="{{verifying}}" class="card bind-card" style="text-align:center;padding:60rpx 40rpx;">
+    <van-loading size="40px" type="spinner" />
+    <view style="margin-top:24rpx;color:#666;font-size:28rpx;">{{i18n.bind_verifying}}</view>
+  </view>
+
+  <!-- Bind form: shown when not verifying -->
+  <view wx:else class="card bind-card">
+    <view class="title">{{i18n.bind_title}}</view>
+    <view class="subtitle">{{i18n.bind_subtitle}}</view>
+
+    <van-notice-bar left-icon="warning-o" text="{{i18n.bind_notice}}" />
+
+    <van-field
+      label="{{i18n.bind_name_label}}"
+      placeholder="{{i18n.bind_name_placeholder}}"
+      value="{{name}}"
+      maxlength="64"
+      bind:change="onNameChange"
+      custom-style="margin-top: 20rpx;"
+    />
+
+    <van-field
+      label="{{i18n.bind_wechat_label}}"
+      placeholder="{{i18n.bind_wechat_placeholder}}"
+      value="{{wechatID}}"
+      maxlength="20"
+      bind:change="onWechatIDChange"
+      custom-style="margin-top: 12rpx;"
+    />
+
+    <van-button
+      type="primary"
+      block
+      loading="{{loading}}"
+      custom-style="margin-top: 24rpx;"
+      bind:tap="onBindWechatID"
+    >{{i18n.bind_submit}}</van-button>
+
+    <van-button
+      type="default"
+      plain
+      block
+      custom-style="margin-top: 16rpx;"
+      bind:tap="logout"
+    >{{i18n.bind_logout}}</van-button>
+  </view>
+</view>

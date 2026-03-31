@@ -1,24 +1,10 @@
 const app = getApp()
-const { getDashboard, getPendingRequests, assignStudent, removeStudent, publishShift, updateShift } = require('../../../utils/api')
-
-function pad2(num) {
-  return String(num).padStart(2, '0')
-}
-
-function normalizeDateTime(source) {
-  if (!source) return null
-  const raw = String(source).trim()
-  if (!raw) return null
-  const normalized = raw.includes('T') ? raw : raw.replace(' ', 'T')
-  const date = new Date(normalized)
-  return Number.isNaN(date.getTime()) ? null : date
-}
-
-function formatDateTime(source) {
-  const date = normalizeDateTime(source)
-  if (!date) return '--'
-  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())} ${pad2(date.getHours())}:${pad2(date.getMinutes())}`
-}
+const api = require('../../../utils/api')
+const { getDashboard, getPendingRequests, assignStudent, removeStudent, publishShift, updateShift, unpublishShift, updateShiftVehicles } = api
+const { t } = require('../../../utils/i18n')
+const { pad2, normalizeDateTime, formatDateTime, formatMonthDay, formatHourMinute } = require('../../../utils/formatters')
+const { resolveRequestName, runWithActionLock: runWithActionLockHelper } = require('../../../utils/helpers')
+const { normalizeShiftStatus } = require('../../../utils/status')
 
 function terminalOf(req) {
   return req.terminal || req.arrival_terminal || req.flight_terminal || req.arrival_gate || ''
@@ -38,33 +24,33 @@ function driverOf(shift) {
   if (nested && (nested.name || nested.car_model || nested.max_seats || nested.max_checked || nested.max_carry_on)) {
     return nested
   }
-  const name = shift?.driver_name || shift?.driverName || ''
-  const car = shift?.car_model || shift?.vehicle_model || shift?.vehicle_plate || ''
+  const name = (shift && (shift.driver_name || shift.driverName)) || ''
+  const car = (shift && (shift.car_model || shift.vehicle_model || shift.vehicle_plate)) || ''
   if (!name && !car) return null
   return {
     name,
     car_model: car,
-    max_seats: shift?.max_passengers || shift?.max_seats,
-    max_checked: shift?.max_checked_luggage || shift?.max_checked,
-    max_carry_on: shift?.max_carry_on_luggage || shift?.max_carry_on
+    max_seats: shift && (shift.max_passengers || shift.max_seats),
+    max_checked: shift && (shift.max_checked_luggage || shift.max_checked),
+    max_carry_on: shift && (shift.max_carry_on_luggage || shift.max_carry_on)
   }
 }
 
 function capacityOf(shift, type) {
   const driver = driverOf(shift) || {}
   if (type === 'seats') {
-    return toNumber(driver.max_seats || shift?.max_passengers || shift?.max_seats)
+    return toNumber(driver.max_seats || (shift && (shift.max_passengers || shift.max_seats)))
   }
   if (type === 'checked') {
-    return toNumber(driver.max_checked || shift?.max_checked_luggage || shift?.max_checked)
+    return toNumber(driver.max_checked || (shift && (shift.max_checked_luggage || shift.max_checked)))
   }
-  return toNumber(driver.max_carry_on || shift?.max_carry_on_luggage || shift?.max_carry_on)
+  return toNumber(driver.max_carry_on || (shift && (shift.max_carry_on_luggage || shift.max_carry_on)))
 }
 
 function shiftTerminalOf(shift, onboardList) {
-  if (shift?.arrival_terminal) return String(shift.arrival_terminal).trim().toUpperCase()
-  if (shift?.terminal) return String(shift.terminal).trim().toUpperCase()
-  if (Array.isArray(shift?.terminals) && shift.terminals.length) {
+  if (shift && shift.arrival_terminal) return String(shift.arrival_terminal).trim().toUpperCase()
+  if (shift && shift.terminal) return String(shift.terminal).trim().toUpperCase()
+  if (shift && Array.isArray(shift.terminals) && shift.terminals.length) {
     return String(shift.terminals[0] || '').trim().toUpperCase() || '--'
   }
   const firstTerminal = (onboardList || []).find((x) => x && x.terminal)
@@ -72,29 +58,21 @@ function shiftTerminalOf(shift, onboardList) {
 }
 
 function terminalRouteOf(shift, onboardList) {
-  if (Array.isArray(shift?.terminals) && shift.terminals.length) {
+  if (shift && Array.isArray(shift.terminals) && shift.terminals.length) {
     const route = shift.terminals
       .map((item) => String(item || '').trim().toUpperCase())
       .filter(Boolean)
     return route.join(' -> ')
   }
-  if (shift?.terminal_route) {
+  if (shift && shift.terminal_route) {
     return String(shift.terminal_route).trim()
   }
   const unique = []
   ;(onboardList || []).forEach((item) => {
-    const t = String(item?.terminal || '').trim().toUpperCase()
-    if (t && unique.indexOf(t) === -1) unique.push(t)
+    const tv = String((item && item.terminal) || '').trim().toUpperCase()
+    if (tv && unique.indexOf(tv) === -1) unique.push(tv)
   })
   return unique.join(' -> ')
-}
-
-function formatMonthDay(date) {
-  return `${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`
-}
-
-function formatHourMinute(date) {
-  return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`
 }
 
 function groupByTwentyMinutes(items, getTs) {
@@ -138,7 +116,7 @@ function groupByTwentyMinutes(items, getTs) {
     groups.push({
       key: 'unknown',
       sortTs: Number.MAX_SAFE_INTEGER,
-      label: '时间待确认',
+      label: t('shift_detail_time_unknown'),
       count: unknown.length,
       items: unknown
     })
@@ -150,28 +128,19 @@ function groupByTwentyMinutes(items, getTs) {
 function toPassengerFromRequest(request) {
   const pickupRaw = pickupTimeOf(request)
   const pickupDate = normalizeDateTime(pickupRaw)
-  const user = request && request.user ? request.user : {}
-  const resolvedName = user.name
-    || user.real_name
-    || user.user_name
-    || user.nickname
-    || request.real_name
-    || request.passenger_name
-    || request.user_name
-    || request.student_name
-    || request.nickname
-    || request.name
-    || ''
   return {
     id: request.id,
-    name: String(resolvedName).trim() || `学生#${request.user_id || request.id}`,
+    name: resolveRequestName(request),
     flight_no: request.flight_no || request.flightNumber || '--',
     calc_pickup_time: pickupRaw,
     pickup_time_text: formatDateTime(pickupRaw),
     terminal: terminalOf(request),
     checked_luggage_count: toNumber(request.checked_luggage_count || request.checked_bags),
     carryon_luggage_count: toNumber(request.carryon_luggage_count || request.carry_on_bags),
-    _pickupTs: pickupDate ? pickupDate.getTime() : Number.MAX_SAFE_INTEGER
+    ride_with_note: String(request.ride_with_note || '').trim(),
+    ride_with_wechat: String(request.ride_with_wechat || '').trim(),
+    _pickupTs: pickupDate ? pickupDate.getTime() : Number.MAX_SAFE_INTEGER,
+    boarded_at: request.boarded_at || null
   }
 }
 
@@ -179,7 +148,7 @@ function isLate(pickupTime, shiftTime) {
   const pickup = normalizeDateTime(pickupTime)
   const shift = normalizeDateTime(shiftTime)
   if (!pickup || !shift) return false
-  return pickup.getTime() < shift.getTime()
+  return pickup.getTime() > shift.getTime()
 }
 
 function sameTerminal(a, b) {
@@ -197,10 +166,11 @@ function withinWindowMinutes(a, b, minutes) {
 function usageOf(used, max) {
   const safeMax = Number(max) > 0 ? Number(max) : 1
   const safeUsed = Number(used) || 0
-  const percent = Math.max(0, Math.min(200, Math.round((safeUsed / safeMax) * 100)))
+  const rawPercent = Math.round((safeUsed / safeMax) * 100)
+  const percent = Math.max(0, Math.min(100, rawPercent))
   let color = '#1989fa'
-  if (percent > 100) color = '#ee0a24'
-  else if (percent >= 90) color = '#ff976a'
+  if (rawPercent > 100) color = '#ee0a24'
+  else if (rawPercent >= 90) color = '#ff976a'
   return {
     used: safeUsed,
     max: Number(max) || 0,
@@ -209,10 +179,44 @@ function usageOf(used, max) {
   }
 }
 
-function normalizeShiftStatus(status) {
-  const value = String(status || '').toLowerCase()
-  if (value === 'draft') return 'unpublished'
-  return value || 'unpublished'
+function markDashboardDirty() {
+  const root = getApp()
+  if (root && typeof root.markDashboardDirty === 'function') {
+    root.markDashboardDirty()
+  }
+}
+
+function buildI18n() {
+  return {
+    shift_detail_driver_prefix:      t('shift_detail_driver_prefix'),
+    shift_detail_no_route:           t('shift_detail_no_route'),
+    shift_detail_seats:              t('shift_detail_seats'),
+    shift_detail_checked:            t('shift_detail_checked'),
+    shift_detail_carry_on:           t('shift_detail_carry_on'),
+    shift_detail_boarding:           t('shift_detail_boarding'),
+    shift_detail_boarded_suffix:     t('shift_detail_boarded_suffix'),
+    shift_detail_unboarded_suffix:   t('shift_detail_unboarded_suffix'),
+    shift_detail_tab_onboard:        t('shift_detail_tab_onboard'),
+    shift_detail_tab_pending:        t('shift_detail_tab_pending'),
+    shift_detail_no_onboard:         t('shift_detail_no_onboard'),
+    shift_detail_pickup_time:        t('shift_detail_pickup_time'),
+    shift_detail_luggage_label:      t('shift_detail_luggage_label'),
+    shift_detail_luggage_checked:    t('shift_detail_luggage_checked'),
+    shift_detail_luggage_carry_on:   t('shift_detail_luggage_carry_on'),
+    shift_detail_ride_with_note:     t('shift_detail_ride_with_note'),
+    shift_detail_wechat:             t('shift_detail_wechat'),
+    shift_detail_remove:             t('shift_detail_remove'),
+    shift_detail_no_pending:         t('shift_detail_no_pending'),
+    shift_detail_recommended:        t('shift_detail_recommended'),
+    shift_detail_late:               t('shift_detail_late'),
+    shift_detail_add:                t('shift_detail_add'),
+    shift_detail_passenger_boarded:  t('shift_detail_passenger_boarded'),
+    shift_detail_passenger_unboarded:t('shift_detail_passenger_unboarded'),
+    shift_detail_vehicle_label:      t('shift_detail_vehicle_label'),
+    shift_detail_vehicle_override:   t('shift_detail_vehicle_override'),
+    shift_detail_vehicle_clear:      t('shift_detail_vehicle_clear'),
+    shift_detail_vehicle_save:       t('shift_detail_vehicle_save'),
+  }
 }
 
 Page({
@@ -228,35 +232,94 @@ Page({
     terminalFilter: 'all',
     dayFilter: 'all',
     terminalOptions: [
-      { text: '全部航站楼', value: 'all' }
+      { text: t('shift_detail_filter_all_terminals'), value: 'all' }
     ],
     dayOptions: [
-      { text: '全部日期', value: 'all' }
+      { text: t('shift_detail_filter_all_days'), value: 'all' }
     ],
     headerTime: '--',
     headerTerminal: '--',
     terminalRoute: '',
     driverText: '--',
-    statusText: '未发布',
+    statusText: t('common_unpublished'),
     statusTagType: 'primary',
     seatUsage: { used: 0, max: 0, percent: 0, color: '#1989fa' },
     checkedUsage: { used: 0, max: 0, percent: 0, color: '#1989fa' },
     carryOnUsage: { used: 0, max: 0, percent: 0, color: '#1989fa' },
     canPublish: false,
-    publishButtonText: '一键发布班次',
+    publishButtonText: t('shift_detail_publish_btn'),
     publishing: false,
     actingRequestId: null,
-    onboardCount: 0
+    actionBusy: false,
+    onboardCount: 0,
+    boardedCount: 0,
+    unboardedCount: 0,
+    vehicleText: '',
+    suggestedVehicles: 0,
+    manualVehicleCount: null,
+    vehicleInputValue: '',
+    showVehicleEditor: false,
+    vehicleSaving: false,
+    infoCardCollapsed: false,
+    sortOrder: 'arrival',
+    sortOptions: [
+      { text: t('shift_detail_sort_arrival'), value: 'arrival' },
+      { text: t('shift_detail_sort_name'), value: 'name' },
+      { text: t('shift_detail_sort_flight'), value: 'flight' },
+    ],
+    i18n: buildI18n(),
   },
 
   async onLoad(query) {
+    wx.setNavigationBarTitle({ title: t('shift_detail_nav_title') })
+    this.setData({ i18n: buildI18n() })
+
+    if (!app.ensureWechatBound()) return;
     const shiftId = query && query.id ? String(query.id) : ''
     if (!shiftId) {
-      wx.showToast({ title: '缺少班次ID', icon: 'none' })
+      wx.showToast({ title: t('shift_detail_missing_id'), icon: 'none' })
       return
     }
     this.setData({ shiftId })
+    this._dayFilterInitialized = false
     await this.loadData()
+  },
+
+  _lastLoadTime: 0,
+  _pollTimer: null,
+
+  onShow() {
+    wx.setNavigationBarTitle({ title: t('shift_detail_nav_title') })
+    const now = Date.now()
+    if (this.data.shiftId && now - this._lastLoadTime > 2000) {
+      this._lastLoadTime = now
+      this.loadData()
+    }
+    this._startPolling()
+  },
+
+  onHide() {
+    this._stopPolling()
+  },
+
+  onUnload() {
+    this._stopPolling()
+  },
+
+  _startPolling() {
+    this._stopPolling()
+    this._pollTimer = setInterval(() => {
+      if (this.data.shiftId) {
+        this.loadData(true)
+      }
+    }, 15000)
+  },
+
+  _stopPolling() {
+    if (this._pollTimer) {
+      clearInterval(this._pollTimer)
+      this._pollTimer = null
+    }
   },
 
   async onPullDownRefresh() {
@@ -267,54 +330,58 @@ Page({
     }
   },
 
-  async loadData() {
-    wx.showLoading({ title: '加载中' })
+  async loadData(silent) {
+    this._lastLoadTime = Date.now()
+    if (!silent) wx.showLoading({ title: t('shift_detail_loading') })
     try {
-      const [dashboard, pending] = await Promise.all([
-        getDashboard(),
+      const [shiftRes, pending] = await Promise.all([
+        api.getShift(this.data.shiftId),
         getPendingRequests()
       ])
 
-      const dashboardRows = Array.isArray(dashboard)
-        ? dashboard
-        : (Array.isArray(dashboard?.shifts) ? dashboard.shifts : [])
+      const rawShift = shiftRes || {}
+      const shift = {
+        ...rawShift,
+        id: rawShift.id || rawShift.ID || rawShift.shift_id || 0,
+        status: normalizeShiftStatus(rawShift.status || rawShift.Status),
+        departure_time: rawShift.departure_time || rawShift.DepartureTime || '',
+        requests: Array.isArray(rawShift.requests)
+          ? rawShift.requests
+          : (Array.isArray(rawShift.Requests)
+            ? rawShift.Requests
+            : (Array.isArray(rawShift.passengers) ? rawShift.passengers : []))
+      }
 
-      const shifts = dashboardRows.map((item) => ({
-        ...item,
-        id: item.id || item.ID || item.shift_id || 0,
-        status: normalizeShiftStatus(item.status || item.Status),
-        departure_time: item.departure_time || item.DepartureTime || '',
-        requests: Array.isArray(item.requests)
-          ? item.requests
-          : (Array.isArray(item.Requests)
-            ? item.Requests
-            : (Array.isArray(item.passengers) ? item.passengers : []))
-      }))
-
-      const shift = shifts.find((item) => String(item.id) === String(this.data.shiftId))
-      if (!shift) {
-        wx.showToast({ title: '班次不存在或已删除', icon: 'none' })
+      if (!shift.id) {
+        wx.showToast({ title: t('shift_detail_not_found'), icon: 'none' })
         return
       }
 
       const pendingRows = Array.isArray(pending)
         ? pending
-        : (Array.isArray(pending?.items) ? pending.items : [])
+        : (pending && Array.isArray(pending.items) ? pending.items : [])
       const normalizedOnboard = (shift.requests || shift.passengers || []).map(toPassengerFromRequest)
+
+      const boardedCount = normalizedOnboard.filter(item =>
+        item.boarded_at != null
+      ).length;
+      const unboardedCount = normalizedOnboard.length - boardedCount;
 
       this.setData({
         shift,
         pendingRaw: pendingRows,
         onboardList: normalizedOnboard,
-        onboardCount: normalizedOnboard.length
+        onboardCount: normalizedOnboard.length,
+        boardedCount: boardedCount,
+        unboardedCount: unboardedCount
       })
 
       this.syncHeaderAndUsage()
       this.recomputeFiltersAndList()
     } catch (error) {
-      wx.showToast({ title: error?.message || '加载失败', icon: 'none' })
+      wx.showToast({ title: (error && error.message) || t('shift_detail_load_failed'), icon: 'none' })
     } finally {
-      wx.hideLoading()
+      if (!silent) wx.hideLoading()
     }
   },
 
@@ -333,8 +400,18 @@ Page({
     const carryOnMax = capacityOf(shift, 'carryOn')
 
     const shiftStatus = normalizeShiftStatus(shift.status)
-    const statusText = shiftStatus === 'published' ? '已发布' : '未发布'
+    const statusText = shiftStatus === 'published' ? t('common_published') : t('common_unpublished')
     const statusTagType = shiftStatus === 'published' ? 'success' : 'primary'
+
+    // Vehicle recommendation
+    const manual = shift.manual_vehicle_count
+    const suggested = shift.suggested_vehicles || 0
+    let vehicleText = ''
+    if (manual != null && manual !== undefined) {
+      vehicleText = t('shift_detail_vehicle_manual').replace('{0}', manual)
+    } else if (suggested > 0) {
+      vehicleText = t('shift_detail_vehicle_suggested').replace('{0}', suggested)
+    }
 
     this.setData({
       headerTime: formatDateTime(shift.departure_time),
@@ -349,7 +426,11 @@ Page({
       checkedUsage: usageOf(checkedUsed, checkedMax),
       carryOnUsage: usageOf(carryOnUsed, carryOnMax),
       canPublish: shiftStatus === 'published' ? true : seatUsed > 0,
-      publishButtonText: shiftStatus === 'published' ? '撤回发布' : '一键发布班次'
+      publishButtonText: shiftStatus === 'published' ? t('shift_detail_withdraw_btn') : t('shift_detail_publish_btn'),
+      vehicleText,
+      suggestedVehicles: suggested,
+      manualVehicleCount: manual != null ? manual : null,
+      vehicleInputValue: manual != null ? String(manual) : '',
     })
   },
 
@@ -368,7 +449,8 @@ Page({
         const late = isLate(base.calc_pickup_time, shift.departure_time)
         const pickupDate = normalizeDateTime(base.calc_pickup_time)
         const pickupTs = pickupDate ? pickupDate.getTime() : Number.MAX_SAFE_INTEGER
-        const departureTs = normalizeDateTime(shift.departure_time)?.getTime() || 0
+        const departureDate = normalizeDateTime(shift.departure_time)
+        const departureTs = departureDate ? departureDate.getTime() : 0
         const delta = Math.abs(pickupTs - departureTs)
         return {
           ...base,
@@ -388,21 +470,47 @@ Page({
       if (item._day && item._day !== '--') daySet.add(item._day)
     })
 
-    const terminalOptions = [{ text: '全部航站楼', value: 'all' }].concat(
-      Array.from(terminalSet).sort().map((t) => ({ text: t, value: t }))
+    const terminalOptions = [{ text: t('shift_detail_filter_all_terminals'), value: 'all' }].concat(
+      Array.from(terminalSet).sort().map((tv) => ({ text: tv, value: tv }))
     )
 
-    const dayOptions = [{ text: '全部日期', value: 'all' }].concat(
+    const dayOptions = [{ text: t('shift_detail_filter_all_days'), value: 'all' }].concat(
       Array.from(daySet).sort().map((d) => ({ text: d, value: d }))
     )
 
     const terminalFilter = terminalOptions.some((x) => x.value === this.data.terminalFilter) ? this.data.terminalFilter : 'all'
-    const dayFilter = dayOptions.some((x) => x.value === this.data.dayFilter) ? this.data.dayFilter : 'all'
+
+    // Smart default: on first load, default dayFilter to shift's departure date
+    let dayFilter = this.data.dayFilter
+    if (!this._dayFilterInitialized) {
+      this._dayFilterInitialized = true
+      const depDate = normalizeDateTime(shift.departure_time)
+      if (depDate) {
+        const shiftDay = `${depDate.getFullYear()}-${pad2(depDate.getMonth() + 1)}-${pad2(depDate.getDate())}`
+        if (dayOptions.some((x) => x.value === shiftDay)) {
+          dayFilter = shiftDay
+        }
+      }
+    }
+    if (!dayOptions.some((x) => x.value === dayFilter)) {
+      dayFilter = 'all'
+    }
+
+    const sortOrder = this.data.sortOrder || 'arrival'
 
     const filtered = candidates
       .filter((item) => (terminalFilter === 'all' ? true : item._terminal === terminalFilter))
       .filter((item) => (dayFilter === 'all' ? true : item._day === dayFilter))
       .sort((a, b) => {
+        // Primary sort by user selection
+        if (sortOrder === 'name') {
+          const cmp = (a.name || '').localeCompare(b.name || '', 'zh')
+          if (cmp !== 0) return cmp
+        } else if (sortOrder === 'flight') {
+          const cmp = (a.flight_no || '').localeCompare(b.flight_no || '')
+          if (cmp !== 0) return cmp
+        }
+        // Default / secondary: by arrival time with late/recommended hints
         if (a.late !== b.late) return a.late ? 1 : -1
         if (a.recommended !== b.recommended) return a.recommended ? -1 : 1
         if (a._delta !== b._delta) return a._delta - b._delta
@@ -424,8 +532,13 @@ Page({
     })
   },
 
+  onToggleInfoCard() {
+    this.setData({ infoCardCollapsed: !this.data.infoCardCollapsed })
+  },
+
   onTabChange(event) {
-    this.setData({ activeTab: event?.detail?.index || 0 })
+    const index = event && event.detail ? event.detail.index : 0
+    this.setData({ activeTab: index || 0 })
   },
 
   onTerminalChange(event) {
@@ -436,54 +549,136 @@ Page({
     this.setData({ dayFilter: event.detail }, () => this.recomputeFiltersAndList())
   },
 
+  onSortChange(event) {
+    this.setData({ sortOrder: event.detail }, () => this.recomputeFiltersAndList())
+  },
+
   async onAddPassenger(event) {
     const requestId = event.currentTarget.dataset.id
     if (!requestId) return
 
-    this.setData({ actingRequestId: requestId })
-    try {
-      await assignStudent(this.data.shiftId, requestId)
-      await this.loadData()
-    } catch (error) {
-      wx.showToast({ title: error?.message || '添加失败', icon: 'none' })
-    } finally {
-      this.setData({ actingRequestId: null })
-    }
+    await this.runWithActionLock(async () => {
+      this.setData({ actingRequestId: requestId })
+      try {
+        await assignStudent(this.data.shiftId, requestId)
+        await this.loadData()
+        markDashboardDirty()
+      } catch (error) {
+        wx.showToast({ title: (error && error.message) || t('shift_detail_add_failed'), icon: 'none' })
+      } finally {
+        this.setData({ actingRequestId: null })
+      }
+    })
   },
 
   async onRemovePassenger(event) {
     const requestId = event.currentTarget.dataset.id
     if (!requestId) return
 
-    this.setData({ actingRequestId: requestId })
-    try {
-      await removeStudent(this.data.shiftId, requestId)
-      await this.loadData()
-    } catch (error) {
-      wx.showToast({ title: error?.message || '移出失败', icon: 'none' })
-    } finally {
-      this.setData({ actingRequestId: null })
+    const boarded = event.currentTarget.dataset.boarded
+    if (boarded) {
+      const res = await new Promise((resolve) => {
+        wx.showModal({
+          title: t('shift_detail_remove_confirm_title'),
+          content: t('shift_detail_remove_boarded_confirm'),
+          confirmColor: '#ee0a24',
+          success: resolve,
+          fail: () => resolve({ confirm: false })
+        })
+      })
+      if (!res.confirm) return
     }
+
+    await this.runWithActionLock(async () => {
+      this.setData({ actingRequestId: requestId })
+      try {
+        await removeStudent(this.data.shiftId, requestId)
+        await this.loadData()
+        markDashboardDirty()
+      } catch (error) {
+        wx.showToast({ title: (error && error.message) || t('shift_detail_remove_failed'), icon: 'none' })
+      } finally {
+        this.setData({ actingRequestId: null })
+      }
+    })
   },
 
   async onPublishShift() {
     if (!this.data.canPublish || this.data.publishing) return
 
-    this.setData({ publishing: true })
-    try {
-      const isPublished = String(this.data.shift?.status || '').toLowerCase() === 'published'
-      if (isPublished) {
-        await updateShift(this.data.shiftId, { status: 'unpublished' })
-        wx.showToast({ title: '已撤回发布', icon: 'success' })
-      } else {
-        await publishShift(this.data.shiftId)
-        wx.showToast({ title: '发布成功', icon: 'success' })
+    await this.runWithActionLock(async () => {
+      this.setData({ publishing: true })
+      try {
+        const shiftStatus = this.data.shift && this.data.shift.status ? this.data.shift.status : ''
+        const isPublished = String(shiftStatus).toLowerCase() === 'published'
+        if (isPublished) {
+          await unpublishShift(this.data.shiftId)
+          wx.showToast({ title: t('shift_detail_withdraw_success'), icon: 'success' })
+        } else {
+          await publishShift(this.data.shiftId)
+          wx.showToast({ title: t('shift_detail_publish_success'), icon: 'success' })
+        }
+        await this.loadData()
+        markDashboardDirty()
+      } catch (error) {
+        wx.showToast({ title: (error && error.message) || t('shift_detail_op_failed'), icon: 'none' })
+      } finally {
+        this.setData({ publishing: false })
       }
-      await this.loadData()
-    } catch (error) {
-      wx.showToast({ title: error?.message || '操作失败', icon: 'none' })
-    } finally {
-      this.setData({ publishing: false })
+    })
+  },
+
+  onToggleVehicleEditor() {
+    this.setData({ showVehicleEditor: !this.data.showVehicleEditor })
+  },
+
+  onVehicleInput(event) {
+    this.setData({ vehicleInputValue: event.detail || '' })
+  },
+
+  async onSaveVehicleCount() {
+    const val = this.data.vehicleInputValue.trim()
+    const count = val ? parseInt(val, 10) : null
+
+    if (val && (!Number.isFinite(count) || count < 1)) {
+      wx.showToast({ title: t('shift_detail_vehicle_save_failed'), icon: 'none' })
+      return
     }
+
+    await this.runWithActionLock(async () => {
+      this.setData({ vehicleSaving: true })
+      try {
+        await updateShiftVehicles(this.data.shiftId, count)
+        wx.showToast({ title: t('shift_detail_vehicle_save_success'), icon: 'success' })
+        this.setData({ showVehicleEditor: false })
+        await this.loadData()
+        markDashboardDirty()
+      } catch (error) {
+        wx.showToast({ title: (error && error.message) || t('shift_detail_vehicle_save_failed'), icon: 'none' })
+      } finally {
+        this.setData({ vehicleSaving: false })
+      }
+    })
+  },
+
+  async onClearVehicleCount() {
+    await this.runWithActionLock(async () => {
+      this.setData({ vehicleSaving: true })
+      try {
+        await updateShiftVehicles(this.data.shiftId, null)
+        wx.showToast({ title: t('shift_detail_vehicle_save_success'), icon: 'success' })
+        this.setData({ showVehicleEditor: false, vehicleInputValue: '' })
+        await this.loadData()
+        markDashboardDirty()
+      } catch (error) {
+        wx.showToast({ title: (error && error.message) || t('shift_detail_vehicle_save_failed'), icon: 'none' })
+      } finally {
+        this.setData({ vehicleSaving: false })
+      }
+    })
+  },
+
+  async runWithActionLock(task) {
+    return runWithActionLockHelper(this, task)
   }
 })

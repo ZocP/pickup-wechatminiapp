@@ -1,13 +1,23 @@
 {
   "pages": [
+    "pages/bind/index",
     "pages/home/index",
     "pages/admin/dashboard/index",
     "pages/admin/shift-detail/index",
     "pages/admin/drivers/index",
+    "pages/admin/driver-detail/index",
     "pages/admin/staff/index",
+    "pages/admin/assign/index",
+    "pages/admin/modification-requests/index",
+    "pages/admin/all-shifts/index",
+    "pages/admin/student-mgmt/index",
     "pages/profile/index",
     "pages/student/request/index",
-    "pages/login/index"
+    "pages/student/modification/index",
+    "pages/login/index",
+    "pages/token/index",
+    "pages/driver/index",
+    "pages/staff/tokens/index"
   ],
   "window": {
     "navigationBarTitleText": "UIUC 接机调度",
@@ -35,7 +45,7 @@
       },
       {
         "pagePath": "pages/admin/dashboard/index",
-        "text": "大盘",
+        "text": "调度",
         "iconPath": "assets/tabbar/dashboard.png",
         "selectedIconPath": "assets/tabbar/dashboard-active.png"
       },

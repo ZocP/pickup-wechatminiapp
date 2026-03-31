@@ -1,0 +1,14 @@
+{
+  "navigationBarTitleText": "快速分配班次",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "van-button": "/miniprogram_npm/@vant/weapp/button/index",
+    "van-empty": "/miniprogram_npm/@vant/weapp/empty/index",
+    "van-tag": "/miniprogram_npm/@vant/weapp/tag/index",
+    "van-popup": "/miniprogram_npm/@vant/weapp/popup/index",
+    "van-loading": "/miniprogram_npm/@vant/weapp/loading/index",
+    "van-icon": "/miniprogram_npm/@vant/weapp/icon/index",
+    "van-skeleton": "/miniprogram_npm/@vant/weapp/skeleton/index",
+    "van-search": "/miniprogram_npm/@vant/weapp/search/index"
+  }
+}

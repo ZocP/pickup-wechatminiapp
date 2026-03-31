@@ -1,0 +1,54 @@
+<view class="page mod-review-page">
+  <van-tabs active="{{activeTab}}" bind:change="onTabChange" swipeable>
+    <van-tab wx:for="{{tabs}}" wx:key="name" name="{{item.name}}" title="{{item.title}}" />
+  </van-tabs>
+
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <van-skeleton title row="3" />
+    <van-skeleton title row="3" />
+  </view>
+
+  <view wx:elif="{{list.length === 0}}" class="empty-wrap">
+    <van-empty description="{{i18n.mod_review_empty}}" />
+  </view>
+
+  <view wx:else class="list">
+    <view class="card mod-card" wx:for="{{list}}" wx:key="id">
+      <view class="card-header">
+        <text class="student-name">{{item.student_name || '--'}}</text>
+        <van-tag wx:if="{{item.status === 'pending'}}" type="warning">{{i18n.mod_review_tab_pending}}</van-tag>
+        <van-tag wx:elif="{{item.status === 'approved'}}" type="success">{{i18n.mod_review_tab_approved}}</van-tag>
+        <van-tag wx:else type="danger">{{i18n.mod_review_tab_rejected}}</van-tag>
+      </view>
+      <view class="card-body">
+        <view class="info-line">{{item.flight_no}} | {{item.arrival_date}}</view>
+        <view class="info-line">{{i18n.mod_review_status_label}}：{{item.statusLabel}}</view>
+        <view class="new-details">
+          <view class="new-details-title">{{i18n.mod_review_new_details_title}}</view>
+          <view class="new-detail-line">{{i18n.mod_review_new_flight}}{{item.new_flight_number || '--'}}</view>
+          <view class="new-detail-line">{{i18n.mod_review_new_arrival}}{{item.formattedNewArrival || '--'}}</view>
+          <view class="new-detail-line">{{i18n.mod_review_new_checked_bags}}{{item.new_checked_bags}}{{i18n.mod_review_bags_unit}}</view>
+          <view class="new-detail-line">{{i18n.mod_review_new_carry_on_bags}}{{item.new_carry_on_bags}}{{i18n.mod_review_bags_unit}}</view>
+          <view wx:if="{{item.new_ride_with_wechat}}" class="new-detail-line">{{i18n.mod_review_new_ride_wechat}}{{item.new_ride_with_wechat}}</view>
+          <view wx:if="{{item.reason}}" class="new-detail-line">{{i18n.mod_review_reason_label}}：{{item.reason}}</view>
+        </view>
+        <view class="info-line time">{{i18n.mod_review_time_label}}：{{item.formattedTime}}</view>
+      </view>
+      <view wx:if="{{item.status === 'pending'}}" class="card-actions">
+        <van-button
+          type="danger"
+          plain
+          size="small"
+          data-id="{{item.id}}"
+          bind:tap="onReject"
+        >{{i18n.mod_review_reject}}</van-button>
+        <van-button
+          type="primary"
+          size="small"
+          data-id="{{item.id}}"
+          bind:tap="onApprove"
+        >{{i18n.mod_review_approve}}</van-button>
+      </view>
+    </view>
+  </view>
+</view>

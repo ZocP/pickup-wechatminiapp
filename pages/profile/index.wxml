@@ -1,18 +1,27 @@
 <view class="page profile-page">
+  <view class="lang-switch-header">
+    <view class="lang-switch-btn" bind:tap="switchLang">{{langLabel}}</view>
+  </view>
   <view class="card">
-    <view class="name">{{userInfo.name || ('用户#' + (userInfo.id || '--'))}}</view>
+    <view class="name">{{userInfo.name || (i18n.profile_user_prefix + (userInfo.id || '--'))}}</view>
     <view class="meta">
-      <text>角色</text>
+      <text>{{i18n.profile_role_label}}</text>
       <van-tag type="primary" plain custom-style="margin-left: 12rpx;">{{userInfo.role || 'student'}}</van-tag>
     </view>
+    <view class="meta" wx:if="{{isAdminReal}}">
+      <text>{{i18n.profile_current_view}}</text>
+      <van-tag type="warning" plain custom-style="margin-left: 12rpx;">
+        {{currentEffectiveRole === 'admin' ? i18n.profile_role_admin : (currentEffectiveRole === 'staff' ? i18n.profile_role_staff : (currentEffectiveRole === 'driver' ? i18n.profile_role_driver : i18n.profile_role_student))}}
+      </van-tag>
+    </view>
     <view class="meta">
-      <text>手机号：{{userInfo.phone || '--'}}</text>
+      <text>{{i18n.profile_wechat_label}}{{userInfo.wechat_id || '--'}}</text>
     </view>
   </view>
 
   <view class="card section">
     <van-cell-group inset>
-      <van-cell title="我的接机申请" is-link bind:click="goStudentRequest" />
+      <van-cell title="{{i18n.profile_my_request}}" is-link bind:click="goStudentRequest" />
     </van-cell-group>
 
     <van-button
@@ -21,8 +30,8 @@
       plain
       block
       custom-style="margin-top: 18rpx;"
-      bind:tap="toggleUserView"
-    >{{viewAsUser ? '恢复管理员视角' : '切换为用户视角'}}</van-button>
+      bind:tap="openRolePicker"
+    >{{i18n.profile_switch_view}}</van-button>
 
     <van-button
       type="danger"
@@ -30,6 +39,15 @@
       block
       custom-style="margin-top: 22rpx;"
       bind:tap="logout"
-    >退出登录</van-button>
+    >{{i18n.profile_logout}}</van-button>
   </view>
+
+  <van-action-sheet
+    show="{{showRolePicker}}"
+    title="{{i18n.profile_role_picker_title}}"
+    actions="{{roleOptions}}"
+    close-on-click-action="true"
+    bind:select="onSelectRole"
+    bind:close="closeRolePicker"
+  />
 </view>

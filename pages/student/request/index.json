@@ -1,15 +1,19 @@
 {
   "navigationBarTitleText": "提交接机申请",
   "usingComponents": {
-    "van-field": "/miniprogram_npm/@vant/weapp/dist/field/index",
-    "van-cell-group": "/miniprogram_npm/@vant/weapp/dist/cell-group/index",
-    "van-stepper": "/miniprogram_npm/@vant/weapp/dist/stepper/index",
-    "van-button": "/miniprogram_npm/@vant/weapp/dist/button/index",
-    "van-steps": "/miniprogram_npm/@vant/weapp/dist/steps/index",
-    "van-tag": "/miniprogram_npm/@vant/weapp/dist/tag/index",
-    "van-empty": "/miniprogram_npm/@vant/weapp/dist/empty/index",
-    "van-calendar": "/miniprogram_npm/@vant/weapp/dist/calendar/index",
-    "van-popup": "/miniprogram_npm/@vant/weapp/dist/popup/index",
-    "van-datetime-picker": "/miniprogram_npm/@vant/weapp/dist/datetime-picker/index"
+    "van-field": "/miniprogram_npm/@vant/weapp/field/index",
+    "van-cell-group": "/miniprogram_npm/@vant/weapp/cell-group/index",
+    "van-stepper": "/miniprogram_npm/@vant/weapp/stepper/index",
+    "van-button": "/miniprogram_npm/@vant/weapp/button/index",
+    "van-steps": "/miniprogram_npm/@vant/weapp/steps/index",
+    "van-tag": "/miniprogram_npm/@vant/weapp/tag/index",
+    "van-empty": "/miniprogram_npm/@vant/weapp/empty/index",
+    "van-calendar": "/miniprogram_npm/@vant/weapp/calendar/index",
+    "van-popup": "/miniprogram_npm/@vant/weapp/popup/index",
+    "van-datetime-picker": "/miniprogram_npm/@vant/weapp/datetime-picker/index",
+    "van-action-sheet": "/miniprogram_npm/@vant/weapp/action-sheet/index",
+    "van-loading": "/miniprogram_npm/@vant/weapp/loading/index",
+    "van-icon": "/miniprogram_npm/@vant/weapp/icon/index",
+    "van-skeleton": "/miniprogram_npm/@vant/weapp/skeleton/index"
   }
 }

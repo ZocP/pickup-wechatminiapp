@@ -1,59 +1,74 @@
 <view class="page drivers-page">
   <view class="card">
-    <view class="section-title">司机列表</view>
+    <view class="section-title">{{i18n.drivers_title}}</view>
 
     <view wx:if="{{!loading && driverList.length === 0}}">
-      <van-empty description="暂无司机数据" />
+      <van-empty description="{{i18n.drivers_no_drivers}}" />
     </view>
 
     <van-cell-group inset wx:else>
-      <van-cell wx:for="{{driverList}}" wx:key="id" title="{{item.name}}" label="{{item.car_model}}">
-        <view slot="right-icon" class="caps-wrap">
-          <van-tag plain type="primary">座位:{{item.max_seats}}</van-tag>
-          <van-tag plain type="success">托运:{{item.max_checked}}</van-tag>
-          <van-tag plain type="warning">登机:{{item.max_carry_on}}</van-tag>
+      <van-cell
+        wx:for="{{driverList}}"
+        wx:key="id"
+        title="{{item.name}}"
+        label="{{item.car_model}}"
+        is-link
+        data-id="{{item.id}}"
+        bindtap="goToDriverDetail"
+      >
+        <view slot="right-icon" class="cell-right">
+          <view class="caps-wrap">
+            <van-tag plain type="primary">座位:{{item.max_seats}}</van-tag>
+            <van-tag plain type="success">托运:{{item.max_checked}}</van-tag>
+            <van-tag plain type="warning">登机:{{item.max_carry_on}}</van-tag>
+          </view>
+          <view class="driver-meta">
+            <text wx:if="{{item.phone}}" class="meta-text">📞 {{item.phone}}</text>
+            <text class="meta-text">🚗 {{i18n.drivers_active_shifts}}: {{item.active_shift_count || 0}}</text>
+            <text class="meta-text">👥 {{i18n.drivers_loaded}}: {{item.passenger_count || 0}} / {{item.max_seats}}</text>
+          </view>
         </view>
       </van-cell>
     </van-cell-group>
   </view>
 
   <view class="add-driver-bar">
-    <van-button type="primary" block bind:tap="onShowAddDriver">录入新司机/车辆</van-button>
+    <van-button type="primary" block bind:tap="onShowAddDriver">{{i18n.drivers_add_btn}}</van-button>
   </view>
 
   <van-popup show="{{showAddPopup}}" position="bottom" round bind:close="onCloseAddDriver">
     <view class="add-popup">
-      <view class="popup-title">录入新司机/车辆</view>
+      <view class="popup-title">{{i18n.drivers_popup_title}}</view>
 
       <van-field
-        label="姓名"
-        placeholder="请输入司机姓名"
+        label="{{i18n.drivers_field_name}}"
+        placeholder="{{i18n.drivers_name_placeholder}}"
         value="{{form.name}}"
         data-field="name"
         bind:change="onFieldChange"
       />
       <van-field
-        label="车型"
-        placeholder="请输入车型"
+        label="{{i18n.drivers_field_car_model}}"
+        placeholder="{{i18n.drivers_car_placeholder}}"
         value="{{form.car_model}}"
         data-field="car_model"
         bind:change="onFieldChange"
       />
 
       <view class="stepper-row">
-        <text class="stepper-label">最大座位数</text>
+        <text class="stepper-label">{{i18n.drivers_max_seats}}</text>
         <van-stepper min="1" value="{{form.max_seats}}" bind:change="onSeatsChange" />
       </view>
       <view class="stepper-row">
-        <text class="stepper-label">最大托运箱</text>
+        <text class="stepper-label">{{i18n.drivers_max_checked}}</text>
         <van-stepper min="0" value="{{form.max_checked}}" bind:change="onCheckedChange" />
       </view>
       <view class="stepper-row">
-        <text class="stepper-label">最大登机箱</text>
+        <text class="stepper-label">{{i18n.drivers_max_carry_on}}</text>
         <van-stepper min="0" value="{{form.max_carry_on}}" bind:change="onCarryOnChange" />
       </view>
 
-      <van-button type="info" block loading="{{submitting}}" custom-style="margin-top: 24rpx;" bind:tap="onSubmitDriver">确认提交</van-button>
+      <van-button type="info" block loading="{{submitting}}" custom-style="margin-top: 24rpx;" bind:tap="onSubmitDriver">{{i18n.drivers_submit}}</van-button>
     </view>
   </van-popup>
 </view>

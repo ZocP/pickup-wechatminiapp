@@ -1,0 +1,28 @@
+<view class="page token-page">
+  <view class="token-container">
+    <view class="token-icon">🔑</view>
+    <view class="token-title">输入邀请码</view>
+    <view class="token-desc">请输入管理员提供的邀请码</view>
+
+    <view class="token-input-wrap">
+      <van-field
+        value="{{ code }}"
+        placeholder="请输入邀请码"
+        maxlength="{{ 8 }}"
+        bind:change="onCodeInput"
+        custom-style="font-size: 34rpx; letter-spacing: 8rpx; text-align: center;"
+      />
+    </view>
+
+    <view wx:if="{{ errorMsg }}" class="token-error">{{ errorMsg }}</view>
+
+    <van-button
+      type="primary"
+      block
+      loading="{{ loading }}"
+      disabled="{{ code.length < 8 }}"
+      custom-style="margin-top: 40rpx;"
+      bind:tap="onSubmit"
+    >提交验证</van-button>
+  </view>
+</view>

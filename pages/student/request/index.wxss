@@ -1,5 +1,6 @@
 .request-page {
   padding: 24rpx;
+  padding-bottom: 40rpx;
 }
 
 .section-title {
@@ -42,6 +43,7 @@
   border: 1rpx solid #ebedf0;
   border-radius: 12rpx;
   padding: 18rpx;
+  background: #fafcff;
 }
 
 .inner-title {
@@ -54,4 +56,144 @@
   font-size: 24rpx;
   color: #646566;
   margin-top: 6rpx;
+}
+
+/* 二维码相关样式 */
+.qr-code-section {
+  margin-top: 24rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid #ebedf0;
+}
+
+.qr-code-tips {
+  font-size: 24rpx;
+  color: #969799;
+  margin-bottom: 16rpx;
+  text-align: center;
+}
+
+.qr-code-loading {
+  padding: 48rpx 0;
+  text-align: center;
+}
+
+.qr-code-container {
+  text-align: center;
+}
+
+.qr-code-image {
+  width: 200rpx;
+  height: 200rpx;
+  margin: 0 auto 24rpx;
+  display: block;
+  border: 1rpx solid #ebedf0;
+  border-radius: 8rpx;
+}
+
+.qr-code-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16rpx;
+}
+
+.qr-code-empty {
+  padding: 32rpx 0;
+}
+
+.qr-code-error {
+  margin-top: 12rpx;
+  color: #ee0a24;
+  font-size: 24rpx;
+  text-align: center;
+  word-break: break-all;
+}
+
+/* 二维码模态框 */
+.qr-code-modal {
+  width: 600rpx;
+  padding: 48rpx 32rpx;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32rpx;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #323233;
+}
+
+.modal-content {
+  text-align: center;
+}
+
+.qr-code-large-image {
+  width: 300rpx;
+  height: 300rpx;
+  margin: 0 auto 24rpx;
+  border: 1rpx solid #ebedf0;
+  border-radius: 12rpx;
+}
+
+.qr-code-instruction {
+  font-size: 26rpx;
+  color: #646566;
+  margin-bottom: 32rpx;
+}
+
+.modal-actions {
+  margin-top: 32rpx;
+}
+/* 修改申请 */
+.mod-request-section {
+  margin-top: 24rpx;
+  padding-top: 16rpx;
+}
+
+.mod-request-pending {
+  text-align: center;
+  padding: 16rpx 0;
+}
+
+/* 申请信息卡片 */
+.info-card {
+  margin-top: 16rpx;
+  margin-bottom: 12rpx;
+}
+
+.mod-count {
+  color: #969799;
+  font-size: 22rpx;
+  margin-top: 12rpx;
+}
+
+.edit-actions {
+  margin-top: 8rpx;
+}
+
+/* 登车状态 */
+.boarding-status-line {
+  margin-top: 8rpx;
+}
+
+.boarding-tag {
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.boarding-tag.boarded {
+  color: #07c160;
+  background-color: rgba(7, 193, 96, 0.1);
+}
+
+.boarding-tag.waiting {
+  color: #ff976a;
+  background-color: rgba(255, 151, 106, 0.1);
 }

@@ -1,0 +1,128 @@
+<view class="page modification-page">
+  <view wx:if="{{loading}}" class="loading-container">
+    <van-loading size="24px">{{i18n.modification_loading}}</van-loading>
+  </view>
+
+  <!-- 已有 pending modification -->
+  <view wx:elif="{{hasPendingMod}}" class="card pending-card">
+    <view class="section-title">{{i18n.modification_title}}</view>
+    <view class="pending-notice">
+      <van-tag type="warning" size="large">{{i18n.modification_pending_notice}}</van-tag>
+    </view>
+    <van-button
+      type="danger"
+      plain
+      block
+      custom-style="margin-top: 32rpx;"
+      bind:tap="onWithdraw"
+    >{{i18n.modification_withdraw}}</van-button>
+  </view>
+
+  <!-- 修改表单 -->
+  <view wx:else class="card">
+    <view class="section-title">{{i18n.modification_title}}</view>
+    <van-cell-group inset>
+      <van-field
+        label="{{i18n.student_request_flight_label}}"
+        placeholder="{{i18n.student_request_flight_placeholder}}"
+        value="{{form.flight_no}}"
+        data-field="flight_no"
+        bind:change="onFieldChange"
+      />
+      <view bindtap="openDatePicker">
+        <van-field
+          label="{{i18n.student_request_date_label}}"
+          placeholder="{{i18n.student_request_date_placeholder}}"
+          value="{{form.arrival_date}}"
+          readonly
+          is-link
+        />
+      </view>
+      <view bindtap="openTerminalPicker">
+        <van-field
+          label="{{i18n.student_request_terminal_label}}"
+          placeholder="{{i18n.student_request_terminal_placeholder}}"
+          value="{{form.terminal}}"
+          readonly
+          is-link
+        />
+      </view>
+      <view bindtap="openTimePicker">
+        <van-field
+          label="{{i18n.student_request_time_label}}"
+          placeholder="{{i18n.student_request_time_placeholder}}"
+          value="{{form.arrival_time}}"
+          readonly
+          is-link
+        />
+      </view>
+      <view class="stepper-row">
+        <text class="stepper-label">{{i18n.student_request_checked_label}}</text>
+        <van-stepper value="{{form.checked_bags}}" min="0" max="10" bind:change="onStepperCheckedChange" bind:overlimit="onBagsOverLimit" />
+      </view>
+      <view class="stepper-row">
+        <text class="stepper-label">{{i18n.student_request_carryon_label}}</text>
+        <van-stepper value="{{form.carry_on_bags}}" min="0" max="10" bind:change="onStepperCarryOnChange" bind:overlimit="onBagsOverLimit" />
+      </view>
+      <van-field
+        label="{{i18n.student_request_ridewith_label}}"
+        type="textarea"
+        autosize
+        maxlength="200"
+        placeholder="{{i18n.student_request_ridewith_placeholder}}"
+        value="{{form.ride_with_note}}"
+        data-field="ride_with_note"
+        bind:change="onFieldChange"
+      />
+      <van-field
+        label="{{i18n.student_request_wechat_label}}"
+        maxlength="20"
+        placeholder="{{i18n.student_request_wechat_placeholder}}"
+        value="{{form.ride_with_wechat}}"
+        data-field="ride_with_wechat"
+        bind:change="onFieldChange"
+      />
+      <van-field
+        label="{{i18n.modification_reason_label}}"
+        placeholder="{{i18n.modification_reason_placeholder}}"
+        value="{{reason}}"
+        maxlength="200"
+        bind:change="onReasonChange"
+      />
+    </van-cell-group>
+
+    <van-button
+      type="primary"
+      block
+      loading="{{submitting}}"
+      custom-style="margin-top: 24rpx;"
+      bind:tap="onSubmit"
+    >{{i18n.modification_submit}}</van-button>
+  </view>
+
+  <van-action-sheet
+    show="{{showTerminalPicker}}"
+    title="{{i18n.student_request_terminal_title}}"
+    actions="{{terminalActions}}"
+    close-on-click-action="true"
+    bind:select="onSelectTerminal"
+    bind:close="onCloseTerminalPicker"
+  />
+
+  <van-calendar
+    show="{{showDatePicker}}" min-date="{{calendarMinDate}}" max-date="{{calendarMaxDate}}"
+    type="single"
+    bind:close="onDatePickerClose"
+    bind:confirm="onDateConfirm"
+  />
+
+  <van-popup show="{{showTimePicker}}" position="bottom" bind:close="onTimePickerCancel">
+    <van-datetime-picker
+      type="time"
+      value="{{timePickerValue}}"
+      title="{{i18n.student_request_time_title}}"
+      bind:cancel="onTimePickerCancel"
+      bind:confirm="onTimeConfirm"
+    />
+  </van-popup>
+</view>

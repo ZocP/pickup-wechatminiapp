@@ -6,26 +6,43 @@
     </view>
     <view class="header-right">
       <van-tag type="{{statusType}}" plain>{{statusText}}</van-tag>
-      <van-tag wx:if="{{hasDelayWarning}}" type="danger" custom-class="warn-tag">延误预警</van-tag>
+      <van-tag wx:if="{{hasDelayWarning}}" type="danger" custom-class="warn-tag">{{i18n.shiftcard_delay_warning}}</van-tag>
     </view>
   </view>
 
   <view class="body">
     <view class="row driver-row">
-      <text class="label">司机</text>
+      <text class="label">{{i18n.shiftcard_driver_label}}</text>
       <text class="value">{{driverText}}</text>
+    </view>
+
+    <!-- 车辆建议 -->
+    <view class="vehicle-info" wx:if="{{vehicleText}}">
+      <text class="vehicle-label">🚗 {{vehicleText}}</text>
+    </view>
+
+    <!-- 登车状态 -->
+    <view class="boarding-status" wx:if="{{boardedCount !== undefined && unboardedCount !== undefined}}">
+      <view class="boarding-row">
+        <text class="boarding-label">{{i18n.shiftcard_boarded}}</text>
+        <text class="boarding-value boarded">{{boardedCount}}{{i18n.shiftcard_boarded_unit}}</text>
+      </view>
+      <view class="boarding-row">
+        <text class="boarding-label">{{i18n.shiftcard_waiting}}</text>
+        <text class="boarding-value unboarded">{{unboardedCount}}{{i18n.shiftcard_waiting_unit}}</text>
+      </view>
     </view>
 
     <van-notice-bar
       wx:if="{{showRouteNotice}}"
       left-icon="volume-o"
-      text="路线: {{routeText}}"
+      text="{{i18n.shiftcard_route_prefix}}{{routeText}}"
       color="#ee0a24"
       background="#fff1f0"
     />
 
     <view class="staffs" wx:if="{{staffs.length}}">
-      <text class="section-title">随行成员</text>
+      <text class="section-title">{{i18n.shiftcard_staff_title}}</text>
       <view class="staff-tags">
         <van-tag
           wx:for="{{staffs}}"
@@ -35,7 +52,7 @@
           custom-class="staff-tag"
         >
           <van-icon name="star" size="12px" />
-          <text class="staff-text"> {{item.role || '志愿者'}}-{{item.name || ('成员#' + item.id)}}</text>
+          <text class="staff-text"> {{item.role || i18n.shiftcard_volunteer}}-{{item.name || (i18n.shiftcard_member_prefix + item.id)}}</text>
         </van-tag>
       </view>
     </view>
@@ -50,6 +67,7 @@
         stroke-width="8"
         color="{{seatUsage.color}}"
         pivot-text=""
+        show-pivot="false"
       />
 
       <view class="resource-row top-gap">
@@ -61,6 +79,7 @@
         stroke-width="8"
         color="{{checkedUsage.color}}"
         pivot-text=""
+        show-pivot="false"
       />
 
       <view class="resource-row top-gap">
@@ -72,6 +91,7 @@
         stroke-width="8"
         color="{{carryOnUsage.color}}"
         pivot-text=""
+        show-pivot="false"
       />
     </view>
   </view>
@@ -82,6 +102,6 @@
       type="primary"
       plain
       bind:tap="onTapManageShift"
-    >管理班次</van-button>
+    >{{i18n.shiftcard_manage_btn}}</van-button>
   </view>
 </view>

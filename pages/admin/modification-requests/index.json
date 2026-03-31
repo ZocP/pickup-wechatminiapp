@@ -1,0 +1,12 @@
+{
+  "navigationBarTitleText": "修改申请审核",
+  "usingComponents": {
+    "van-tabs": "@vant/weapp/tabs/index",
+    "van-tab": "@vant/weapp/tab/index",
+    "van-tag": "@vant/weapp/tag/index",
+    "van-button": "@vant/weapp/button/index",
+    "van-empty": "@vant/weapp/empty/index",
+    "van-skeleton": "@vant/weapp/skeleton/index",
+    "van-loading": "@vant/weapp/loading/index"
+  }
+}

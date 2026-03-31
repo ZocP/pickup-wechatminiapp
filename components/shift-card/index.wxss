@@ -1,6 +1,6 @@
 .shift-card {
   background: #fff;
-  border-radius: 16rpx;
+  border-radius: 12rpx;
   padding: 24rpx;
   margin-bottom: 20rpx;
   box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.06);
@@ -17,17 +17,26 @@
   display: flex;
   flex-direction: column;
   gap: 8rpx;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .departure {
   font-size: 32rpx;
   font-weight: 600;
   color: #323233;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .flights {
   font-size: 24rpx;
   color: #646566;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .header-right {
@@ -35,6 +44,8 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 8rpx;
+  flex-shrink: 0;
+  max-width: 40%;
 }
 
 .warn-tag {
@@ -61,6 +72,57 @@
   flex: 1;
   font-size: 26rpx;
   color: #323233;
+}
+
+/* 车辆建议样式 */
+.vehicle-info {
+  margin: 12rpx 0;
+  padding: 12rpx 16rpx;
+  background: #eef6ff;
+  border-radius: 8rpx;
+}
+
+.vehicle-label {
+  font-size: 24rpx;
+  color: #1989fa;
+  font-weight: 500;
+}
+
+/* 登车状态样式 */
+.boarding-status {
+  margin: 16rpx 0;
+  padding: 16rpx;
+  background: #f7f8fa;
+  border-radius: 12rpx;
+}
+
+.boarding-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.boarding-row:last-child {
+  margin-bottom: 0;
+}
+
+.boarding-label {
+  font-size: 24rpx;
+  color: #646566;
+}
+
+.boarding-value {
+  font-size: 26rpx;
+  font-weight: 500;
+}
+
+.boarding-value.boarded {
+  color: #07c160;
+}
+
+.boarding-value.unboarded {
+  color: #1989fa;
 }
 
 .staffs,

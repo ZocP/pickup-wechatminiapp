@@ -1,3 +1,5 @@
+const { t } = require('../utils/i18n');
+
 Component({
   data: {
     selected: '/pages/home/index',
@@ -23,20 +25,20 @@ Component({
       const baseList = [
         {
           pagePath: '/pages/home/index',
-          text: '首页',
+          text: t('tab_home'),
           iconPath: '/assets/tabbar/home.png',
           selectedIconPath: '/assets/tabbar/home-active.png',
         },
         {
           pagePath: '/pages/admin/dashboard/index',
-          text: '大盘',
+          text: t('tab_dispatch'),
           iconPath: '/assets/tabbar/dashboard.png',
           selectedIconPath: '/assets/tabbar/dashboard-active.png',
           manageOnly: true,
         },
         {
           pagePath: '/pages/profile/index',
-          text: '我的',
+          text: t('tab_profile'),
           iconPath: '/assets/tabbar/profile.png',
           selectedIconPath: '/assets/tabbar/profile-active.png',
         },

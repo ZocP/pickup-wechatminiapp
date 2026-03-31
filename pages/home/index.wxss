@@ -1,9 +1,12 @@
 .home-page {
   padding: 24rpx;
+  padding-bottom: 40rpx;
 }
 
 .welcome-card {
   margin-bottom: 20rpx;
+  background: linear-gradient(135deg, #f7fbff 0%, #ffffff 100%);
+  border: 1rpx solid #e8f3ff;
 }
 
 .title {

@@ -1,0 +1,107 @@
+<view class="page assign-page">
+  <van-search
+    value="{{searchKeyword}}"
+    placeholder="{{i18n.assign_search_placeholder}}"
+    bind:change="onSearchChange"
+    bind:clear="onSearchClear"
+  />
+  <view wx:if="{{searchKeyword}}" class="search-result-count">
+    <text>{{i18n.assign_search_result_count}}{{filteredRequests.length}}</text>
+  </view>
+
+  <view wx:if="{{loading}}" class="card">
+    <van-skeleton title row="3" />
+    <van-skeleton title row="3" custom-style="margin-top: 16rpx;" />
+  </view>
+
+  <view wx:elif="{{!filteredRequests.length}}" class="card">
+    <van-empty description="{{i18n.assign_no_requests}}" />
+  </view>
+
+  <block wx:else>
+    <view class="card request-card" wx:for="{{filteredRequests}}" wx:key="id">
+      <view class="request-info">
+        <view class="request-header">
+          <text class="student-name">{{item.userName}}</text>
+          <van-tag type="primary" plain>{{item.flight_no}}</van-tag>
+        </view>
+        <view class="request-detail">
+          <text>{{i18n.assign_arrival_date}}{{item.arrivalDateText}}</text>
+        </view>
+        <view class="request-detail">
+          <text>{{i18n.assign_arrival_time}}{{item.arrivalTimeText}}</text>
+        </view>
+        <view class="request-detail">
+          <text>{{i18n.assign_checked_bags_label}}{{item.checked_bags}} {{i18n.assign_carry_on_bags_label}}{{item.carry_on_bags}}</text>
+        </view>
+        <view wx:if="{{item.rideWithText}}" class="request-detail ride-with">
+          <text>{{item.rideWithText}}</text>
+        </view>
+      </view>
+      <view class="request-action">
+        <van-button
+          type="info"
+          size="small"
+          bind:tap="onAssign"
+          data-request="{{item}}"
+        >{{i18n.assign_shift_btn}}</van-button>
+      </view>
+    </view>
+  </block>
+
+  <!-- 班次选择底部弹出 -->
+  <van-popup
+    show="{{showShiftPopup}}"
+    position="bottom"
+    round
+    closeable
+    bind:close="onCloseShiftPopup"
+  >
+    <view class="shift-popup">
+      <view class="popup-title">{{i18n.assign_popup_for_prefix}}{{selectedRequest.userName}}{{i18n.assign_popup_for_suffix}}</view>
+      <view class="popup-subtitle">{{i18n.assign_arrival_time}}{{selectedRequest.arrivalTimeText}}</view>
+
+      <view wx:if="{{loadingShifts}}" class="popup-loading">
+        <van-loading size="24px">{{i18n.assign_loading_shifts}}</van-loading>
+      </view>
+
+      <view wx:elif="{{!availableShifts.length}}" class="popup-empty">
+        <van-empty description="{{i18n.assign_no_shifts}}" />
+      </view>
+
+      <block wx:else>
+        <view
+          class="shift-card card {{shiftItem.is_full ? 'shift-full' : ''}}"
+          wx:for="{{availableShifts}}"
+          wx:for-item="shiftItem"
+          wx:key="id"
+          bind:tap="onSelectShift"
+          data-shift="{{shiftItem}}"
+        >
+          <view class="shift-header">
+            <text class="driver-name">{{shiftItem.driverName}}</text>
+            <text class="car-model">{{shiftItem.carModel}}</text>
+            <van-icon wx:if="{{shiftItem.is_full}}" name="warning-o" color="#ee0a24" size="16px" />
+          </view>
+          <view class="shift-detail">
+            <text>{{i18n.assign_depart_time}}{{shiftItem.departureTimeText}}</text>
+          </view>
+          <view class="shift-capacity">
+            <van-tag type="{{shiftItem.seatsFull ? 'danger' : 'success'}}" plain>
+              座位 {{shiftItem.remainSeats}}/{{shiftItem.maxSeats}}
+            </van-tag>
+            <van-tag type="{{shiftItem.checkedFull ? 'danger' : 'success'}}" plain>
+              托运 {{shiftItem.remainChecked}}/{{shiftItem.maxChecked}}
+            </van-tag>
+            <van-tag type="{{shiftItem.carryOnFull ? 'danger' : 'success'}}" plain>
+              登机 {{shiftItem.remainCarryOn}}/{{shiftItem.maxCarryOn}}
+            </van-tag>
+          </view>
+          <view wx:if="{{shiftItem.is_full}}" class="shift-warning">
+            <text>{{i18n.assign_capacity_warning}}</text>
+          </view>
+        </view>
+      </block>
+    </view>
+  </van-popup>
+</view>

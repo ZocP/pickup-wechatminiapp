@@ -1,4 +1,4 @@
-@import '/miniprogram_npm/@vant/weapp/dist/common/index.wxss';
+@import '/miniprogram_npm/@vant/weapp/common/index.wxss';
 
 page {
   background: #f7f8fa;
@@ -13,7 +13,35 @@ page {
 
 .card {
   background: #fff;
-  border-radius: 16rpx;
+  border-radius: 12rpx;
   padding: 24rpx;
   box-shadow: 0 8rpx 22rpx rgba(0, 0, 0, 0.05);
+}
+
+/* Global small rounded corners for all buttons */
+button {
+  border-radius: 8rpx !important;
+}
+
+/* van-button override */
+.van-button {
+  border-radius: 8rpx !important;
+}
+
+/* 工具类 */
+.text-secondary {
+  color: #969799;
+  font-size: 24rpx;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

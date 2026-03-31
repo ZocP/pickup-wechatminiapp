@@ -1,84 +1,26 @@
 const api = require('../../../utils/api');
+const { t } = require('../../../utils/i18n');
+const { pad2, formatDateOnly } = require('../../../utils/formatters');
+const { resolveRequestName, buildRideWithText, runWithActionLock } = require('../../../utils/helpers');
+const { normalizeShiftStatus } = require('../../../utils/status');
+const { setTabBarHidden } = require('../../../utils/ui');
 
-function pad2(value) {
-  return String(value).padStart(2, '0');
-}
-
-function formatDateTime(timestamp) {
-  const date = new Date(timestamp);
-  const y = date.getFullYear();
-  const m = pad2(date.getMonth() + 1);
-  const d = pad2(date.getDate());
-  const hh = pad2(date.getHours());
-  const mm = pad2(date.getMinutes());
-  const ss = pad2(date.getSeconds());
-  return `${y}-${m}-${d} ${hh}:${mm}:${ss}`;
-}
-
-function formatDateOnly(timestamp) {
-  const date = new Date(timestamp);
-  const y = date.getFullYear();
-  const m = pad2(date.getMonth() + 1);
-  const d = pad2(date.getDate());
-  return `${y}-${m}-${d}`;
-}
-
-function resolveRequestName(request) {
-  const user = (request && request.user) || {};
-  const name = user.name
-    || user.real_name
-    || user.user_name
-    || user.nickname
-    || request.real_name
-    || request.passenger_name
-    || request.user_name
-    || request.student_name
-    || request.nickname
-    || request.name
-    || '';
-  const normalized = String(name || '').trim();
-  if (normalized) return normalized;
-  return `学生#${request.user_id || request.id || '--'}`;
-}
-
-function unwrapPayload(payload) {
-  if (!payload || typeof payload !== 'object') return payload;
-  if (Array.isArray(payload)) return payload;
-  return payload.data || payload.result || payload.payload || payload;
-}
-
+// 简化后的数据提取 — 后端已统一返回格式，保留最小兜底
 function extractArray(payload, candidates) {
-  const root = unwrapPayload(payload);
-  if (Array.isArray(root)) return root;
-  if (!root || typeof root !== 'object') return [];
-
+  if (Array.isArray(payload)) return payload;
+  if (!payload || typeof payload !== 'object') return [];
   for (let i = 0; i < candidates.length; i += 1) {
-    const key = candidates[i];
-    if (Array.isArray(root[key])) return root[key];
+    if (Array.isArray(payload[candidates[i]])) return payload[candidates[i]];
   }
-
-  const nested = unwrapPayload(root.data);
-  if (nested && nested !== root) {
-    if (Array.isArray(nested)) return nested;
-    for (let i = 0; i < candidates.length; i += 1) {
-      const key = candidates[i];
-      if (Array.isArray(nested[key])) return nested[key];
-    }
-  }
-
+  if (payload.data && Array.isArray(payload.data)) return payload.data;
   return [];
 }
 
 function pickNumber(payload, keys) {
-  const roots = [payload, unwrapPayload(payload), unwrapPayload(unwrapPayload(payload)?.data)].filter(Boolean);
-  for (let i = 0; i < roots.length; i += 1) {
-    const root = roots[i];
-    if (!root || typeof root !== 'object' || Array.isArray(root)) continue;
-    for (let j = 0; j < keys.length; j += 1) {
-      const value = root[keys[j]];
-      const num = Number(value);
-      if (Number.isFinite(num)) return num;
-    }
+  if (!payload || typeof payload !== 'object') return null;
+  for (let j = 0; j < keys.length; j += 1) {
+    const num = Number(payload[keys[j]]);
+    if (Number.isFinite(num)) return num;
   }
   return null;
 }
@@ -93,38 +35,87 @@ function normalizeDateKey(source) {
   return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
 }
 
-function normalizeShiftStatus(status) {
-  const value = String(status || '').toLowerCase();
-  if (value === 'draft') return 'unpublished';
-  return value || 'unpublished';
+function shiftStatusText(status) {
+  return normalizeShiftStatus(status) === 'published' ? t('common_published') : t('common_unpublished');
 }
 
-function shiftStatusText(status) {
-  return normalizeShiftStatus(status) === 'published' ? '已发布' : '未发布';
+function buildI18n() {
+  return {
+    dashboard_pending_count_label:    t('dashboard_pending_count_label'),
+    dashboard_today_shifts_label:     t('dashboard_today_shifts_label'),
+    dashboard_published_count_label:  t('dashboard_published_count_label'),
+    dashboard_add_shift:              t('dashboard_add_shift'),
+    dashboard_quick_assign:           t('dashboard_quick_assign'),
+    dashboard_no_shifts:              t('dashboard_no_shifts'),
+    dashboard_pending_pool_label:     t('dashboard_pending_pool_label'),
+    dashboard_pending_students:       t('dashboard_pending_students'),
+    dashboard_select_shift:           t('dashboard_select_shift'),
+    dashboard_remove_passenger_title: t('dashboard_remove_passenger_title'),
+    dashboard_create_shift_title:     t('dashboard_create_shift_title'),
+    dashboard_field_driver:           t('dashboard_field_driver'),
+    dashboard_field_date:             t('dashboard_field_date'),
+    dashboard_field_time:             t('dashboard_field_time'),
+    dashboard_placeholder_driver:     t('dashboard_placeholder_driver'),
+    dashboard_placeholder_date:       t('dashboard_placeholder_date'),
+    dashboard_placeholder_time:       t('dashboard_placeholder_time'),
+    dashboard_confirm_create:         t('dashboard_confirm_create'),
+    today:                            t('today'),
+    all:                              t('all'),
+    common_published:                 t('common_published'),
+    common_unpublished:               t('common_unpublished'),
+    dashboard_mod_requests:           t('dashboard_mod_requests'),
+    dashboard_pending_show_all:       t('dashboard_pending_show_all'),
+    dashboard_pending_today_only:     t('dashboard_pending_today_only'),
+    dashboard_pending_search_placeholder: t('dashboard_pending_search_placeholder'),
+    assign_no_requests:               t('assign_no_requests'),
+    suggest_title:                    t('suggest_title'),
+    suggest_loading:                  t('suggest_loading'),
+    suggest_empty:                    t('suggest_empty'),
+    suggest_empty_desc:               t('suggest_empty_desc'),
+    suggest_select_all:               t('suggest_select_all'),
+    suggest_deselect_all:             t('suggest_deselect_all'),
+    suggest_none_selected:            t('suggest_none_selected'),
+    suggest_expand:                   t('suggest_expand'),
+    suggest_collapse:                 t('suggest_collapse'),
+    suggest_manual_create:            t('suggest_manual_create'),
+    suggest_smart_create:             t('suggest_smart_create'),
+    dashboard_smart_suggest:          t('dashboard_smart_suggest'),
+    sm_manage_link:                   t('sm_manage_link'),
+  };
 }
+
+const MAX_PENDING_ACTIONS = 40;
 
 Page({
   data: {
     loading: false,
     shifts: [],
+    filteredShifts: [],
+    filterStatus: '',
+    unpublishedCount: 0,
     pendingRequests: [],
 
+    filterDate: null,
+    todayDate: '',
+    filterDateLabel: '',
+    showCalendar: false,
+    calendarDefaultDate: null,
+
+    pendingFilterToday: true,
+    allPendingActions: [],
+    todayPendingActions: [],
     pendingCount: 0,
+    todayPendingCount: 0,
     todayShiftCount: 0,
     publishedCount: 0,
-
-    showPendingSheet: false,
-    pendingActions: [],
-    selectedPendingRequest: null,
-
-    showShiftPicker: false,
-    shiftActions: [],
+    pendingModCount: 0,
+    pendingActionOverflow: 0,
+    overflowTipText: '',
+    actionBusy: false,
 
     showRemoveSheet: false,
     removeActions: [],
     removeShiftId: 0,
-
-    currentShiftIdForAdd: 0,
 
     showCreatePopup: false,
     showDriverPicker: false,
@@ -139,10 +130,34 @@ Page({
     selectedDateTs: new Date().getTime(),
     minDateTs: new Date().getTime(),
     formattedTime: '',
+
+    // 智能推荐相关
+    showCreateChoicePopup: false,
+    showSuggestPopup: false,
+    suggestLoading: false,
+    suggestions: [],
+    allSuggestionsSelected: false,
+    selectedSuggestionCount: 0,
+    suggestCreateBtnText: '',
+
+    // 角色模拟相关
+    showRoleSimulator: false,
+    isViewingAsUser: false,
+    currentEffectiveRole: 'admin',
+    realRole: 'admin',
+    roleOptions: [
+      { label: t('dashboard_role_student'), value: 'student', icon: 'user-o' },
+      { label: t('dashboard_role_staff'), value: 'staff', icon: 'manager-o' },
+      { label: t('dashboard_role_driver'), value: 'driver', icon: 'car-o' },
+      { label: t('dashboard_role_admin'), value: 'admin', icon: 'setting-o' },
+    ],
+
+    i18n: buildI18n(),
   },
 
   onShow() {
     const app = getApp();
+    if (!app.ensureWechatBound()) return;
     const role = app.getEffectiveRole ? app.getEffectiveRole() : ((app.globalData.userInfo && app.globalData.userInfo.role) || 'student');
 
     const tabBar = this.getTabBar && this.getTabBar();
@@ -157,12 +172,35 @@ Page({
     }
 
     if (!(role === 'admin' || role === 'staff')) {
-      wx.showToast({ title: '仅管理员可访问', icon: 'none' });
+      wx.showToast({ title: t('common_admin_only'), icon: 'none' });
       wx.switchTab({ url: '/pages/home/index' });
       return;
     }
 
+    const cache = app.globalData.dashboardCache || {};
+    const ttlMs = Number(cache.ttlMs) || 0;
+    const lastLoadAt = Number(cache.lastLoadAt) || 0;
+    const fresh = lastLoadAt && ttlMs > 0 && (Date.now() - lastLoadAt) < ttlMs;
+
+    wx.setNavigationBarTitle({ title: t('dashboard_nav_title') });
+    this.setData({ i18n: buildI18n(), todayDate: this._formatDate(new Date()) });
+
+    if (!app.isDashboardDirty() && fresh) {
+      return;
+    }
+
     this.loadAll();
+  },
+
+  onLoad() {
+    wx.setNavigationBarTitle({ title: t('dashboard_nav_title') });
+    const today = this._formatDate(new Date());
+    this.setData({
+      i18n: buildI18n(),
+      filterDate: today,
+      filterDateLabel: today,
+      todayDate: today,
+    });
   },
 
   async onPullDownRefresh() {
@@ -171,158 +209,158 @@ Page({
   },
 
   async loadAll() {
+    const app = getApp();
     this.setData({ loading: true });
-    try {
-      const [shiftsRes, pendingRes] = await Promise.all([
-        api.getDashboard(),
-        api.getPendingRequests(),
-      ]);
 
-      const dashboardRows = extractArray(shiftsRes, ['shifts', 'items', 'list', 'rows']);
+    const [dashboardResult, pendingResult] = await Promise.allSettled([
+      api.getDashboard(this.data.filterDate),
+      api.getPendingRequests(),
+    ]);
 
-      const shifts = dashboardRows.map((item) => ({
-        ...item,
-        id: item.id || item.ID || item.shift_id || 0,
-        status: normalizeShiftStatus(item.status || item.Status),
-        departure_time: item.departure_time || item.DepartureTime || '',
-        requests: Array.isArray(item.requests)
-          ? item.requests
-          : (Array.isArray(item.Requests)
-            ? item.Requests
-            : (Array.isArray(item.passengers) ? item.passengers : [])),
-      }));
+    const shiftsRes = dashboardResult.status === 'fulfilled' ? dashboardResult.value : [];
+    const pendingRes = pendingResult.status === 'fulfilled' ? pendingResult.value : [];
 
-      const pendingRequests = extractArray(pendingRes, ['items', 'requests', 'list', 'rows']);
-
-      const today = new Date();
-      const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
-      const todayShiftCountFromRows = shifts.filter((s) => normalizeDateKey(s.departure_time) === todayKey).length;
-      const publishedCountFromRows = shifts.filter((s) => (s.status || '').toLowerCase() === 'published').length;
-
-      const pendingCount = pickNumber(shiftsRes, ['pending_count', 'pendingCount'])
-        ?? pickNumber(pendingRes, ['pending_count', 'pendingCount', 'total'])
-        ?? pendingRequests.length;
-      const todayShiftCount = pickNumber(shiftsRes, ['today_shift_count', 'todayShiftCount', 'today_count'])
-        ?? todayShiftCountFromRows;
-      const publishedCount = pickNumber(shiftsRes, ['published_count', 'publishedCount'])
-        ?? publishedCountFromRows;
-
-      this.setData({
-        shifts,
-        pendingRequests,
-        pendingCount,
-        todayShiftCount,
-        publishedCount,
-        pendingActions: pendingRequests.map((r) => ({
-          name: `${resolveRequestName(r)} | ${(r.flight_no || '--')}`,
-          subname: `落地: ${r.arrival_time_api || r.arrival_date || '--'}`,
-          request: r,
-        })),
-      });
-    } catch (error) {
-      wx.showToast({ title: '加载失败', icon: 'none' });
-    } finally {
+    if (dashboardResult.status === 'rejected' && pendingResult.status === 'rejected') {
+      wx.showToast({ title: t('common_load_failed'), icon: 'none' });
       this.setData({ loading: false });
-    }
-  },
-
-  openPendingPool() {
-    this.setTabBarHidden(true);
-    this.setData({
-      showPendingSheet: true,
-      currentShiftIdForAdd: 0,
-    });
-  },
-
-  onAddPassenger(e) {
-    const detail = (e && e.detail) || {};
-    const shiftId = Number(detail.shiftId || detail.shiftid || detail.id || 0);
-    if (!shiftId) {
-      wx.showToast({ title: '班次ID无效', icon: 'none' });
-      return;
-    }
-    if (!(this.data.pendingRequests || []).length) {
-      wx.showToast({ title: '当前无待分配学生', icon: 'none' });
       return;
     }
 
-    this.setData({
-      showPendingSheet: true,
-      currentShiftIdForAdd: shiftId,
+    if (dashboardResult.status === 'rejected' || pendingResult.status === 'rejected') {
+      const failed = [];
+      if (dashboardResult.status === 'rejected') failed.push(t('dashboard_shift_data'));
+      if (pendingResult.status === 'rejected') failed.push(t('dashboard_pending_data'));
+      wx.showToast({ title: `${failed.join('、')}${t('assign_load_failed')}`, icon: 'none' });
+    }
+
+    const dashboardRows = extractArray(shiftsRes, ['shifts', 'items', 'list', 'rows']);
+
+    const shifts = dashboardRows.map((item) => ({
+      ...item,
+      id: item.id || item.ID || item.shift_id || 0,
+      status: normalizeShiftStatus(item.status || item.Status),
+      departure_time: item.departure_time || item.DepartureTime || '',
+      requests: Array.isArray(item.requests)
+        ? item.requests
+        : (Array.isArray(item.Requests)
+          ? item.Requests
+          : (Array.isArray(item.passengers) ? item.passengers : [])),
+    }));
+
+    const pendingRequests = extractArray(pendingRes, ['items', 'requests', 'list', 'rows']);
+
+    const todayDate = new Date();
+    const todayKey = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`;
+
+    const todayShiftCountFromRows = shifts.filter((s) => normalizeDateKey(s.departure_time) === todayKey).length;
+    const publishedCountFromRows = shifts.filter((s) => (s.status || '').toLowerCase() === 'published').length;
+
+    const pendingCountFromShift = pickNumber(shiftsRes, ['pending_count', 'pendingCount']);
+    const pendingCountFromPending = pickNumber(pendingRes, ['pending_count', 'pendingCount', 'total']);
+    const pendingCount = Number.isFinite(pendingCountFromShift)
+      ? pendingCountFromShift
+      : (Number.isFinite(pendingCountFromPending) ? pendingCountFromPending : pendingRequests.length);
+
+    const todayShiftCountFromApi = pickNumber(shiftsRes, ['today_shift_count', 'todayShiftCount', 'today_count']);
+    const todayShiftCount = Number.isFinite(todayShiftCountFromApi) ? todayShiftCountFromApi : todayShiftCountFromRows;
+
+    const publishedCountFromApi = pickNumber(shiftsRes, ['published_count', 'publishedCount']);
+    const publishedCount = Number.isFinite(publishedCountFromApi) ? publishedCountFromApi : publishedCountFromRows;
+
+    const mapPendingAction = (r) => {
+      const rideWith = buildRideWithText(r);
+      return {
+        name: `${resolveRequestName(r)} | ${(r.flight_no || '--')}`,
+        subname: rideWith
+          ? `${rideWith} | ${t('assign_arrival_time')}${r.arrival_time || r.arrival_date || '--'}`
+          : `${t('assign_arrival_time')}${r.arrival_time || r.arrival_date || '--'}`,
+        request: r,
+      };
+    };
+
+    const allPendingActions = pendingRequests.slice(0, MAX_PENDING_ACTIONS).map(mapPendingAction);
+
+    // Filter today's pending requests
+    const today = this._formatDate(new Date());
+    const todayPendingRequests = pendingRequests.filter((r) => {
+      const arrDate = r.arrival_date || '';
+      return arrDate.slice(0, 10) === today;
     });
-    this.setTabBarHidden(true);
+    const todayPendingActions = todayPendingRequests.slice(0, MAX_PENDING_ACTIONS).map(mapPendingAction);
+
+    // Default to today's filter
+    const useTodayFilter = this.data.pendingFilterToday;
+    const activePendingActions = useTodayFilter ? todayPendingActions : allPendingActions;
+    const overflow = Math.max(0, pendingRequests.length - allPendingActions.length);
+
+    const unpublishedCount = shifts.filter(s => s.status === 'draft').length;
+
+    this.setData({
+      shifts,
+      unpublishedCount,
+      pendingRequests,
+      pendingCount,
+      todayPendingCount: todayPendingRequests.length,
+      todayShiftCount,
+      publishedCount,
+      allPendingActions,
+      todayPendingActions,
+      pendingActions: activePendingActions,
+      pendingActionOverflow: overflow,
+      overflowTipText: overflow > 0
+        ? t('dashboard_pending_overflow').replace('{0}', allPendingActions.length)
+        : '',
+      loading: false,
+    });
+
+    this.applyStatusFilter();
+
+    const cache = app.globalData.dashboardCache || {};
+    app.globalData.dashboardCache = {
+      ...cache,
+      lastLoadAt: Date.now(),
+      ttlMs: Number(cache.ttlMs) || 45 * 1000,
+    };
+    app.clearDashboardDirty();
+
+    // 异步加载待审核修改申请数量
+    api.getModificationRequests('pending').then((res) => {
+      const modList = Array.isArray(res) ? res : [];
+      this.setData({ pendingModCount: modList.length });
+    }).catch(() => {});
   },
 
   onManageShift(e) {
     const detail = (e && e.detail) || {};
     const shiftId = Number(detail.shiftId || detail.shiftid || detail.id || 0);
     if (!shiftId) {
-      wx.showToast({ title: '班次ID无效', icon: 'none' });
+      wx.showToast({ title: t('dashboard_shift_id_invalid'), icon: 'none' });
       return;
     }
     wx.navigateTo({ url: `/pages/admin/shift-detail/index?id=${shiftId}` });
   },
 
-  onSelectPendingRequest(e) {
-    const action = this.getSelectedAction(e, this.data.pendingActions);
-    const req = action.request;
-    const shifts = this.data.shifts || [];
-
-    if (!req) return;
-
-    if (this.data.currentShiftIdForAdd) {
-      this.assignStudentToShift(this.data.currentShiftIdForAdd, req.id);
-      this.setData({ showPendingSheet: false, selectedPendingRequest: null });
-      return;
-    }
-
-    const shiftActions = shifts.map((s) => ({
-      name: `#${s.id} ${s.departure_time || '--'}`,
-      subname: `${(s.driver && s.driver.name) || '未分配司机'} | ${shiftStatusText(s.status)}`,
-      shiftId: s.id,
-    }));
-
-    this.setData({
-      selectedPendingRequest: req,
-      shiftActions,
-      showPendingSheet: false,
-      showShiftPicker: true,
-    });
-    this.setTabBarHidden(true);
-  },
-
-  async onSelectShift(e) {
-    const action = this.getSelectedAction(e, this.data.shiftActions);
-    const req = this.data.selectedPendingRequest;
-    if (!req || !action.shiftId) return;
-
-    await this.assignStudentToShift(action.shiftId, req.id);
-    this.setData({
-      showShiftPicker: false,
-      selectedPendingRequest: null,
-    });
-  },
-
   async assignStudentToShift(shiftId, requestId) {
-    try {
-      const result = await api.assignStudent(shiftId, requestId);
-      if (result && result.warning) {
-        wx.showToast({ title: `已分配 (${result.warning})`, icon: 'none' });
-      } else {
-        wx.showToast({ title: '分配成功', icon: 'success' });
+    await this.runWithActionLock(async () => {
+      try {
+        const result = await api.assignStudent(shiftId, requestId);
+        if (result && result.warning) {
+          wx.showToast({ title: `${t('dashboard_assign_success')} (${result.warning})`, icon: 'none' });
+        } else {
+          wx.showToast({ title: t('dashboard_assign_success'), icon: 'success' });
+        }
+        await this.loadAll();
+      } catch (error) {
+        wx.showToast({ title: t('dashboard_assign_failed'), icon: 'none' });
       }
-      await this.loadAll();
-    } catch (error) {
-      wx.showToast({ title: '分配失败', icon: 'none' });
-    }
+    });
   },
 
   onRemovePassenger(e) {
     const detail = (e && e.detail) || {};
     const shiftId = Number(detail.shiftId || detail.shiftid || detail.id || 0);
     if (!shiftId) {
-      wx.showToast({ title: '班次ID无效', icon: 'none' });
+      wx.showToast({ title: t('dashboard_shift_id_invalid'), icon: 'none' });
       return;
     }
 
@@ -345,11 +383,13 @@ Page({
         user: { name: item.name || '' },
         user_id: item.user_id || item.id || 0,
         flight_no: item.flightNo || item.flight_no || '--',
+        ride_with_note: item.ride_with_note || '',
+        ride_with_wechat: item.ride_with_wechat || '',
       }));
     }
 
     if (!requests.length) {
-      wx.showToast({ title: '当前班次暂无乘客', icon: 'none' });
+      wx.showToast({ title: t('dashboard_no_passengers'), icon: 'none' });
       return;
     }
 
@@ -357,6 +397,7 @@ Page({
       removeShiftId: shiftId,
       removeActions: requests.map((r) => ({
         name: `${resolveRequestName(r)} | ${r.flight_no || '--'}`,
+        subname: buildRideWithText(r),
         requestId: r.id || r.ID || r.request_id || 0,
       })),
       showRemoveSheet: true,
@@ -368,14 +409,16 @@ Page({
     const action = this.getSelectedAction(e, this.data.removeActions);
     if (!action.requestId || !this.data.removeShiftId) return;
 
-    try {
-      await api.removeStudent(this.data.removeShiftId, action.requestId);
-      wx.showToast({ title: '移出成功', icon: 'success' });
-      this.setData({ showRemoveSheet: false, removeShiftId: 0, removeActions: [] });
-      await this.loadAll();
-    } catch (error) {
-      wx.showToast({ title: '移出失败', icon: 'none' });
-    }
+    await this.runWithActionLock(async () => {
+      try {
+        await api.removeStudent(this.data.removeShiftId, action.requestId);
+        wx.showToast({ title: t('dashboard_remove_success'), icon: 'success' });
+        this.setData({ showRemoveSheet: false, removeShiftId: 0, removeActions: [] });
+        await this.loadAll();
+      } catch (error) {
+        wx.showToast({ title: t('dashboard_remove_failed'), icon: 'none' });
+      }
+    });
   },
 
   async onPublishShift(e) {
@@ -383,13 +426,19 @@ Page({
     const shiftId = Number(detail.shiftId || detail.shiftid || detail.id || 0);
     if (!shiftId) return;
 
-    try {
-      await api.publishShift(shiftId);
-      wx.showToast({ title: '发布成功', icon: 'success' });
-      await this.loadAll();
-    } catch (error) {
-      wx.showToast({ title: '发布失败', icon: 'none' });
-    }
+    await this.runWithActionLock(async () => {
+      try {
+        await api.publishShift(shiftId);
+        wx.showToast({ title: t('dashboard_publish_success'), icon: 'success' });
+        await this.loadAll();
+      } catch (error) {
+        wx.showToast({ title: t('dashboard_publish_failed'), icon: 'none' });
+      }
+    });
+  },
+
+  async runWithActionLock(task) {
+    return runWithActionLock(this, task);
   },
 
   getSelectedAction(e, actions) {
@@ -404,31 +453,29 @@ Page({
     return detail;
   },
 
-  onClosePendingSheet() {
-    this.setTabBarHidden(false);
-    this.setData({ showPendingSheet: false });
-  },
-
-  onCloseShiftPicker() {
-    this.setTabBarHidden(false);
-    this.setData({ showShiftPicker: false });
-  },
-
   onCloseRemoveSheet() {
     this.setTabBarHidden(false);
     this.setData({ showRemoveSheet: false });
   },
 
   setTabBarHidden(hidden) {
-    const tabBar = this.getTabBar && this.getTabBar();
-    if (tabBar && typeof tabBar.setHidden === 'function') {
-      tabBar.setHidden(!!hidden);
-    }
+    setTabBarHidden(this, hidden);
   },
 
-  async onShowCreatePopup() {
+  onShowCreatePopup() {
+    this.setTabBarHidden(true);
+    this.setData({ showCreateChoicePopup: true });
+  },
+
+  onCloseCreateChoice() {
+    this.setTabBarHidden(false);
+    this.setData({ showCreateChoicePopup: false });
+  },
+
+  async onChooseManualCreate() {
     const now = Date.now();
     this.setData({
+      showCreateChoicePopup: false,
       showCreatePopup: true,
       selectedDateTs: this.data.selectedDateTs || now,
       minDateTs: now,
@@ -436,7 +483,121 @@ Page({
     await this.fetchDrivers();
   },
 
+  async onChooseSmartSuggest() {
+    this.setData({
+      showCreateChoicePopup: false,
+      showSuggestPopup: true,
+      suggestLoading: true,
+      suggestions: [],
+    });
+    try {
+      const raw = await api.suggestShifts(2, 5);
+      const list = Array.isArray(raw) ? raw : [];
+      const suggestions = list.map((item) => {
+        const startDate = new Date(item.window_start);
+        const endDate = new Date(item.window_end);
+        return {
+          ...item,
+          selected: true,
+          expanded: false,
+          windowStartText: this._formatDateTime(startDate),
+          windowEndText: this._formatDateTime(endDate),
+          studentCountText: t('suggest_student_count').replace('{0}', item.student_count || 0),
+          departureTime: this._formatDepartureTime(endDate),
+        };
+      });
+      const selectedCount = suggestions.length;
+      this.setData({
+        suggestions,
+        suggestLoading: false,
+        allSuggestionsSelected: selectedCount > 0,
+        selectedSuggestionCount: selectedCount,
+        suggestCreateBtnText: t('suggest_create_count').replace('{0}', selectedCount),
+      });
+    } catch (err) {
+      wx.showToast({ title: t('suggest_load_failed'), icon: 'none' });
+      this.setData({ suggestLoading: false });
+    }
+  },
+
+  onCloseSuggestPopup() {
+    this.setTabBarHidden(false);
+    this.setData({ showSuggestPopup: false });
+  },
+
+  onToggleSuggestion(e) {
+    const index = e.currentTarget.dataset.index;
+    const key = `suggestions[${index}].selected`;
+    const newVal = !this.data.suggestions[index].selected;
+    this.setData({ [key]: newVal });
+    this._updateSuggestionSelection();
+  },
+
+  onToggleSuggestionExpand(e) {
+    const index = e.currentTarget.dataset.index;
+    const key = `suggestions[${index}].expanded`;
+    this.setData({ [key]: !this.data.suggestions[index].expanded });
+  },
+
+  onToggleSelectAll() {
+    const newVal = !this.data.allSuggestionsSelected;
+    const updates = {};
+    this.data.suggestions.forEach((_, i) => {
+      updates[`suggestions[${i}].selected`] = newVal;
+    });
+    this.setData(updates);
+    this._updateSuggestionSelection();
+  },
+
+  _updateSuggestionSelection() {
+    const suggestions = this.data.suggestions;
+    const selectedCount = suggestions.filter(s => s.selected).length;
+    this.setData({
+      selectedSuggestionCount: selectedCount,
+      allSuggestionsSelected: selectedCount === suggestions.length && suggestions.length > 0,
+      suggestCreateBtnText: t('suggest_create_count').replace('{0}', selectedCount),
+    });
+  },
+
+  async onBatchCreateFromSuggestions() {
+    const selected = this.data.suggestions.filter(s => s.selected);
+    if (!selected.length) {
+      wx.showToast({ title: t('suggest_none_selected'), icon: 'none' });
+      return;
+    }
+
+    await this.runWithActionLock(async () => {
+      try {
+        const payload = selected.map(s => ({
+          departure_time: s.departureTime,
+          driver_id: null,
+        }));
+        await api.batchCreateShifts(payload);
+        wx.showToast({
+          title: t('suggest_create_success').replace('{0}', selected.length),
+          icon: 'success',
+        });
+        this.setData({ showSuggestPopup: false });
+        this.setTabBarHidden(false);
+        await this.loadAll();
+      } catch (err) {
+        wx.showToast({ title: t('suggest_create_failed'), icon: 'none' });
+      }
+    });
+  },
+
+  _formatDateTime(d) {
+    if (!(d instanceof Date) || isNaN(d.getTime())) return '--';
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  },
+
+  _formatDepartureTime(d) {
+    if (!(d instanceof Date) || isNaN(d.getTime())) return '';
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:00`;
+  },
+
   onCloseCreatePopup() {
+    this.setTabBarHidden(false);
     this.setData({ showCreatePopup: false });
   },
 
@@ -444,8 +605,10 @@ Page({
     try {
       const drivers = await api.getDrivers();
       const driverList = Array.isArray(drivers) ? drivers : [];
+      const unnamedDriver = t('dashboard_unnamed_driver');
+      const unknownCar = t('dashboard_unknown_car');
       const pickerColumns = driverList.map((item) => ({
-        text: `${item.name || '未命名司机'} - ${item.car_model || '未知车型'}`,
+        text: `${item.name || unnamedDriver} - ${item.car_model || unknownCar}`,
         value: item.id,
       }));
       this.setData({
@@ -453,15 +616,16 @@ Page({
         pickerColumns,
       });
     } catch (error) {
-      wx.showToast({ title: '司机列表加载失败', icon: 'none' });
+      wx.showToast({ title: t('dashboard_driver_load_failed'), icon: 'none' });
     }
   },
 
   onOpenDriverPicker() {
     if (!this.data.pickerColumns.length) {
-      wx.showToast({ title: '暂无可选司机', icon: 'none' });
+      wx.showToast({ title: t('dashboard_no_drivers'), icon: 'none' });
       return;
     }
+    this.setTabBarHidden(true);
     this.setData({ showDriverPicker: true });
   },
 
@@ -483,7 +647,9 @@ Page({
       const rawValue = detail.value;
       const value = Array.isArray(rawValue) ? rawValue[0] : rawValue;
       const valueText = value && typeof value === 'object' ? value.text : String(value || '');
-      driver = this.data.driverList.find((item) => (`${item.name || '未命名司机'} - ${item.car_model || '未知车型'}`) === valueText) || null;
+      const unnamedDriver = t('dashboard_unnamed_driver');
+      const unknownCar = t('dashboard_unknown_car');
+      driver = this.data.driverList.find((item) => (`${item.name || unnamedDriver} - ${item.car_model || unknownCar}`) === valueText) || null;
     }
 
     if (!driver) {
@@ -491,14 +657,17 @@ Page({
       return;
     }
 
+    const unnamedDriver = t('dashboard_unnamed_driver');
+    const unknownCar = t('dashboard_unknown_car');
     this.setData({
       selectedDriverId: driver.id,
-      selectedDriverName: `${driver.name || '未命名司机'} - ${driver.car_model || '未知车型'}`,
+      selectedDriverName: `${driver.name || unnamedDriver} - ${driver.car_model || unknownCar}`,
       showDriverPicker: false,
     });
   },
 
   onOpenDatePicker() {
+    this.setTabBarHidden(true);
     this.setData({ showDatePicker: true });
   },
 
@@ -523,6 +692,7 @@ Page({
   },
 
   onOpenTimePicker() {
+    this.setTabBarHidden(true);
     this.setData({
       selectedClock: this.data.selectedClock || '12:00',
       showTimePicker: true,
@@ -573,21 +743,195 @@ Page({
 
   async onSubmitShift() {
     if (!this.data.selectedDriverId || !this.data.formattedTime) {
-      wx.showToast({ title: '请先完善司机与发车时间', icon: 'none' });
+      wx.showToast({ title: t('dashboard_form_incomplete'), icon: 'none' });
       return;
     }
 
-    try {
-      await api.createShift({
-        driver_id: this.data.selectedDriverId,
-        departure_time: this.data.formattedTime,
-      });
-      wx.showToast({ title: '创建成功', icon: 'success' });
-      this.setData({ showCreatePopup: false });
-      this.resetCreateForm();
-      await this.loadAll();
-    } catch (error) {
-      wx.showToast({ title: '创建失败', icon: 'none' });
+    await this.runWithActionLock(async () => {
+      try {
+        await api.createShift({
+          driver_id: this.data.selectedDriverId,
+          departure_time: this.data.formattedTime,
+        });
+        wx.showToast({ title: t('dashboard_create_success'), icon: 'success' });
+        this.setData({ showCreatePopup: false });
+        this.resetCreateForm();
+        await this.loadAll();
+      } catch (error) {
+        wx.showToast({ title: t('dashboard_create_failed'), icon: 'none' });
+      }
+    });
+  },
+
+  // 角色模拟相关方法
+  onOpenRoleSimulator() {
+    this.setData({ showRoleSimulator: true });
+  },
+
+  onCloseRoleSimulator() {
+    this.setData({ showRoleSimulator: false });
+  },
+
+  async onSelectRole(e) {
+    const detail = e.detail || {};
+    const index = detail.index;
+    if (index === undefined || index === null) return;
+
+    const roleOption = this.data.roleOptions[index];
+    if (!roleOption) return;
+
+    const app = getApp();
+    if (app && typeof app.setViewAsRole === 'function') {
+      app.setViewAsRole(roleOption.value);
     }
+
+    const currentEffectiveRole = app.getEffectiveRole ? app.getEffectiveRole() : roleOption.value;
+    const viewAsRole = app.getViewAsRole ? app.getViewAsRole() : '';
+
+    const toastTitle = roleOption.value === 'admin'
+      ? t('dashboard_switch_admin')
+      : `已切换为${roleOption.label}`;
+    wx.showToast({ title: toastTitle, icon: 'success' });
+
+    this.setData({
+      isViewingAsUser: !!viewAsRole,
+      currentEffectiveRole,
+      showRoleSimulator: false,
+    });
+    this.refreshView();
+  },
+
+  onExitRoleSimulation() {
+    const app = getApp();
+    if (app && typeof app.resetViewAsRole === 'function') {
+      app.resetViewAsRole();
+    } else if (app && typeof app.setViewAsRole === 'function') {
+      app.setViewAsRole('admin');
+    }
+
+    wx.showToast({ title: t('dashboard_exit_simulation'), icon: 'success' });
+    this.setData({
+      isViewingAsUser: false,
+      currentEffectiveRole: 'admin',
+    });
+    this.refreshView();
+  },
+
+  refreshView() {
+    const tabBar = this.getTabBar && this.getTabBar();
+    if (tabBar && typeof tabBar.refreshTabs === 'function') {
+      tabBar.refreshTabs();
+    }
+    this.loadAll();
+  },
+
+  // 日期筛选方法
+  filterPrevDay() {
+    const current = this.data.filterDate;
+    let date;
+    if (!current) {
+      const today = new Date();
+      today.setDate(today.getDate() - 1);
+      date = this._formatDate(today);
+    } else {
+      const d = new Date(current + 'T00:00:00');
+      d.setDate(d.getDate() - 1);
+      date = this._formatDate(d);
+    }
+    this.setData({ filterDate: date, filterDateLabel: date });
+    this.loadAll();
+  },
+
+  filterNextDay() {
+    const current = this.data.filterDate;
+    let date;
+    if (!current) {
+      const today = new Date();
+      today.setDate(today.getDate() + 1);
+      date = this._formatDate(today);
+    } else {
+      const d = new Date(current + 'T00:00:00');
+      d.setDate(d.getDate() + 1);
+      date = this._formatDate(d);
+    }
+    this.setData({ filterDate: date, filterDateLabel: date });
+    this.loadAll();
+  },
+
+  filterPickDate() {
+    const current = this.data.filterDate;
+    const defaultDate = current ? new Date(current + 'T00:00:00').getTime() : Date.now();
+    this.setData({ showCalendar: true, calendarDefaultDate: defaultDate });
+  },
+
+  onCalendarConfirm(e) {
+    const d = e.detail;
+    const date = this._formatDate(d);
+    this.setData({ showCalendar: false, filterDate: date, filterDateLabel: date });
+    this.loadAll();
+  },
+
+  onCalendarClose() {
+    this.setData({ showCalendar: false });
+  },
+
+  filterToday() {
+    const date = this._formatDate(new Date());
+    this.setData({ filterDate: date, filterDateLabel: date });
+    this.loadAll();
+  },
+
+  filterReset() {
+    wx.navigateTo({ url: '/pages/admin/all-shifts/index' });
+  },
+
+  filterStatusAll() {
+    this.setData({ filterStatus: '' });
+    this.applyStatusFilter();
+  },
+
+  filterStatusPublished() {
+    this.setData({ filterStatus: 'published' });
+    this.applyStatusFilter();
+  },
+
+  filterStatusDraft() {
+    this.setData({ filterStatus: 'draft' });
+    this.applyStatusFilter();
+  },
+
+  applyStatusFilter() {
+    const { shifts, filterStatus } = this.data;
+    const filtered = filterStatus ? shifts.filter(s => s.status === filterStatus) : shifts;
+    this.setData({ filteredShifts: filtered });
+  },
+
+  _formatDate(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  },
+
+  onGoStudentMgmt() {
+    wx.navigateTo({ url: '/pages/admin/student-mgmt/index?tab=pending' });
+  },
+
+  onQuickAssign() {
+    wx.navigateTo({ url: '/pages/admin/assign/index' });
+  },
+
+  onGoModificationRequests() {
+    wx.navigateTo({ url: '/pages/admin/modification-requests/index' });
+  },
+
+  getRoleDisplayText() {
+    const roleMap = {
+      'student': t('dashboard_role_student'),
+      'staff': t('dashboard_role_staff'),
+      'driver': t('dashboard_role_driver'),
+      'admin': t('dashboard_role_admin'),
+    };
+    return roleMap[this.data.currentEffectiveRole] || this.data.currentEffectiveRole;
   },
 });

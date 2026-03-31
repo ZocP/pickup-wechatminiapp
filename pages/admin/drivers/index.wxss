@@ -9,9 +9,28 @@
   margin-bottom: 16rpx;
 }
 
+.cell-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8rpx;
+}
+
 .caps-wrap {
   display: flex;
   gap: 8rpx;
+}
+
+.driver-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4rpx;
+}
+
+.meta-text {
+  font-size: 22rpx;
+  color: #969799;
 }
 
 .add-driver-bar {

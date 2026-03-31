@@ -1,73 +1,64 @@
 <view class="page dashboard-page">
-  <view class="summary card">
-    <van-grid column-num="3" border="false">
-      <van-grid-item use-slot>
-        <view class="summary-item">
-          <text class="summary-label">待分配人数</text>
-          <text class="grid-number danger">{{pendingCount}}</text>
-        </view>
-      </van-grid-item>
-      <van-grid-item use-slot>
-        <view class="summary-item">
-          <text class="summary-label">今日班次</text>
-          <text class="grid-number">{{todayShiftCount}}</text>
-        </view>
-      </van-grid-item>
-      <van-grid-item use-slot>
-        <view class="summary-item">
-          <text class="summary-label">已发布班次</text>
-          <text class="grid-number success">{{publishedCount}}</text>
-        </view>
-      </van-grid-item>
-    </van-grid>
+  <view class="summary card" bind:tap="onGoStudentMgmt">
+    <view class="summary-item">
+      <text class="summary-label">{{i18n.dashboard_pending_count_label}}</text>
+      <text class="grid-number danger">{{pendingCount}}</text>
+      <text class="summary-link">{{i18n.sm_manage_link}} →</text>
+    </view>
   </view>
 
-  <view class="create-entry card">
-    <van-button type="info" block bind:tap="onShowCreatePopup">添加班次</van-button>
+  <view class="action-bar">
+    <view class="action-item">
+      <van-button type="info" size="mini" block bind:tap="onShowCreatePopup">{{i18n.dashboard_add_shift}}</van-button>
+    </view>
+    <view class="action-item">
+      <van-button type="default" size="mini" block bind:tap="onGoModificationRequests">{{i18n.dashboard_mod_requests}}</van-button>
+    </view>
+  </view>
+
+  <!-- 日期筛选栏 -->
+  <view class="date-filter-bar">
+    <button class="filter-nav-btn" bindtap="filterPrevDay">‹</button>
+    <view class="filter-date-label" bindtap="filterPickDate">
+      <text>{{filterDateLabel}}</text>
+    </view>
+    <button class="filter-nav-btn" bindtap="filterNextDay">›</button>
+    <button class="filter-action-btn{{filterDate == todayDate ? ' active' : ''}}" bindtap="filterToday">{{i18n.today}}</button>
+    <button class="filter-action-btn{{!filterDate ? ' active' : ''}}" bindtap="filterReset">{{i18n.all}}</button>
+  </view>
+
+  <!-- 状态筛选标签 -->
+  <view class="status-filter-bar">
+    <button class="status-tag{{filterStatus == '' ? ' active' : ''}}" bindtap="filterStatusAll">{{i18n.all}} ({{shifts.length}})</button>
+    <button class="status-tag{{filterStatus == 'published' ? ' active' : ''}}" bindtap="filterStatusPublished">{{i18n.common_published}} ({{publishedCount}})</button>
+    <button class="status-tag{{filterStatus == 'draft' ? ' active' : ''}}" bindtap="filterStatusDraft">{{i18n.common_unpublished}} ({{unpublishedCount}})</button>
   </view>
 
   <view class="shift-list">
-    <view wx:if="{{!loading && shifts.length === 0}}" class="card">
-      <van-empty description="暂无班次数据" />
+    <view wx:if="{{loading}}" class="card">
+      <van-skeleton title row="3" />
+      <van-skeleton title row="3" custom-style="margin-top: 16rpx;" />
+    </view>
+
+    <view wx:if="{{!loading && filteredShifts.length === 0}}" class="card">
+      <van-empty description="{{i18n.dashboard_no_shifts}}" />
     </view>
 
     <shift-card
-      wx:for="{{shifts}}"
+      wx:for="{{!loading ? filteredShifts : []}}"
       wx:key="id"
       shift="{{item}}"
       bind:manageshift="onManageShift"
     />
   </view>
 
-  <view class="pending-fab" bind:tap="openPendingPool">
-    <text>待分配池 {{pendingCount}}</text>
-  </view>
 
-  <van-action-sheet
-    show="{{showPendingSheet}}"
-    title="待分配学生"
-    z-index="2000"
-    root-portal
-    actions="{{pendingActions}}"
-    close-on-click-action="true"
-    bind:select="onSelectPendingRequest"
-    bind:close="onClosePendingSheet"
-  />
 
-  <van-action-sheet
-    show="{{showShiftPicker}}"
-    title="选择班次"
-    z-index="2000"
-    root-portal
-    actions="{{shiftActions}}"
-    close-on-click-action="true"
-    bind:select="onSelectShift"
-    bind:close="onCloseShiftPicker"
-  />
+
 
   <van-action-sheet
     show="{{showRemoveSheet}}"
-    title="选择要移出的乘客"
+    title="{{i18n.dashboard_remove_passenger_title}}"
     z-index="2000"
     root-portal
     actions="{{removeActions}}"
@@ -76,42 +67,123 @@
     bind:close="onCloseRemoveSheet"
   />
 
-  <van-popup show="{{showCreatePopup}}" position="bottom" round bind:close="onCloseCreatePopup">
+  <!-- 创建方式选择弹窗 -->
+  <van-popup show="{{showCreateChoicePopup}}" position="bottom" round bind:close="onCloseCreateChoice">
     <view class="create-popup">
-      <view class="create-title">创建班次</view>
-      <van-cell-group inset>
-        <van-field
-          label="选择司机"
-          value="{{selectedDriverName}}"
-          placeholder="请选择司机"
-          readonly
-          is-link
-          bind:click-input="onOpenDriverPicker"
-        />
-        <van-field
-          label="发车日期"
-          value="{{selectedDate}}"
-          placeholder="请选择日期"
-          readonly
-          is-link
-          bind:click-input="onOpenDatePicker"
-        />
-        <van-field
-          label="发车时刻"
-          value="{{selectedClock}}"
-          placeholder="请选择时间"
-          readonly
-          is-link
-          bind:click-input="onOpenTimePicker"
-        />
-      </van-cell-group>
-      <van-button type="info" block custom-style="margin-top: 24rpx;" bind:tap="onSubmitShift">确认创建</van-button>
+      <view class="create-title">{{i18n.dashboard_create_shift_title}}</view>
+      <view class="create-choice-btns">
+        <van-button type="info" block custom-style="margin-bottom: 16rpx;" bind:tap="onChooseManualCreate">{{i18n.suggest_manual_create}}</van-button>
+        <van-button type="warning" block bind:tap="onChooseSmartSuggest">{{i18n.suggest_smart_create}}</van-button>
+      </view>
     </view>
   </van-popup>
 
-  <van-popup show="{{showDriverPicker}}" position="bottom" bind:close="onCancelDriverPicker">
+  <van-popup show="{{showCreatePopup}}" position="bottom" round bind:close="onCloseCreatePopup">
+    <view class="create-popup">
+      <view class="create-title">{{i18n.dashboard_create_shift_title}}</view>
+      <van-cell-group inset>
+        <view bindtap="onOpenDriverPicker">
+          <van-field
+            label="{{i18n.dashboard_field_driver}}"
+            value="{{selectedDriverName}}"
+            placeholder="{{i18n.dashboard_placeholder_driver}}"
+            readonly
+            is-link
+          />
+        </view>
+        <view bindtap="onOpenDatePicker">
+          <van-field
+            label="{{i18n.dashboard_field_date}}"
+            value="{{selectedDate}}"
+            placeholder="{{i18n.dashboard_placeholder_date}}"
+            readonly
+            is-link
+          />
+        </view>
+        <view bindtap="onOpenTimePicker">
+          <van-field
+            label="{{i18n.dashboard_field_time}}"
+            value="{{selectedClock}}"
+            placeholder="{{i18n.dashboard_placeholder_time}}"
+            readonly
+            is-link
+          />
+        </view>
+      </van-cell-group>
+      <van-button type="info" block custom-style="margin-top: 24rpx;" bind:tap="onSubmitShift">{{i18n.dashboard_confirm_create}}</van-button>
+    </view>
+  </van-popup>
+
+  <!-- 智能推荐弹窗 -->
+  <van-popup show="{{showSuggestPopup}}" position="bottom" round closeable bind:close="onCloseSuggestPopup" custom-style="max-height: 85vh;">
+    <view class="suggest-popup">
+      <view class="suggest-title">{{i18n.suggest_title}}</view>
+
+      <view wx:if="{{suggestLoading}}" class="suggest-loading">
+        <van-loading size="24px">{{i18n.suggest_loading}}</van-loading>
+      </view>
+
+      <view wx:elif="{{!suggestions.length}}" class="suggest-empty">
+        <van-empty description="{{i18n.suggest_empty_desc}}" />
+      </view>
+
+      <view wx:else>
+        <view class="suggest-toolbar">
+          <text class="suggest-toggle" bindtap="onToggleSelectAll">
+            {{allSuggestionsSelected ? i18n.suggest_deselect_all : i18n.suggest_select_all}}
+          </text>
+        </view>
+
+        <scroll-view scroll-y class="suggest-scroll-list">
+          <view
+            wx:for="{{suggestions}}"
+            wx:key="index"
+            class="suggest-card {{item.selected ? 'selected' : ''}}"
+            data-index="{{index}}"
+          >
+            <view class="suggest-card-header" data-index="{{index}}" bindtap="onToggleSuggestion">
+              <view class="suggest-checkbox">
+                <van-checkbox value="{{item.selected}}" shape="square" />
+              </view>
+              <view class="suggest-card-info">
+                <view class="suggest-window-time">
+                  {{item.windowStartText}} — {{item.windowEndText}}
+                </view>
+                <view class="suggest-student-count">
+                  {{item.studentCountText}}
+                </view>
+              </view>
+            </view>
+            <view class="suggest-expand-btn" data-index="{{index}}" bindtap="onToggleSuggestionExpand">
+              <text>{{item.expanded ? i18n.suggest_collapse : i18n.suggest_expand}}</text>
+            </view>
+            <view wx:if="{{item.expanded}}" class="suggest-students">
+              <view wx:for="{{item.students}}" wx:for-item="stu" wx:key="request_id" class="suggest-student-item">
+                <text class="stu-name">{{stu.name || '—'}}</text>
+                <text class="stu-flight">{{stu.flight_no}}</text>
+                <text class="stu-time">{{stu.arrival_time}}</text>
+              </view>
+            </view>
+          </view>
+        </scroll-view>
+
+        <view class="suggest-footer">
+          <van-button
+            type="warning"
+            block
+            disabled="{{!selectedSuggestionCount}}"
+            bind:tap="onBatchCreateFromSuggestions"
+          >
+            {{selectedSuggestionCount ? suggestCreateBtnText : i18n.suggest_none_selected}}
+          </van-button>
+        </view>
+      </view>
+    </view>
+  </van-popup>
+
+  <van-popup show="{{showDriverPicker}}" position="bottom" z-index="2000" root-portal bind:close="onCancelDriverPicker">
     <van-picker
-      title="选择司机"
+      title="{{i18n.dashboard_field_driver}}"
       show-toolbar
       columns="{{pickerColumns}}"
       bind:confirm="onConfirmDriver"
@@ -119,10 +191,10 @@
     />
   </van-popup>
 
-  <van-popup show="{{showDatePicker}}" position="bottom" bind:close="onCancelDatePicker">
+  <van-popup show="{{showDatePicker}}" position="bottom" z-index="2000" root-portal bind:close="onCancelDatePicker">
     <van-datetime-picker
       type="date"
-      title="发车日期"
+      title="{{i18n.dashboard_field_date}}"
       show-toolbar
       min-date="{{minDateTs}}"
       value="{{selectedDateTs}}"
@@ -131,14 +203,22 @@
     />
   </van-popup>
 
-  <van-popup show="{{showTimePicker}}" position="bottom" bind:close="onCancelTimePicker">
+  <van-popup show="{{showTimePicker}}" position="bottom" z-index="2000" root-portal bind:close="onCancelTimePicker">
     <van-datetime-picker
       type="time"
-      title="发车时刻"
+      title="{{i18n.dashboard_field_time}}"
       show-toolbar
       value="{{selectedClock}}"
       bind:confirm="onConfirmTime"
       bind:cancel="onCancelTimePicker"
     />
   </van-popup>
+
+  <van-calendar
+    show="{{showCalendar}}"
+    bind:confirm="onCalendarConfirm"
+    bind:close="onCalendarClose"
+    type="single"
+    default-date="{{calendarDefaultDate}}"
+  />
 </view>
