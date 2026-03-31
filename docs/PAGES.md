@@ -1,7 +1,7 @@
 # 页面地图（PAGES.md）
 
-> 最后更新：2026-03-08  
-> 分支：claw_dev
+> 最后更新：2026-03-31  
+> 分支：v1-stable
 
 ---
 
@@ -137,6 +137,31 @@
   - `getModificationRequests(status?)`
   - `approveModification(id)`
   - `rejectModification(id, adminNote?)`
+
+### pages/admin/all-shifts/index — 全部班次页
+- **功能**：
+  1. 分页浏览所有班次（含分页加载更多）
+  2. 按状态筛选（全部 / 已发布 / 草稿），显示各状态计数
+  3. 多维排序（按时间 / 座位 / 状态）
+  4. 使用 shift-card 组件展示班次卡片
+- **角色**：admin / staff
+- **API**：`getDashboard(date, page, pageSize, status)`
+- **跳出**：`pages/admin/shift-detail/index`
+
+### pages/admin/student-mgmt/index — 学生管理页
+- **功能**：
+  1. 按状态筛选预约（待分配 / 已分配 / 全部），支持搜索
+  2. 查看学生预约详情（航班/到达时间/行李/已分配班次）
+  3. 推荐可用班次并一键分配
+  4. 重新分配：将学生从当前班次移至另一班次
+  5. 取消分配：将学生移回待分配池
+- **角色**：admin / staff
+- **API**：
+  - `getManageRequests(tab, search, page, pageSize)`
+  - `getRecommendShifts(requestId, limit)`
+  - `assignRequestToShift(requestId, shiftId)`
+  - `reassignRequest(requestId, shiftId)`
+  - `removeStudent(shiftId, requestId)`
 
 ### pages/driver/index — 司机工作台
 - **功能**：
